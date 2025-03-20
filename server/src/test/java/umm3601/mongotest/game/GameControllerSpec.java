@@ -59,6 +59,7 @@ public class GameControllerSpec {
       gameController.getGame(mockContext);
     } catch (io.javalin.http.BadRequestResponse e) {
       verify(mockContext).status(HttpStatus.BAD_REQUEST);
+      //random comment
     }
   }
 

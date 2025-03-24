@@ -23,7 +23,7 @@ describe('GameComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             paramMap: of({
-              get: (key: string) => 'test-id'
+              get: () => 'test-id'
             }),
             queryParams: of({}),
             fragment: of(''),

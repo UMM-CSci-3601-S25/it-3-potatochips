@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
+import org.bson.BsonArray;
+import org.bson.BsonString;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterAll;
@@ -34,34 +36,44 @@ import com.mongodb.client.MongoDatabase;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.validation.BodyValidator;
+import umm3601.game.Game;
 import umm3601.game.GameController;
 // import io.javalin.validation.ValidationException;
 import io.javalin.json.JavalinJackson;
 
 class GameControllerSpec {
 
-  private GameController gameController;
+  private ObjectId gameID;
 
-  private static MongoClient mongoClient;
-  private static MongoDatabase db;
 
-  private static JavalinJackson javalinJackson = new JavalinJackson();
 
-  @Mock
-  private Context ctx;
+    private GameController gameController;
 
-  @Captor
-  private ArgumentCaptor<Map<String, String>> mapCaptor;
+    private static MongoClient mongoClient;
+    private static MongoDatabase db;
 
-  @BeforeAll
-  static void setupAll() {
-    String mongoAddr = System.getenv().getOrDefault("MONGO_ADDR", "localhost");
+    private static JavalinJackson javalinJackson = new JavalinJackson();
 
-    mongoClient = MongoClients.create(
-        MongoClientSettings.builder()
-            .applyToClusterSettings(builder -> builder.hosts(Collections.singletonList(new ServerAddress(mongoAddr))))
-            .build());
-    db = mongoClient.getDatabase("test");
+    @Mock
+    private Context ctx;
+
+    @Captor
+    private ArgumentCaptor<Map<String, String>> mapCaptor;
+
+    @Captor
+    private ArgumentCaptor<Game> gameCaptor;
+
+    @BeforeAll
+    static void setupAll() {
+      String mongoAddr = System.getenv().getOrDefault("MONGO_ADDR", "localhost");
+
+      mongoClient = MongoClients.create(
+          MongoClientSettings.builder()
+              .applyToClusterSettings(builder -> builder.hosts(Collections.singletonList(new ServerAddress(mongoAddr))))
+              .build());
+      db = mongoClient.getDatabase("test");
+
+
   }
 
   @AfterAll
@@ -79,37 +91,75 @@ class GameControllerSpec {
 
     gameController = new GameController(db);
 
-    Document newGame = new Document();
-    newGame.append("players", new String[]{"Alice", "Bob"});
-    newGame.append("prompt", "What is the meaning of life?");
-    newGame.append("responses", new String[]{"42", "To be happy"});
-    newGame.append("judge", 1);
-    newGame.append("discardLast", true);
-    newGame.append("winnerBecomesJudge", false);
+    gameID = new ObjectId();
+
+
+    BsonArray usernames = new BsonArray();
+    usernames.add(new BsonString("Kristin"));
+    usernames.add(new BsonString("Jeff"));
+
+    BsonArray responses = new BsonArray();
+    responses.add(new BsonString("apple"));
+    responses.add(new BsonString("banana"));
+    responses.add(new BsonString("grape"));
+
+    Document newGame = new Document()
+      .append("players", usernames)
+      .append("prompt", "What is the meaning of life?")
+      .append("responses", responses)
+      .append("judge", 1)
+      .append("discardLast", true)
+      .append("winnerBecomesJudge", false)
+      .append("_id", gameID);
+
+
+    // test_id = new ObjectId("67c74ff45818e91bd07be91b");
+
+    gameDocuments.insertOne(newGame);
 
   }
+
+
+
+
+  // @Test
+  // void testGetGame() {
+
+
+  //   ObjectId Test_id = new ObjectId("67c74ff45818e91bd07be91b");
+
+
+  //   when(ctx.pathParam("67c74ff45818e91bd07be91b")).thenReturn(Test_id.toHexString());
+
+
+  //   System.out.println(Test_id.toHexString());
+
+  //   gameController.getGame(ctx);
+
+  //   verify(ctx).json(mapCaptor.capture());
+  //   assertEquals(Test_id.toHexString(), mapCaptor.getValue().get("67c74ff45818e91bd07be91b"));
+  //   verify(ctx).status(HttpStatus.OK);
+
+  // }
+
+
 
 
 
 
   @Test
-  void testGetGame() {
-    when(ctx.pathParam("id")).thenReturn("12345");
+  void getUserWithExistentId() throws IOException {
 
-// <<<<<<< HEAD
+    String id = gameID.toHexString();
+    when(ctx.pathParam("id")).thenReturn(id);
+
     gameController.getGame(ctx);
 
-    verify(ctx).json(mapCaptor.capture());
-    assertEquals("12345", mapCaptor.getValue().get("id"));
+    verify(ctx).json(gameCaptor.capture());
     verify(ctx).status(HttpStatus.OK);
-// // =======
-//     try {
-//       gameController.getGame(mockContext);
-//     } catch (io.javalin.http.BadRequestResponse e) {
-//       verify(mockContext).status(HttpStatus.BAD_REQUEST);
-//       //random comment
-//     }
-// >>>>>>> 12d3fa717a325a26b8ab5bf2ebacde1ca5e1bc1a
+    assertEquals(gameID.toHexString(), gameCaptor.getValue()._id);
   }
+
+
 
  }

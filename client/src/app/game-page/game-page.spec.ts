@@ -1,7 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { GameComponent } from './game-page'
+import { ActivatedRoute } from '@angular/router';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { of } from 'rxjs';
+import { GameComponent } from './game-page';
 
 describe('GameComponent', () => {
   let component: GameComponent;
@@ -12,7 +15,33 @@ describe('GameComponent', () => {
       imports: [
         BrowserAnimationsModule,
         MatCardModule,
-        GameComponent
+        HttpClientTestingModule,
+        GameComponent // Import GameComponent instead of declaring it
+      ],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            paramMap: of({
+              get: (key: string) => 'test-id'
+            }),
+            queryParams: of({}),
+            fragment: of(''),
+            data: of({}),
+            url: of([]),
+            outlet: 'primary',
+            routeConfig: {},
+            parent: null,
+            firstChild: null,
+            children: [],
+            pathFromRoot: [],
+            root: null,
+            snapshot: {
+              paramMap: {
+              }
+            }
+          }
+        }
       ]
     })
       .compileComponents();
@@ -21,6 +50,7 @@ describe('GameComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(GameComponent);
     component = fixture.componentInstance;
+    component.prompt = ''; // Initialize the prompt property
     fixture.detectChanges();
   });
 

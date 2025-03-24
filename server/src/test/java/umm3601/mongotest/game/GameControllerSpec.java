@@ -96,11 +96,20 @@ class GameControllerSpec {
   void testGetGame() {
     when(ctx.pathParam("id")).thenReturn("12345");
 
+// <<<<<<< HEAD
     gameController.getGame(ctx);
 
     verify(ctx).json(mapCaptor.capture());
     assertEquals("12345", mapCaptor.getValue().get("id"));
     verify(ctx).status(HttpStatus.OK);
+// // =======
+//     try {
+//       gameController.getGame(mockContext);
+//     } catch (io.javalin.http.BadRequestResponse e) {
+//       verify(mockContext).status(HttpStatus.BAD_REQUEST);
+//       //random comment
+//     }
+// >>>>>>> 12d3fa717a325a26b8ab5bf2ebacde1ca5e1bc1a
   }
 
  }

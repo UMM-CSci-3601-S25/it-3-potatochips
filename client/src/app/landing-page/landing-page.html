@@ -2,22 +2,19 @@
   <div class="flex-1">
     <mat-card class="home-card">
       <mat-card-content>
-
-          <button (click)="createGame()">
-            Create New Game
-          </button>
-
+        <button id="create-game" (click)="createGame()">
+          Create New Game
+        </button>
       </mat-card-content>
     </mat-card>
     <mat-card class="home-card">
       <mat-card-content>
         <input type="text" [(ngModel)]="joinId">
-        <a routerLink="/game/{{joinId}}">
-          <button>
+        <a [routerLink]="['/game', joinId]">
+          <button id="join-game">
             Join Game
           </button>
         </a>
-
       </mat-card-content>
     </mat-card>
   </div>

@@ -21,6 +21,7 @@ import { HttpClient } from '@angular/common/http';
   imports: [MatCardModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, MatCheckboxModule]
 })
 export class GameComponent {
+  prompt: string = ''; // Initialize the prompt property
   game = toSignal(
     this.route.paramMap.pipe(
       // Map the paramMap into the id

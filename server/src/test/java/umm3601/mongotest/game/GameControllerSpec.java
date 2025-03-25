@@ -1,8 +1,8 @@
 package umm3601.mongotest.game;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+// import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
+// import static org.mockito.Mockito.mock;
 // import static org.junit.jupiter.api.Assertions.assertThrows;
 // import static org.mockito.ArgumentMatchers.any;
 // import static org.mockito.Mockito.mock;
@@ -33,17 +33,17 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-import io.javalin.Javalin;
+// import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
 // import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
-import io.javalin.validation.BodyValidator;
+// import io.javalin.validation.BodyValidator;
 import umm3601.game.Game;
 import umm3601.game.GameController;
 // import io.javalin.validation.ValidationException;
-import io.javalin.json.JavalinJackson;
+// import io.javalin.json.JavalinJackson;
 
 class GameControllerSpec {
 
@@ -56,7 +56,7 @@ class GameControllerSpec {
     private static MongoClient mongoClient;
     private static MongoDatabase db;
 
-    private static JavalinJackson javalinJackson = new JavalinJackson();
+    // private static JavalinJackson javalinJackson = new JavalinJackson();
 
     @Mock
     private Context ctx;

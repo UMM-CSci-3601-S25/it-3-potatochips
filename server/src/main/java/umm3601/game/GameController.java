@@ -54,7 +54,6 @@ public class GameController implements Controller {
   public void addRoutes(Javalin server) {
     server.get(API_GAME_BY_ID, this::getGame);
     server.post(API_GAMES, this::addNewGame);
-    server.get(API_NUMBER_OF_GAMES, this::numGames);
   }
 
   public void addNewGame(Context ctx) {
@@ -66,7 +65,4 @@ public class GameController implements Controller {
     ctx.status(HttpStatus.CREATED);
   }
 
-  public void numGames(Context ctx) {
-    return;
-  }
 }

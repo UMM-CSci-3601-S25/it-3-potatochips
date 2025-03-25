@@ -23,7 +23,6 @@ public class GameController implements Controller {
 
   private static final String API_GAME_BY_ID = "/api/game/{id}";
   private static final String API_GAMES = "/api/game/new";
-  private static final String API_NUMBER_OF_GAMES = "/api/game/number";
   private final JacksonMongoCollection<Game> gameCollection;
 
   public GameController(MongoDatabase database) {

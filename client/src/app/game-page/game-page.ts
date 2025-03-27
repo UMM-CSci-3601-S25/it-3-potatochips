@@ -48,7 +48,8 @@ export class GameComponent {
     ));
   error = signal({help: '', httpResponse: '', message: ''});
   submit() {
-    this.httpClient.put<Game>('/api/game/submit', {prompt: this.submission});
+    const gameId = this.route.snapshot.paramMap.get('id');
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
   }
 
   submission = "";
@@ -59,7 +60,7 @@ export class GameComponent {
     if (this.usernameInput.trim()) {
       this.username = this.usernameInput.trim(); // Update the displayed username
       this.players.push(this.username); // Add the username to the players array
-      this.usernameInput = ""; // Clear the input field
+      // this.usernameInput = ""; // Clear the input field
     }
   }
 
@@ -75,7 +76,7 @@ export class GameComponent {
 
       // Send a request to the server to add the player to the game object
       const gameId = this.route.snapshot.paramMap.get('id'); // Get the current game ID
-      this.httpClient.post(`/api/game/${gameId}/addPlayer`, playerName).subscribe({
+      this.httpClient.put(`/api/game/edit/${gameId}`, playerName).subscribe({
         next: () => {
           console.log(`Player ${playerName} added to the game.`);
         },
@@ -83,8 +84,6 @@ export class GameComponent {
           console.error(`Failed to add player ${playerName}:`, err);
         }
       });
-
-      this.newPlayer = ""; // Clear the input field
     }
   }
 

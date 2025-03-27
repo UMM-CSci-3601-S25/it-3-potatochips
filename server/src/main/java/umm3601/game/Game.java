@@ -16,4 +16,11 @@ public class Game {
   public int[] scores;
   public boolean discardLast;
   public boolean winnerBecomesJudge;
+
+  public void addPlayer(String playerName) {
+    String[] updatedPlayers = new String[players.length + 1];
+    System.arraycopy(players, 0, updatedPlayers, 0, players.length);
+    updatedPlayers[players.length] = playerName;
+    players = updatedPlayers;
+  }
 }

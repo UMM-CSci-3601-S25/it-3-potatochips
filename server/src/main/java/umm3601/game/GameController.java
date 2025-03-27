@@ -24,6 +24,7 @@ public class GameController implements Controller {
   private static final String API_GAME_BY_ID = "/api/game/{id}";
   private static final String API_GAMES = "/api/game/new";
   private static final String API_NUMBER_OF_GAMES = "/api/game/number";
+  private static final String API_ADD_PLAYER = "/api/game/{id}/addPlayer";
   private final JacksonMongoCollection<Game> gameCollection;
 
   public GameController(MongoDatabase database) {
@@ -55,6 +56,7 @@ public class GameController implements Controller {
     server.get(API_GAME_BY_ID, this::getGame);
     server.post(API_GAMES, this::addNewGame);
     server.get(API_NUMBER_OF_GAMES, this::numGames);
+    server.post(API_ADD_PLAYER, this::addPlayer);
   }
 
   public void addNewGame(Context ctx) {
@@ -68,5 +70,20 @@ public class GameController implements Controller {
 
   public void numGames(Context ctx) {
     return;
+  }
+
+  public void addPlayer(Context ctx) {
+    String id = ctx.pathParam("id");
+    String playerName = ctx.bodyValidator(String.class).get();
+
+    Game game = gameCollection.find(eq("_id", new ObjectId(id))).first();
+    if (game == null) {
+      throw new NotFoundResponse("The requested game was not found");
+    }
+
+    game.addPlayer(playerName); // Add the player to the game object
+    gameCollection.replaceOne(eq("_id", new ObjectId(id)), game); // Update the game in the database
+
+    ctx.status(HttpStatus.OK);
   }
 }

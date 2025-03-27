@@ -222,7 +222,7 @@ public class Server {
    */
 
   private void handleMessage(WsContext ctx, String message){
-    if (message.startsWith("host:")) {
+    if (message.startsWith("create:")) {
       String gameCode = UUID.randomUUID().toString().substring(0, 10); //A unique 6-character game
       // code is generated using UUID to ensure uniqueness.
 

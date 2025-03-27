@@ -25,7 +25,7 @@ public class GameController implements Controller {
 
   private static final String API_GAME_BY_ID = "/api/game/{id}";
   private static final String API_NEW_GAME = "/api/game/new";
-  private static final String API_EDIT_GAME = "/api/game/edit";
+  private static final String API_EDIT_GAME = "/api/game/edit/{id}";
   private final JacksonMongoCollection<Game> gameCollection;
 
   public GameController(MongoDatabase database) {
@@ -69,12 +69,17 @@ public class GameController implements Controller {
   }
 
   public void editGame(Context ctx) {
-    Game newGame = ctx.bodyValidator(Game.class).get();
-    Document newGameDoc = Document.parse(ctx.json(newGame));
+    // Game newGame = ctx.bodyValidator(Game.class).get();
+    Document newGameDoc = Document.parse(ctx.body());
     String id = ctx.pathParam("id");
-    String newGameString = EJSON.stringify(gameCollection.find(eq("_id", new ObjectId(id))).first());
-    Game oldGame = gameCollection.find(eq("_id", new ObjectId(id))).first();
-    gameCollection.updateById(id, newGameDoc);
+    // Game oldGame = gameCollection.find(eq("_id", new ObjectId(id))).first();
+
+    // if (oldGame == null) {
+    //   throw new NotFoundResponse("The game with the specified ID was not found.");
+    // }
+
+    gameCollection.updateById(new ObjectId(id), newGameDoc);
+    ctx.status(HttpStatus.OK);
   }
 
 }

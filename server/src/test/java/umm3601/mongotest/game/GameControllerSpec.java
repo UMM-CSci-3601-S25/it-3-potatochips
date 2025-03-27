@@ -39,6 +39,7 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
+import io.javalin.validation.BodyValidator;
 // import io.javalin.validation.BodyValidator;
 import umm3601.game.Game;
 import umm3601.game.GameController;
@@ -163,15 +164,15 @@ class GameControllerSpec {
 
 
 
-  @Test
-  void testAddRouts() {
-    // Javalin javalin = mock(Javalin.class);
-    // gameController.addRoutes(javalin);
-    // gameController.addRoutes(javalin);
-    // verify(javalin).get("/api/game/{id}", gameController::getGame);
-    // verify(javalin).post("/api/game/new", gameController::addNewGame);
-    // verify(javalin).get("/api/game/number", gameController::numGames);
-  }
+  // @Test
+  // void testAddRouts() {
+  //   // Javalin javalin = mock(Javalin.class);
+  //   // gameController.addRoutes(javalin);
+  //   // gameController.addRoutes(javalin);
+  //   // verify(javalin).get("/api/game/{id}", gameController::getGame);
+  //   // verify(javalin).post("/api/game/new", gameController::addNewGame);
+  //   // verify(javalin).get("/api/game/number", gameController::numGames);
+  // }
 
 
 
@@ -181,4 +182,38 @@ class GameControllerSpec {
   //   verify(ctx).json(mapCaptor.capture());
   //   assertEquals(1, mapCaptor.getValue().size());
   // }
+
+
+  @Test
+  void editGameWithExistentId() throws IOException {
+    String id = gameID.toHexString();
+    when(ctx.pathParam("id")).thenReturn(id);
+
+    Document updatedGame = new Document("$set", new Document()
+        .append("prompt", "Updated prompt")
+        .append("judge", 2));
+    when(ctx.body()).thenReturn(updatedGame.toJson());
+
+    gameController.editGame(ctx);
+
+    verify(ctx).status(HttpStatus.OK);
+    verify(ctx).body();
+  }
+
+
+  @Test
+  void editGameWithNonexistentId() throws IOException {
+    String id = new ObjectId().toHexString();
+    when(ctx.pathParam("id")).thenReturn(id);
+
+    Document updatedGame = new Document()
+        .append("prompt", "Updated prompt")
+        .append("judge", 2);
+    when(ctx.body()).thenReturn(updatedGame.toJson());
+
+    assertThrows(IllegalArgumentException.class, () -> {
+      gameController.editGame(ctx);
+    });
+  }
+
  }

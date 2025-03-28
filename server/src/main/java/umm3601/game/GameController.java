@@ -2,7 +2,9 @@ package umm3601.game;
 
 import java.util.Map;
 
+import org.bson.Document;
 import org.bson.UuidRepresentation;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.mongojack.JacksonMongoCollection;
 
@@ -22,9 +24,8 @@ import umm3601.Controller;
 public class GameController implements Controller {
 
   private static final String API_GAME_BY_ID = "/api/game/{id}";
-  private static final String API_GAMES = "/api/game/new";
-  private static final String API_NUMBER_OF_GAMES = "/api/game/number";
-  private static final String API_ADD_PLAYER = "/api/game/{id}/addPlayer";
+  private static final String API_NEW_GAME = "/api/game/new";
+  private static final String API_EDIT_GAME = "/api/game/edit/{id}";
   private final JacksonMongoCollection<Game> gameCollection;
 
   public GameController(MongoDatabase database) {
@@ -54,9 +55,8 @@ public class GameController implements Controller {
 
   public void addRoutes(Javalin server) {
     server.get(API_GAME_BY_ID, this::getGame);
-    server.post(API_GAMES, this::addNewGame);
-    server.get(API_NUMBER_OF_GAMES, this::numGames);
-    server.post(API_ADD_PLAYER, this::addPlayer);
+    server.post(API_NEW_GAME, this::addNewGame);
+    server.put(API_EDIT_GAME, this::editGame);
   }
 
   public void addNewGame(Context ctx) {
@@ -68,22 +68,18 @@ public class GameController implements Controller {
     ctx.status(HttpStatus.CREATED);
   }
 
-  public void numGames(Context ctx) {
-    return;
-  }
-
-  public void addPlayer(Context ctx) {
+  public void editGame(Context ctx) {
+    // Game newGame = ctx.bodyValidator(Game.class).get();
+    Document newGameDoc = Document.parse(ctx.body());
     String id = ctx.pathParam("id");
-    String playerName = ctx.bodyValidator(String.class).get();
+    // Game oldGame = gameCollection.find(eq("_id", new ObjectId(id))).first();
 
-    Game game = gameCollection.find(eq("_id", new ObjectId(id))).first();
-    if (game == null) {
-      throw new NotFoundResponse("The requested game was not found");
-    }
+    // if (oldGame == null) {
+    //   throw new NotFoundResponse("The game with the specified ID was not found.");
+    // }
 
-    game.addPlayer(playerName); // Add the player to the game object
-    gameCollection.replaceOne(eq("_id", new ObjectId(id)), game); // Update the game in the database
-
+    gameCollection.updateById(new ObjectId(id), newGameDoc);
     ctx.status(HttpStatus.OK);
   }
+
 }

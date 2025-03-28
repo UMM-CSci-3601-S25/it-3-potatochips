@@ -16,6 +16,7 @@ public class Game {
   public int[] scores;
   public boolean discardLast;
   public boolean winnerBecomesJudge;
+  public int numPlayers;
 
   public void addPlayer(String playerName) {
     String[] updatedPlayers = new String[players.length + 1];

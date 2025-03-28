@@ -49,4 +49,5 @@ export class GameComponent {
     private route: ActivatedRoute,
     private httpClient: HttpClient
   ) {}
+
 }

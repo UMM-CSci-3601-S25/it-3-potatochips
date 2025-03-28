@@ -2,7 +2,9 @@ package umm3601.game;
 
 import java.util.Map;
 
+import org.bson.Document;
 import org.bson.UuidRepresentation;
+// import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.mongojack.JacksonMongoCollection;
 
@@ -22,8 +24,8 @@ import umm3601.Controller;
 public class GameController implements Controller {
 
   private static final String API_GAME_BY_ID = "/api/game/{id}";
-  private static final String API_GAMES = "/api/game/new";
-  private static final String API_NUMBER_OF_GAMES = "/api/game/number";
+  private static final String API_NEW_GAME = "/api/game/new";
+  private static final String API_EDIT_GAME = "/api/game/edit/{id}";
   private final JacksonMongoCollection<Game> gameCollection;
 
   public GameController(MongoDatabase database) {
@@ -53,7 +55,8 @@ public class GameController implements Controller {
 
   public void addRoutes(Javalin server) {
     server.get(API_GAME_BY_ID, this::getGame);
-    server.post(API_GAMES, this::addNewGame);
+    server.post(API_NEW_GAME, this::addNewGame);
+    server.put(API_EDIT_GAME, this::editGame);
   }
 
   public void addNewGame(Context ctx) {
@@ -63,6 +66,20 @@ public class GameController implements Controller {
 
     ctx.json(Map.of("id", newGame._id));
     ctx.status(HttpStatus.CREATED);
+  }
+
+  public void editGame(Context ctx) {
+    // Game newGame = ctx.bodyValidator(Game.class).get();
+    Document newGameDoc = Document.parse(ctx.body());
+    String id = ctx.pathParam("id");
+    // Game oldGame = gameCollection.find(eq("_id", new ObjectId(id))).first();
+
+    // if (oldGame == null) {
+    //   throw new NotFoundResponse("The game with the specified ID was not found.");
+    // }
+
+    gameCollection.updateById(new ObjectId(id), newGameDoc);
+    ctx.status(HttpStatus.OK);
   }
 
 }

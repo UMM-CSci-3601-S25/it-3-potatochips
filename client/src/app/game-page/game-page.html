@@ -8,8 +8,8 @@
       </mat-form-field>
     </mat-card>
     <h1 *ngIf="isPromptSubmitted" style="margin: 0 5%">{{ displayedPrompt }}</h1>
-    <ul style="display: flex"><li>strip</li><li>Bear</li><li>dARTH</li><li>the loraks</li><li>bbig</li></ul>
     <ul style="float: right; width: 25%; color: green"><li *ngFor="let player of players">{{ player }}</li></ul>
+    <ul style="display: flex"><li *ngFor="let res of responses">{{ res }}</li></ul>
     <mat-form-field>
       <input matInput type="text" [(ngModel)]="submission">
       <input type="submit" value="Submit Prompt" (click)="submitPrompt()">

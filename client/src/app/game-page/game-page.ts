@@ -48,15 +48,32 @@ export class GameComponent {
 
     ));
   error = signal({help: '', httpResponse: '', message: ''});
-  submit() {
+
+  submitPrompt() {
     const gameId = this.route.snapshot.paramMap.get('id');
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
+    console.log(this.submission);
+    this.isPromptSubmitted = true; // Mark the prompt as submitted
+    this.displayedPrompt = this.submission; // Store the submitted prompt
+    this.submission = ''; // Clear the input field
+  }
+
+  submitResponse() {
+    const gameId = this.route.snapshot.paramMap.get('id');
+    this.responses.push(this.response); // Add the new response to the array
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: this.response}}).subscribe();
+    console.log(this.response);
+    console.log(this.responses);
   }
 
   submission = "";
+  responses: string[] = [];
+  response = ""
   username = " ";
-  usernameInput: string = ""; // Input for username
-  numPlayers: number = 0; // Initialize numPlayers to 0
+  usernameInput: string = "";
+  numPlayers: number = 0;
+  isPromptSubmitted: boolean = false;
+  displayedPrompt: string = '';
 
   submitUsername() {
     if (this.usernameInput.trim()) {

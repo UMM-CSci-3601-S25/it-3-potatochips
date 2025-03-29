@@ -7,7 +7,6 @@ export interface Game {
   scores?: number[];
   discardLast?: boolean;
   winnerBecomesJudge?: boolean;
-  numPlayers: number;
 }
 
 

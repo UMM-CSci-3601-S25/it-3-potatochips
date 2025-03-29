@@ -56,16 +56,18 @@ export class GameComponent {
   submission = "";
   username = " ";
   usernameInput: string = ""; // Input for username
-  numPlayers: number;
+  numPlayers: number = 0; // Initialize numPlayers to 0
 
   submitUsername() {
     if (this.usernameInput.trim()) {
+      //console.log(this.players.length); // numbers of players before
       this.username = this.usernameInput.trim(); // Update the displayed username
-      this.players.push(this.username); // Add the username to the players array]
-      this.httpClient.put<Game>(`/api/game/edit/${this.route.snapshot.paramMap.get('id')}`, {$set:{players: this.players}}).subscribe();
-      console.log(this.players);
-      this.numPlayers = this.game()?.numPlayers;
-      console.log(this.numPlayers);
+      this.players.push(this.username); // Add the username to the players array
+      const gameId = this.route.snapshot.paramMap.get('id');
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{players: this.players}}).subscribe();
+      this.numPlayers = this.players.length; // Update the number of players
+      //console.log(this.players); // players name
+      //console.log(this.numPlayers); // number of players
     }
   }
 

@@ -82,4 +82,13 @@ public class GameController implements Controller {
     ctx.status(HttpStatus.OK);
   }
 
+
+  // used to update game settings from settings-page.ts, currently does not work (as far as i can tell)
+  public void updateGameSettings(Context ctx) {
+    String id = ctx.pathParam("id");
+    Document discardLast = Document.parse(ctx.body());
+
+    gameCollection.updateById(new ObjectId(id), new Document("$set", discardLast));
+    ctx.status(HttpStatus.OK);
+  }
 }

@@ -3,18 +3,20 @@
     <mat-card class="home-card">
       <mat-form-field>
         Username:
-        <input matInput type="text" value={{username}}>
+        <input matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter your username">
+        <button mat-raised-button color="primary" (click)="submitUsername()">Submit Username</button>
       </mat-form-field>
     </mat-card>
-    <ul class="player-list">
-    </ul>
-   <h1 style="margin: 0 5%">{{game()?.prompt}}</h1> <!-- Use optional chaining to safely access prompt -->
-   <ul style="display: flex"><li>strip</li><li>Bear</li><li>dARTH</li><li>the loraks</li><li>bbig</li></ul>
-   <ul style="float: right; width: 25%; color: green"><li>1 KK</li><li>2 Haider</li><li>0 James</li><li>1 Elliott</li><li>5 not the lorax [JUDGE]</li><li>3 teddy</li></ul>
-   <mat-form-field>
-    <input matInput type="text" [(ngModel)]="submission">
-    <input type="submit" value="Submit" (click)="submit()">
-  </mat-form-field>
-
+    <h1 *ngIf="isPromptSubmitted" style="margin: 0 5%">{{ displayedPrompt }}</h1>
+    <ul style="float: right; width: 25%; color: green"><li *ngFor="let player of players">{{ player }}</li></ul>
+    <ul style="display: flex"><li *ngFor="let response of responses">{{ response }}</li></ul>
+    <mat-form-field>
+      <input matInput type="text" [(ngModel)]="submission">
+      <input type="submit" value="Submit Prompt" (click)="submitPrompt()">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput type="text" [(ngModel)]="response">
+      <input type="submit" value="Submit Response" (click)="submitResponse()">
+    </mat-form-field>
   </div>
 </div>

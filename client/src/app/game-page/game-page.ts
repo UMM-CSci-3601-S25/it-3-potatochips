@@ -90,7 +90,13 @@ export class GameComponent {
 
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name
-  playerScores: { [key: string]: number } = {}; // Track scores for each player
+
+  selectResponse(i) {
+    const gameId = this.route.snapshot.paramMap.get('id');
+    const scores = this.game()?.scores;
+    scores[i]++;
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{scores: scores}}).subscribe();
+  }
 
   constructor(
     private route: ActivatedRoute,

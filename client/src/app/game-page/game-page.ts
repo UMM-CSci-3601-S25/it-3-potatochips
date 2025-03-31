@@ -82,21 +82,22 @@ export class GameComponent {
 
   submitUsername() {
     if (this.usernameInput.trim()) {
-      //console.log(this.players.length); // numbers of players before
       this.username = this.usernameInput.trim(); // Update the displayed username
-      this.players.push(this.username); // Add the username to the players array
       const gameId = this.route.snapshot.paramMap.get('id');
       const scores = this.game()?.scores.push(0);
       const responses = this.game()?.responses.push("");
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{players: this.players, scores: scores, responses: responses}}).subscribe();
+      const players = this.game()?.players.push(this.username);
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{players: players, scores: scores, responses: responses}}).subscribe();
       this.numPlayers = this.players.length; // Update the number of players
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
+      console.log(this.game()); // game object
     }
   }
 
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name
+
   selectResponse(i) {
     const gameId = this.route.snapshot.paramMap.get('id');
     const scores = this.game()?.scores;

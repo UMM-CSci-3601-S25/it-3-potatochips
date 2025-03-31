@@ -10,18 +10,21 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { Game } from '../game';
 import { HttpClient } from '@angular/common/http';
+import { MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-settings-page',
   templateUrl: 'settings-page.html',
   styleUrls: ['./settings-page.scss'],
   providers: [],
-  imports: [MatCardModule, RouterLink, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, MatCheckboxModule]
+  imports: [MatCardModule, RouterLink, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, MatCheckboxModule, MatSlideToggleModule]
 })
 export class SettingsComponent {
-  judgeOption = signal<string | undefined>(undefined);
+
+  judgeOption = signal<boolean | undefined>(false);
   private judgeOption$ = toObservable(this.judgeOption);
-  default = 'cycle';
+  // default = 'false';
+
   game = toSignal(
     this.route.paramMap.pipe(
       map((paramMap: ParamMap) => paramMap.get('id')),
@@ -42,4 +45,16 @@ export class SettingsComponent {
     private route: ActivatedRoute,
     private httpClient: HttpClient
   ) {}
+
+
+  updateGameSettings() {
+    // const winnerBecomesJudge = { winnerBecomesJudge: this.judgeOption() };
+    console.log(this.judgeOption());
+    const gameId = this.game()?._id;
+    if (gameId) {
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{winnerBecomesJudge: this.judgeOption()}}).subscribe();
+    }
+  }
+
+
 }

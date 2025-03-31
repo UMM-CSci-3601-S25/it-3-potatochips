@@ -52,7 +52,7 @@ export class GameComponent {
   submitPrompt() {
     const gameId = this.route.snapshot.paramMap.get('id');
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
-    console.log(this.submission);
+    //console.log(this.submission);
     this.isPromptSubmitted = true; // Mark the prompt as submitted
     this.displayedPrompt = this.submission; // Store the submitted prompt
     this.submission = ''; // Clear the input field
@@ -64,6 +64,11 @@ export class GameComponent {
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: this.responses}}).subscribe();
     //console.log(this.response);
     //console.log(this.responses);
+  }
+
+  onResponseClick(response: string) {
+    console.log(`Response clicked: ${response}`);
+    // Add any additional logic for handling the clicked response here
   }
 
   submission = "";
@@ -90,7 +95,16 @@ export class GameComponent {
 
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name
+  judge: number = 1; // Index of the current judge
   playerScores: { [key: string]: number } = {}; // Track scores for each player
+
+  nextJudge() {
+    const gameId = this.route.snapshot.paramMap.get('id');
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{judge: this.numPlayers}}).subscribe();
+    this.numPlayers = this.players.length; // Update the number of players
+    console.log(this.numPlayers); // number of players
+  }
+
 
   constructor(
     private route: ActivatedRoute,

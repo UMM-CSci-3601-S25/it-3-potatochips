@@ -9,7 +9,7 @@
     </mat-card>
     <h1 *ngIf="isPromptSubmitted" style="margin: 0 5%">{{ displayedPrompt }}</h1>
     <ul style="float: right; width: 25%; color: green"><li *ngFor="let player of players">{{ player }}</li></ul>
-    <ul style="display: flex"><li *ngFor="let res of responses">{{ res }}</li></ul>
+    <ul style="display: flex"><li *ngFor="let response of responses">{{ response }}</li></ul>
     <mat-form-field>
       <input matInput type="text" [(ngModel)]="submission">
       <input type="submit" value="Submit Prompt" (click)="submitPrompt()">

@@ -61,9 +61,9 @@ export class GameComponent {
   submitResponse() {
     const gameId = this.route.snapshot.paramMap.get('id');
     this.responses.push(this.response); // Add the new response to the array
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: this.response}}).subscribe();
-    console.log(this.response);
-    console.log(this.responses);
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: this.responses}}).subscribe();
+    //console.log(this.response);
+    //console.log(this.responses);
   }
 
   submission = "";

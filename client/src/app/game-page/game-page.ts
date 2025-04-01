@@ -104,14 +104,14 @@ export class GameComponent {
     const gameId = this.game()?._id;
     const scores = this.game()?.scores;
     scores[i]++;
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{scores: scores}}).subscribe();
+    // this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{scores: scores}}).subscribe();
 
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{pastResponses: this.game()?.responses}}).subscribe();
+    // this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{pastResponses: this.game()?.responses}}).subscribe();
     const responses: Array<string> = [];
     for (let j = 0; j < this.game()?.responses.length; j++) {
       responses.push("");
     }
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: responses}}).subscribe();
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{pastResponses: this.game()?.responses , scores: scores , responses: responses}}).subscribe();
 
 
     const winnerBecomesJudge = this.game()?.winnerBecomesJudge;

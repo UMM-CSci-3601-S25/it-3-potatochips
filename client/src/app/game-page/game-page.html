@@ -10,7 +10,7 @@
     <h1 *ngIf="isPromptSubmitted" style="margin: 0 5%">{{ displayedPrompt }}</h1>
     <ul style="float: right; width: 25%; color: green">
       <li *ngFor="let player of this.game()?.players; let i = index">
-        {{ this.game()?.scores[i] }} - {{ player }}
+        {{ this.game()?.scores[i] }} - {{ player }} - {{ this.game()?.pastResponses[i] }}
       </li>
     </ul>
     <ul style="display: flex"><li *ngFor="let response of this.game()?.responses; index as i"><button style="font-size: 1em;" (click)="selectResponse(i)"> {{ response }}</button></li></ul>

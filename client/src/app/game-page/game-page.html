@@ -13,7 +13,7 @@
         {{ this.game()?.scores[i] }} - {{ player }}
       </li>
     </ul>
-    <ul style="display: flex"><li *ngFor="let response of responses; index as i"><button style="font-size: 1em;" (click)="selectResponse(i)"> {{ response }}</button></li></ul>
+    <ul style="display: flex"><li *ngFor="let response of this.game()?.responses; index as i"><button style="font-size: 1em;" (click)="selectResponse(i)"> {{ response }}</button></li></ul>
     <mat-form-field>
       <input matInput type="text" [(ngModel)]="submission">
       <input type="submit" value="Submit Prompt" (click)="submitPrompt()">

@@ -16,4 +16,5 @@ public class Game {
   public int[] scores;
   public boolean discardLast;
   public boolean winnerBecomesJudge;
+  public String[] pastResponses;
 }

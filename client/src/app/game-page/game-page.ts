@@ -50,7 +50,7 @@ export class GameComponent {
   error = signal({help: '', httpResponse: '', message: ''});
 
   submitPrompt() {
-    const gameId = this.route.snapshot.paramMap.get('id');
+    const gameId = this.game()?._id;
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
     //console.log(this.submission);
     this.isPromptSubmitted = true; // Mark the prompt as submitted
@@ -59,8 +59,9 @@ export class GameComponent {
   }
 
   submitResponse() {
-    const gameId = this.route.snapshot.paramMap.get('id');
-    this.responses.push(this.response); // Add the new response to the array
+    const gameId = this.game()?._id;
+    const responses = this.game()?.responses;
+    responses.push(this.response); // Add the new response to the array
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: this.responses}}).subscribe();
     //console.log(this.response);
     //console.log(this.responses);
@@ -72,7 +73,6 @@ export class GameComponent {
   }
 
   submission = "";
-  responses: string[] = [];
   response = ""
   username = " ";
   usernameInput: string = "";
@@ -83,7 +83,7 @@ export class GameComponent {
   submitUsername() {
     if (this.usernameInput.trim()) {
       this.username = this.usernameInput.trim(); // Update the displayed username
-      const gameId = this.route.snapshot.paramMap.get('id');
+      const gameId = this.game()?._id;
       const scores = this.game()?.scores.push(0);
       const responses = this.game()?.responses.push("");
       const players = this.game()?.players.push(this.username);
@@ -99,10 +99,17 @@ export class GameComponent {
   newPlayer: string = ""; // Input for new player name
 
   selectResponse(i) {
-    const gameId = this.route.snapshot.paramMap.get('id');
+    const gameId = this.game()?._id;
     const scores = this.game()?.scores;
     scores[i]++;
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{scores: scores}}).subscribe();
+
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{pastResponses: this.game()?.responses}}).subscribe();
+    const responses: Array<string> = [];
+    for (let j = 0; j < this.game()?.responses.length; j++) {
+      responses.push("");
+    }
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: responses}}).subscribe();
   }
 
   nextJudge() {

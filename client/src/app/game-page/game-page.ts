@@ -98,6 +98,15 @@ export class GameComponent {
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name
 
+  nextJudge() {
+    const gameId = this.route.snapshot.paramMap.get('id');
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{judge: this.numPlayers}}).subscribe();
+    this.numPlayers = this.players.length; // Update the number of players
+    console.log(this.numPlayers); // number of player
+
+
+  }
+
   selectResponse(i) {
     const gameId = this.game()?._id;
     const scores = this.game()?.scores;
@@ -110,13 +119,24 @@ export class GameComponent {
       responses.push("");
     }
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: responses}}).subscribe();
-  }
 
-  nextJudge() {
-    const gameId = this.route.snapshot.paramMap.get('id');
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{judge: this.numPlayers}}).subscribe();
-    this.numPlayers = this.players.length; // Update the number of players
-    console.log(this.numPlayers); // number of players
+
+    const winnerBecomesJudge = this.game()?.winnerBecomesJudge;
+
+
+    if (winnerBecomesJudge) {
+      console.log("Winner becomes judge");
+      // player who got picked becomes the judge
+      // const judge = i;
+      // this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{judge: judge}}).subscribe();
+    } else {
+      console.log("Winner does not become judge");
+      // increase the judge number by 1 (each person is given an id and we go by order of lowest to highest to pick who the judge is)
+      const judge = ((this.game()?.judge + 1) % this.game()?.players.length);
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{judge: judge}}).subscribe();
+      console.log(this.game()?.judge); // game object
+    }
+
   }
 
 

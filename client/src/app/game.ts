@@ -5,7 +5,6 @@ export interface Game {
   responses?: string[];
   judge?: number;
   scores?: number[];
-  discardLast?: boolean;
   winnerBecomesJudge?: boolean;
 }
 

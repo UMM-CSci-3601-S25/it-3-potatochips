@@ -62,7 +62,7 @@ export class GameComponent {
     const gameId = this.game()?._id;
     const responses = this.game()?.responses;
     responses.push(this.response); // Add the new response to the array
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: this.responses}}).subscribe();
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: responses}}).subscribe();
     //console.log(this.response);
     //console.log(this.responses);
   }

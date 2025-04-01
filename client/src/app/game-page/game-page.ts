@@ -103,35 +103,39 @@ export class GameComponent {
   selectResponse(i) {
     const gameId = this.game()?._id;
     const scores = this.game()?.scores;
-    scores[i]++;
-    // this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{scores: scores}}).subscribe();
+    const pastResponses = this.game()?.pastResponses || [];
 
-    // this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{pastResponses: this.game()?.responses}}).subscribe();
+    // Increment the score for the selected response
+    scores[i]++;
+
+    // Append all responses to pastResponses
+    for (let j = 0; j < this.game()?.responses.length; j++) {
+      pastResponses[j] = this.game()?.responses[j];
+    }
+
+    // Clear the responses array for the next round
     const responses: Array<string> = [];
     for (let j = 0; j < this.game()?.responses.length; j++) {
       responses.push("");
     }
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{pastResponses: this.game()?.responses , scores: scores , responses: responses}}).subscribe();
 
+    // Update the game state on the server
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
+      $set: { pastResponses: pastResponses, scores: scores, responses: responses }
+    }).subscribe();
 
     const winnerBecomesJudge = this.game()?.winnerBecomesJudge;
 
-
     if (winnerBecomesJudge) {
       console.log("Winner becomes judge");
-      // player who got picked becomes the judge
-      // const judge = i;
-      // this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{judge: judge}}).subscribe();
+      // Logic for winner becoming the judge
     } else {
       console.log("Winner does not become judge");
-      // increase the judge number by 1 (each person is given an id and we go by order of lowest to highest to pick who the judge is)
       const judge = ((this.game()?.judge + 1) % this.game()?.players.length);
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{judge: judge}}).subscribe();
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: judge } }).subscribe();
       console.log(this.game()?.judge); // game object
     }
-
   }
-
 
   constructor(
     private route: ActivatedRoute,

@@ -119,6 +119,9 @@ export class GameComponent {
       responses.push("");
     }
 
+    // Reset the displayed responses array
+    this.game().responses = responses;
+
     // Update the game state on the server
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
       $set: { pastResponses: pastResponses, scores: scores, responses: responses }

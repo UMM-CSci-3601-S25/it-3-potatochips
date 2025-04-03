@@ -221,74 +221,87 @@ public class Server {
      Process messages like "judge:player1", "winner:player2", "nextRound"
    */
 
-  private void handleMessage(WsContext ctx, String message){
-    if (message.startsWith("create:")) {
-      String gameCode = UUID.randomUUID().toString().substring(0, 10); //A unique 6-character game
-      // code is generated using UUID to ensure uniqueness.
+   private void handleMessage(WsContext ctx, String message) {
+    try {
+        JSONObject json = new JSONObject(message);
+        String type = json.getString("type");
+        JSONObject data = json.getJSONObject("data");
 
-      gameConnections.put(gameCode, ConcurrentHashMap.newKeySet()); // A new entry is created in the gameConnections map, associating the
-      // generated gameCode with an empty set of WsContext objects
+        if (type.equals("create")) {
+            String gameCode = UUID.randomUUID().toString().substring(0, 10);
+            gameConnections.put(gameCode, ConcurrentHashMap.newKeySet());
+            gameConnections.get(gameCode).add(ctx);
+            clientsGames.put(ctx, gameCode);
+            gamePlayerScores.put(gameCode, new HashMap<>());
+            clientIds.forEach((key, value) -> gamePlayerScores.get(gameCode).put(value, 0));
 
-      gameConnections.get(gameCode).add(ctx); // The current client (ctx) will be added to the set of clients associated with the generated 'gameCode'
-      clientsGames.put(ctx, gameCode); // The 'clientGames' map will be updated to associate the current client (ctx) with the generated 'gameCode'.
+            JSONObject response = new JSONObject();
+            response.put("type", "gameCode");
+            JSONObject responseData = new JSONObject();
+            responseData.put("gameCode", gameCode);
+            response.put("data", responseData);
+            ctx.send(response.toString());
 
-      gamePlayerScores.put(gameCode, new HashMap<>()); // A new entry is created in 'gamePlayerScores', creating a HashMap to store the scores of the players in this game.
-      clientIds.forEach((key, value) -> {
-        gamePlayerScores.get(gameCode).put(value, 0);
-      }); // iterates through all the current connected clients, and adds them to the 'gamePlayerScores' hashmap, with an initial score of 0.
+        } else if (type.equals("join")) {
+            String gameCode = data.getString("gameCode");
+            if (gameConnections.containsKey(gameCode)) {
+                gameConnections.get(gameCode).add(ctx);
+                clientsGames.put(ctx, gameCode);
+                gamePlayerScores.get(gameCode).put(clientIds.get(ctx), 0);
+                JSONObject response = new JSONObject();
+                response.put("type", "joined");
+                JSONObject responseData = new JSONObject();
+                responseData.put("gameCode", gameCode);
+                response.put("data", responseData);
+                ctx.send(response.toString());
+            } else {
+                JSONObject response = new JSONObject();
+                response.put("type", "error");
+                JSONObject responseData = new JSONObject();
+                responseData.put("message", "Game not found");
+                response.put("data", responseData);
+                ctx.send(response.toString());
+            }
+        } else if (type.equals("judge")) {
+            currentJudge = data.getString("judgeName");
+            broadcastGameState(clientsGames.get(ctx));
+        } else if (type.equals("winner")) {
+            String winningPlayer = data.getString("winnerName");
+            playerScores.merge(winningPlayer, 1, Integer::sum);
+            roundWinner = winningPlayer;
+            broadcastGameState(clientsGames.get(ctx));
+        } else if (type.equals("nextRound")) {
+            currentRound++;
+            roundWinner = null;
+            broadcastGameState(clientsGames.get(ctx));
+        }
 
-      ctx.send("gameCode:" + gameCode); // The generated 'gameCode' is sent back to the client as a message, so they can share it with other players.
-
-      // logic for joining the game:
-    } else if (message.startsWith("join:")) {
-      String gameCode = message.substring(5); // The game code is extracted from the message (after the "join:" prefix).
-
-      if (gameConnections.containsKey(gameCode)) { //  Checks if a game with the extracted gameCode exists.
-        gameConnections.get(gameCode).add(ctx);
-        clientsGames.put(ctx, gameCode);
-        gamePlayerScores.get(gameCode).put(clientIds.get(ctx), 0); // The joining player is added to the gamePlayerScores hashmap with an initial score of zero.
-        ctx.send("joined:" + gameCode); // A confirmation message is sent back to the client.
-
-      } else {
-        ctx.send("error:Game not found");
-      }
-        // logic for the judge
-    } else if (message.startsWith("judge:")) {
-      currentJudge = message.substring(6);
-      broadcastGameState(clientsGames.get(ctx));
-
-    }else if (message.startsWith("Winner:")) {
-      String winningPlayer = message.substring(7);
-      playerScores.merge(winningPlayer, 1, Integer::sum);
-      roundWinner = winningPlayer;
-      broadcastGameState(clientsGames.get(ctx));
-
-      // here we are checking for the game winner logic, and then update the gameWinner
-    }else if (message.equals("nextRound")) {
-      currentRound++;
-      roundWinner = null;
-      broadcastGameState(clientsGames.get(ctx));
-
+        broadcastMessage(message);
+      } catch (Exception e) {
+        System.err.println("Error processing message: " + message);
+        e.printStackTrace();
     }
-    broadcastMessage(message);
-  }
+}
 
-  private void broadcastGameState(String gameCode) {
-    if (gameCode == null || !gameConnections.containsKey((gameCode))) {
+private void broadcastGameState(String gameCode) {
+  if (gameCode == null || !gameConnections.containsKey(gameCode)) {
       return;
-    }
-    Map<String, Object> gameState = new HashMap<>();
-    gameState.put("currentRound", currentRound);
-    gameState.put("playerScores", playerScores);
-    gameState.put("currentJudge", currentJudge);
-    gameState.put("roundWinner", roundWinner);
-    gameState.put("gameWinner", gameWinner);
-
-    JSONObject jsonObject = new JSONObject(gameState);
-    String gameStateJson = jsonObject.toString();
-    broadcastMessage(gameStateJson);
-
   }
+
+  JSONObject gameState = new JSONObject();
+  gameState.put("type", "gameState");
+
+  JSONObject data = new JSONObject();
+  data.put("currentRound", currentRound);
+  data.put("playerScores", playerScores);
+  data.put("currentJudge", currentJudge);
+  data.put("roundWinner", roundWinner);
+  data.put("gameWinner", gameWinner);
+
+  gameState.put("data", data);
+
+  broadcastMessage(gameState.toString());
+}
    /**
    * Broadcast a message to all connected WebSocket clients.
    *

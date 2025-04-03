@@ -128,7 +128,8 @@ export class GameComponent {
   shuffleArray() {
     this.playerPerm = [];
     for (let i = 0; i < this.game()?.players.length; i++) {
-      this.playerPerm.push(i);
+      if (i != this.game()?.judge)
+        this.playerPerm.push(i);
     }
     for (let i = this.playerPerm.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -140,7 +141,7 @@ export class GameComponent {
     const gameId = this.game()?._id;
     const scores = this.game()?.scores;
     const pastResponses = this.game()?.pastResponses || [];
-    scores[i]++;
+    scores[this.playerPerm[i]]++;
 
     // Append all responses to pastResponses
     for (let j = 0; j < this.game()?.responses.length; j++) {

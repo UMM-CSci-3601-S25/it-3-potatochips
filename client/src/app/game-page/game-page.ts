@@ -72,6 +72,8 @@ export class GameComponent {
 
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } }).subscribe();
     this.response = ''; // Clear the input field
+
+
   }
   submission = "";
   response = ""
@@ -166,6 +168,15 @@ export class GameComponent {
         gameId?: string;
         playerName?: string;
 
+        players?: string[];
+        prompt?: string;
+        responses?: string[];
+        judge?: number;
+        scores?: number;
+        winnerBecomesJudge?: boolean;
+        pastResponses?: string[];
+
+      }
       };
     }
     )

@@ -15,6 +15,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { WebSocketService } from './websocket.service';
 
+
 @Component({
   selector: 'app-game-page',
   templateUrl: 'game-page.html',
@@ -31,6 +32,7 @@ import { WebSocketService } from './websocket.service';
   ]
 })
 export class GameComponent {
+  webSocketService = Inject(WebSocketService);
   prompt: string = ''; // Initialize the prompt property
   game = toSignal(
     this.route.paramMap.pipe(
@@ -94,7 +96,18 @@ export class GameComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private httpClient: HttpClient
-  ) {}
+    private httpClient: HttpClient,
 
+
+  ) {
+    this.webSocketService.getMessage().subscribe((message: unknown) => {
+      const msg = message as {
+        type?: string;
+        gameId?: string;
+        playerName?: string;
+
+      };
+    }
+    )
+  }
 }

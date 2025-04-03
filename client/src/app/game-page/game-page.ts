@@ -110,6 +110,10 @@ export class GameComponent {
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name
 
+  getResponses() {
+    return this.game()?.responses;
+  }
+
   selectResponse(i) {
     const gameId = this.game()?._id;
     const scores = this.game()?.scores;

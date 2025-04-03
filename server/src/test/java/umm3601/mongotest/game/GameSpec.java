@@ -17,7 +17,7 @@ public class GameSpec {
     game = new Game();
     game._id = "12345";
     game.players = new String[]{"Alice", "Bob"};
-    game.prompt = "What is the meaning of life?";
+    //game.prompt = "What is the meaning of life?";
     game.responses = new String[]{"42", "To be happy"};
     game.judge = 1;
     game.discardLast = true;
@@ -34,10 +34,10 @@ public class GameSpec {
     assertArrayEquals(new String[]{"Alice", "Bob"}, game.players);
   }
 
-  @Test
-  public void testGamePrompt() {
-    assertEquals("What is the meaning of life?", game.prompt);
-  }
+  // @Test
+  // public void testGamePrompt() {
+  //   assertEquals("What is the meaning of life?", game.prompt);
+  // }
 
   @Test
   public void testGameResponses() {

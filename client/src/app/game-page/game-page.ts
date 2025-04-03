@@ -115,14 +115,10 @@ export class GameComponent {
 
   getResponses() {
     const array: string[] = [];
-    for (let i = 0; i < this.game()?.responses.length; i++) {
-      if (i != this.game()?.judge) array.push(this.game()?.responses[i]);
-    }
-    const newArray: string[] = [];
     for (let i = 0; i < this.playerPerm.length; i++) {
-      newArray.push(array[this.playerPerm[i]]);
+      array.push(this.game()?.responses[this.playerPerm[i]]);
     }
-    return newArray;
+    return array;
   }
 
   shuffleArray() {

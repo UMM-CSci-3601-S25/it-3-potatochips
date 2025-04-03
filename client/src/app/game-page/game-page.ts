@@ -71,6 +71,7 @@ export class GameComponent {
 
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } }).subscribe();
     this.response = ''; // Clear the input field
+    this.shuffleArray();
   }
   submission = "";
   response = ""
@@ -110,9 +111,29 @@ export class GameComponent {
   playerId: number;
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name
+  playerPerm: number[] = [];
 
   getResponses() {
-    return this.game()?.responses;
+    const array: string[] = [];
+    for (let i = 0; i < this.game()?.responses.length; i++) {
+      if (i != this.game()?.judge) array.push(this.game()?.responses[i]);
+    }
+    const newArray: string[] = [];
+    for (let i = 0; i < this.playerPerm.length; i++) {
+      newArray.push(array[this.playerPerm[i]]);
+    }
+    return newArray;
+  }
+
+  shuffleArray() {
+    this.playerPerm = [];
+    for (let i = 0; i < this.game()?.players.length; i++) {
+      this.playerPerm.push(i);
+    }
+    for (let i = this.playerPerm.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.playerPerm[i], this.playerPerm[j]] = [this.playerPerm[j], this.playerPerm[i]];
+    }
   }
 
   selectResponse(i) {

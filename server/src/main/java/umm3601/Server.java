@@ -1,6 +1,12 @@
 package umm3601;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerAddress;
@@ -8,9 +14,13 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 import org.bson.UuidRepresentation;
+import org.bson.json.JsonObject;
+import org.json.JSONObject;
 
 import io.javalin.Javalin;
 import io.javalin.http.InternalServerErrorResponse;
+import io.javalin.websocket.WsContext;
+
 
 /**
  * The class used to configure and start a Javalin server.
@@ -20,13 +30,33 @@ public class Server {
   // The port that the server should run on.
   private static final int SERVER_PORT = 4567;
 
+  // How long we should wait between updating we sockets information
+  private static final long WEB_SOCKET_PING_INTERNAL = 5;
+
+  // Clients connection via web sockets
+  private static Set<WsContext> connectedClients = ConcurrentHashMap.newKeySet();
+
   // The `mongoClient` field is used to access the MongoDB
   private final MongoClient mongoClient;
+
 
   // The `controllers` field is an array of all the `Controller` implementations
   // for the server. This is used to add routes to the server.
   private Controller[] controllers;
 
+
+  // Update the Game State
+  private int currentRound = 1;
+  private Map<String, Integer> playerScores = new HashMap<>(); // Player name -> score
+  private String currentJudge = null;
+  private String roundWinner = null;
+  private String gameWinner = null;
+
+  // Game Management
+  private Map<String, Map<String, Integer>> gamePlayerScores = new ConcurrentHashMap<>(); // gameCode -> playerScores
+  private Map<String, Set<WsContext>> gameConnections = new ConcurrentHashMap<>(); // gameCode -> connectedClients
+  private Map<WsContext, String> clientsGames = new ConcurrentHashMap<>(); // client -> gameCode
+  private Map<WsContext, String> clientIds = new ConcurrentHashMap<>(); // Map WsContext to custom ID
   /**
    * Construct a `Server` object that we'll use (via `startServer()`) to configure
    * and start the server.
@@ -80,12 +110,18 @@ public class Server {
    * It also sets up the server to shut down gracefully if it's killed or if the
    * JVM is shut down.
    */
+  // void startServer() {
+  //   Javalin javalin = configureJavalin();
+  //   setupRoutes(javalin);
+  //   javalin.start(SERVER_PORT);
+  //}
+
   void startServer() {
+    System.out.println("Starting server...");
     Javalin javalin = configureJavalin();
     setupRoutes(javalin);
-    javalin.start(SERVER_PORT);
+    System.out.println("Server started on port" + SERVER_PORT);
   }
-
   /**
    * Configure the Javalin server. This includes
    *
@@ -98,6 +134,8 @@ public class Server {
    *
    * @return The Javalin server instance
    */
+  // private Map<WsContext, String> clientIds = new ConcurrentHashMap<>(); // Map WsContext to custom ID
+
   private Javalin configureJavalin() {
     /*
      * Create a Javalin server instance. We're using the "create" method
@@ -116,6 +154,47 @@ public class Server {
     Javalin server = Javalin.create(config ->
       config.bundledPlugins.enableRouteOverview("/api")
     );
+
+    System.out.println("Configuring WebSocket endpoint...");
+    server.ws("/api/websocket", ws -> {
+      System.out.println("WebSocket endpoint created");
+
+      ws.onConnect(ctx -> {
+        connectedClients.add(ctx);
+        ctx.enableAutomaticPings(WEB_SOCKET_PING_INTERNAL, TimeUnit.SECONDS);
+        System.out.println("Client connected");
+
+        String clientId = UUID.randomUUID().toString(); // will generate a unique ID
+        clientIds.put(ctx, clientId); // associated ID th WsContext
+        playerScores.put(clientId, 0); // Initialize the score
+
+        // broadcastGameState(); // send the initial game state
+      });
+
+      ws.onMessage(ctx -> {
+        String message = ctx.message();
+        System.out.println("Received message from client");
+        //broadcastMessage(message);
+        handleMessage(ctx, message);
+      });
+
+      ws.onClose(ctx -> {
+        String clientId = clientIds.get(ctx);
+        if (clientId != null) {
+            playerScores.remove(clientId);
+        }
+        String gameCode = clientsGames.get(ctx);
+        if (gameCode != null) {
+          gameConnections.get(gameCode).remove(ctx);
+        }
+        clientIds.remove(ctx);
+        clientsGames.remove(ctx);
+        connectedClients.remove(ctx);
+        System.out.println("Client disconnected");
+        broadcastGameState(clientsGames.get(ctx));
+      });
+
+    });
 
     // Configure the MongoDB client and the Javalin server to shut down gracefully.
     configureShutdowns(server);
@@ -136,8 +215,105 @@ public class Server {
     return server;
   }
 
-  /**
-   * Configure the server and the MongoDB client to shut down gracefully.
+
+  /** Handle message
+   * this will  process the messages received from the clients
+     Process messages like "judge:player1", "winner:player2", "nextRound"
+   */
+
+   private void handleMessage(WsContext ctx, String message) {
+    try {
+        JSONObject json = new JSONObject(message);
+        String type = json.getString("type");
+        JSONObject data = json.getJSONObject("data");
+
+        if (type.equals("create")) {
+            String gameCode = UUID.randomUUID().toString().substring(0, 10);
+            gameConnections.put(gameCode, ConcurrentHashMap.newKeySet());
+            gameConnections.get(gameCode).add(ctx);
+            clientsGames.put(ctx, gameCode);
+            gamePlayerScores.put(gameCode, new HashMap<>());
+            clientIds.forEach((key, value) -> gamePlayerScores.get(gameCode).put(value, 0));
+
+            JSONObject response = new JSONObject();
+            response.put("type", "gameCode");
+            JSONObject responseData = new JSONObject();
+            responseData.put("gameCode", gameCode);
+            response.put("data", responseData);
+            ctx.send(response.toString());
+
+        } else if (type.equals("join")) {
+            String gameCode = data.getString("gameCode");
+            if (gameConnections.containsKey(gameCode)) {
+                gameConnections.get(gameCode).add(ctx);
+                clientsGames.put(ctx, gameCode);
+                gamePlayerScores.get(gameCode).put(clientIds.get(ctx), 0);
+                JSONObject response = new JSONObject();
+                response.put("type", "joined");
+                JSONObject responseData = new JSONObject();
+                responseData.put("gameCode", gameCode);
+                response.put("data", responseData);
+                ctx.send(response.toString());
+            } else {
+                JSONObject response = new JSONObject();
+                response.put("type", "error");
+                JSONObject responseData = new JSONObject();
+                responseData.put("message", "Game not found");
+                response.put("data", responseData);
+                ctx.send(response.toString());
+            }
+        } else if (type.equals("judge")) {
+            currentJudge = data.getString("judgeName");
+            broadcastGameState(clientsGames.get(ctx));
+        } else if (type.equals("winner")) {
+            String winningPlayer = data.getString("winnerName");
+            playerScores.merge(winningPlayer, 1, Integer::sum);
+            roundWinner = winningPlayer;
+            broadcastGameState(clientsGames.get(ctx));
+        } else if (type.equals("nextRound")) {
+            currentRound++;
+            roundWinner = null;
+            broadcastGameState(clientsGames.get(ctx));
+        }
+
+        broadcastMessage(message);
+      } catch (Exception e) {
+        System.err.println("Error processing message: " + message);
+        e.printStackTrace();
+    }
+}
+
+private void broadcastGameState(String gameCode) {
+  if (gameCode == null || !gameConnections.containsKey(gameCode)) {
+      return;
+  }
+
+  JSONObject gameState = new JSONObject();
+  gameState.put("type", "gameState");
+
+  JSONObject data = new JSONObject();
+  data.put("currentRound", currentRound);
+  data.put("playerScores", playerScores);
+  data.put("currentJudge", currentJudge);
+  data.put("roundWinner", roundWinner);
+  data.put("gameWinner", gameWinner);
+
+  gameState.put("data", data);
+
+  broadcastMessage(gameState.toString());
+}
+   /**
+   * Broadcast a message to all connected WebSocket clients.
+   *
+   * @param message The message to broadcast
+   */
+  private static void broadcastMessage(String message) {
+    for (WsContext client : connectedClients) {
+      client.send(message);
+    }
+  }
+   /*
+   *  Configure the server and the MongoDB client to shut down gracefully.
    *
    * @param server The Javalin server instance
    * @see   #mongoClient The MongoDB client field is used to access the MongoDB

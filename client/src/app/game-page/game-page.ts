@@ -13,6 +13,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
+//import { console } from 'inspector';
 
 
 @Component({
@@ -137,19 +138,23 @@ export class GameComponent {
     // Update the game state on the server
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
       $set: { pastResponses: pastResponses, scores: scores, responses: responses }
-    }).subscribe();
+    }).subscribe(() => {
+      const winnerBecomesJudge = this.game()?.winnerBecomesJudge;
 
-    const winnerBecomesJudge = this.game()?.winnerBecomesJudge;
-
-    if (winnerBecomesJudge) {
-      console.log("Winner becomes judge");
-      // Logic for winner becoming the judge
-    } else {
-      console.log("Winner does not become judge");
-      const judge = ((this.game()?.judge + 1) % this.game()?.players.length);
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: judge } }).subscribe();
-      console.log(this.game()?.judge); // game object
-    }
+      if (winnerBecomesJudge) {
+        console.log("Winner becomes judge");
+        // Logic for winner becoming the judge
+      } else {
+        console.log("Winner does not become judge");
+        const newJudge = (this.game()?.judge + 1) % this.game()?.players.length; // Increment judge to the next player
+        this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: newJudge } }).subscribe(() => {
+          this.game().judge = newJudge; // Update the local game object
+          console.log(`Judge updated to player index: ${newJudge}`);
+          console.log(this.game()); // Log the updated game object
+        });
+        console.log(this.game()); // Log the updated game object
+      }
+    });
   }
 
   constructor(

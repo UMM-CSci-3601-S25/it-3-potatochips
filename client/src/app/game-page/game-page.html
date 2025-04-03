@@ -14,7 +14,6 @@
       </li>
     </ul>
     <ul style="display: flex"><li *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)"> {{ response }}</button></li></ul>
-
     <mat-form-field>
       <input matInput type="text" [(ngModel)]="response">
       <input type="submit" value="Submit" (click)="submitResponse()">

@@ -49,36 +49,36 @@ export class GameComponent {
     ));
   error = signal({help: '', httpResponse: '', message: ''});
 
-  submitPrompt() {
-    const gameId = this.game()?._id;
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
-    //console.log(this.submission);
-    this.isPromptSubmitted = true; // Mark the prompt as submitted
-    this.displayedPrompt = this.submission; // Store the submitted prompt
-    this.submission = ''; // Clear the input field
-  }
+  // submitPrompt() {
+  //   const gameId = this.game()?._id;
+  //   this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
+  //   //console.log(this.submission);
+  //   //this.isPromptSubmitted = true; // Mark the prompt as submitted
+  //   this.displayedPrompt = this.submission; // Store the submitted prompt
+  //   this.submission = ''; // Clear the input field
+  // }
 
   submitResponse() {
     const gameId = this.game()?._id;
-    const responses = this.game()?.responses;
-    responses[this.playerId]= this.response; // Add the new response to the array
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{responses: responses}}).subscribe();
-    //console.log(this.response);
-    //console.log(this.responses);
-  }
+    const responses = this.game()?.responses || []; // Ensure responses is defined
+    responses[this.playerId] = this.response; // Add the new response to the array
 
-  onResponseClick(response: string) {
-    console.log(`Response clicked: ${response}`);
-    // Add any additional logic for handling the clicked response here
-  }
+    // Ensure the judge's response is treated as the prompt
+    if (this.playerId === this.game()?.judge) {
+      this.displayedPrompt = this.response; // Store the judge's response as the prompt
+    }
 
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } }).subscribe();
+    this.response = ''; // Clear the input field
+  }
   submission = "";
   response = ""
   username = " ";
   usernameInput: string = "";
   numPlayers: number = 0;
-  isPromptSubmitted: boolean = false;
+  //isPromptSubmitted: boolean = false;
   displayedPrompt: string = '';
+  responses: string[] = []; // Initialize responses as an empty array
 
   submitUsername() {
     if (this.usernameInput.trim()) {
@@ -88,7 +88,17 @@ export class GameComponent {
       const scores = this.game()?.scores.push(0);
       const responses = this.game()?.responses.push("");
       const players = this.game()?.players.push(this.username);
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{players: players, scores: scores, responses: responses}}).subscribe();
+
+      // Set the first player as the judge
+      let judge = this.game()?.judge;
+      if (this.playerId === 0) {
+        judge = 0;
+      }
+
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
+        $set: { players: players, scores: scores, responses: responses, judge: judge }
+      }).subscribe();
+
       this.numPlayers = this.players.length; // Update the number of players
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
@@ -104,8 +114,6 @@ export class GameComponent {
     const gameId = this.game()?._id;
     const scores = this.game()?.scores;
     const pastResponses = this.game()?.pastResponses || [];
-
-    // Increment the score for the selected response
     scores[i]++;
 
     // Append all responses to pastResponses

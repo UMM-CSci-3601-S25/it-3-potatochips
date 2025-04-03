@@ -7,16 +7,17 @@
         <button mat-raised-button color="primary" (click)="submitUsername()">Submit Username</button>
       </mat-form-field>
     </mat-card>
-    <h1 *ngIf="isPromptSubmitted" style="margin: 0 5%">{{ displayedPrompt }}</h1>
-    <ul style="float: right; width: 25%; color: green"><li *ngFor="let player of players">{{ player }}</li></ul>
-    <ul style="display: flex"><li *ngFor="let response of responses">{{ response }}</li></ul>
-    <mat-form-field>
-      <input matInput type="text" [(ngModel)]="submission">
-      <input type="submit" value="Submit Prompt" (click)="submitPrompt()">
-    </mat-form-field>
+    <h1 style="margin: 0 5%">{{ this.game()?.responses[this.game()?.judge]}}</h1>
+    <ul style="float: right; width: 25%; color: green">
+      <li *ngFor="let player of this.game()?.players; let i = index">
+        {{ this.game()?.scores[i] }} - <span [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span> - {{ this.game()?.pastResponses[i] }}
+      </li>
+    </ul>
+    <ul style="display: flex"><li *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)"> {{ response }}</button></li></ul>
+
     <mat-form-field>
       <input matInput type="text" [(ngModel)]="response">
-      <input type="submit" value="Submit Response" (click)="submitResponse()">
+      <input type="submit" value="Submit" (click)="submitResponse()">
     </mat-form-field>
   </div>
 </div>

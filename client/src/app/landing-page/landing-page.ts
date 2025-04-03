@@ -26,7 +26,7 @@ export class HomeComponent {
 
   createGame() {
     console.info("createGame() called");
-    const newGame: Partial<Game> = {  "players": [],   "judge": 0, "winnerBecomesJudge": false, "prompt": "", "responses": [], "scores":[], "pastResponses":[]};
+    const newGame: Partial<Game> = {  "players": [],   "judge": 0, "winnerBecomesJudge": false, "responses": [], "scores":[], "pastResponses":[]};
     console.info(newGame);
     this.httpClient.post<{id: string}>('/api/game/new', newGame).pipe(map(response => response.id)).subscribe({
       next: (newId) => {

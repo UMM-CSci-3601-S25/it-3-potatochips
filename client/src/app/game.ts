@@ -1,6 +1,6 @@
 export interface Game {
   _id: string;
-  prompt?: string;
+  //prompt?: string;
   players?: string[];
   responses?: string[];
   judge?: number;

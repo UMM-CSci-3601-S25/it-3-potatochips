@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, Inject, signal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
@@ -13,13 +13,13 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
-
+import { WebSocketService } from './websocket.service';
 
 @Component({
   selector: 'app-game-page',
   templateUrl: 'game-page.html',
   styleUrls: ['./game-page.scss'],
-  providers: [],
+  providers: [WebSocketService],
   imports: [
     MatCardModule,
     MatInputModule,

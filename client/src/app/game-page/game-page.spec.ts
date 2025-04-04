@@ -221,19 +221,19 @@ describe('GameComponent', () => {
       judge: null
     };
     component.game = signal(mockGame); // Mock the game object
-    component.playerId = 0; // Simulate the first player joining
+    component.playerId = null; // Ensure playerId is null initially
     component.usernameInput = 'Player1'; // Simulate a username input
 
     const httpClientSpy = spyOn(component['httpClient'], 'put').and.callFake((url, body) => {
       if (body.$set.judge !== undefined) {
-        component.game().judge = body.$set.judge; // Simulate judge update
+        mockGame.judge = body.$set.judge; // Simulate judge update
       }
       return of(null); // Simulate an observable response
     });
 
     component.submitUsername(); // Call the method to test
 
-    expect(component.game().judge).toBe(0); // Ensure judge is set to 0
+    expect(mockGame.judge).toBe(0); // Ensure judge is set to 0
     expect(httpClientSpy).toHaveBeenCalledWith(
       `/api/game/edit/test-game-id`,
       jasmine.objectContaining({
@@ -244,18 +244,31 @@ describe('GameComponent', () => {
     );
   });
 
-  it('should push correct responses into the array based on playerPerm', () => {
+  it('should return false if any response is empty in responsesReady', () => {
     const mockGame = {
       _id: 'test-game-id',
-      responses: ['Response1', 'Response2', 'Response3', 'Response4'],
-      players: ['Player1', 'Player2', 'Player3', 'Player4'],
+      responses: ['Response1', '', 'Response3'], // One response is empty
+      players: ['Player1', 'Player2', 'Player3'],
       judge: 0
     };
     component.game = signal(mockGame); // Mock the game object
-    component.playerPerm = [1, 2, 3]; // Mock the shuffled player order excluding the judge
 
-    const resultArray = component.getResponses(); // Call the method that uses the code
+    const result = component.responsesReady(); // Call the method
 
-    expect(resultArray).toEqual(['Response2', 'Response3', 'Response4']); // Verify the correct responses are pushed
+    expect(result).toBe(false); // Verify it returns false
+  });
+
+  it('should return true if all responses are filled in responsesReady', () => {
+    const mockGame = {
+      _id: 'test-game-id',
+      responses: ['Response1', 'Response2', 'Response3'], // All responses are filled
+      players: ['Player1', 'Player2', 'Player3'],
+      judge: 0
+    };
+    component.game = signal(mockGame); // Mock the game object
+
+    const result = component.responsesReady(); // Call the method
+
+    expect(result).toBe(true); // Verify it returns true
   });
 });

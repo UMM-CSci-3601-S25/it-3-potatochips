@@ -211,4 +211,51 @@ describe('GameComponent', () => {
       done(); // Mark the test as complete
     });
   });
+
+  it('should set judge to 0 if playerId is 0', () => {
+    const mockGame = {
+      _id: 'test-game-id',
+      players: [],
+      scores: [],
+      responses: [],
+      judge: null
+    };
+    component.game = signal(mockGame); // Mock the game object
+    component.playerId = 0; // Simulate the first player joining
+    component.usernameInput = 'Player1'; // Simulate a username input
+
+    const httpClientSpy = spyOn(component['httpClient'], 'put').and.callFake((url, body) => {
+      if (body.$set.judge !== undefined) {
+        component.game().judge = body.$set.judge; // Simulate judge update
+      }
+      return of(null); // Simulate an observable response
+    });
+
+    component.submitUsername(); // Call the method to test
+
+    expect(component.game().judge).toBe(0); // Ensure judge is set to 0
+    expect(httpClientSpy).toHaveBeenCalledWith(
+      `/api/game/edit/test-game-id`,
+      jasmine.objectContaining({
+        $set: jasmine.objectContaining({
+          judge: 0 // Verify the judge is set to 0 in the HTTP request
+        })
+      })
+    );
+  });
+
+  it('should push correct responses into the array based on playerPerm', () => {
+    const mockGame = {
+      _id: 'test-game-id',
+      responses: ['Response1', 'Response2', 'Response3', 'Response4'],
+      players: ['Player1', 'Player2', 'Player3', 'Player4'],
+      judge: 0
+    };
+    component.game = signal(mockGame); // Mock the game object
+    component.playerPerm = [1, 2, 3]; // Mock the shuffled player order excluding the judge
+
+    const resultArray = component.getResponses(); // Call the method that uses the code
+
+    expect(resultArray).toEqual(['Response2', 'Response3', 'Response4']); // Verify the correct responses are pushed
+  });
 });

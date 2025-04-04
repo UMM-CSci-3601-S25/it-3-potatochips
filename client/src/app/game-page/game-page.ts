@@ -102,12 +102,12 @@ export class GameComponent {
   ) {
     this.webSocketService.getMessage().subscribe((message: unknown) => {
       const msg = message as {
-        type?: string;
-        gameId?: string;
-        playerName?: string;
+      type?: string;
+      gameId?: string;
+      playerName?: string;
 
       };
-    }
-    )
+      // Handle other message types or logic here
+    });
   }
 }

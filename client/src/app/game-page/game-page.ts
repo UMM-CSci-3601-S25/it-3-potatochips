@@ -13,7 +13,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
-import { WebSocketService } from './websocket.service';
+import { WebSocketService } from './web-socket.service';
 
 
 @Component({
@@ -73,7 +73,14 @@ export class GameComponent {
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } }).subscribe();
     this.response = ''; // Clear the input field
 
+    const message = {
+      gameId: this.game()?._id,
+      responses: this.game()?.responses,
+      pastResponses:this.game()?.pastResponses,
+      judge: this.game()?.judge,
 
+    };
+    this.webSocketService.sendMessage(message);
   }
   submission = "";
   response = ""
@@ -108,6 +115,17 @@ export class GameComponent {
       //console.log(this.numPlayers); // number of players
       console.log(this.game()); // game object
     }
+    const message = {
+      playerId: this.playerId,
+      username: this.username,
+      gameId: this.game()?._id, //This may be where the issue lies for a problem
+      scores: this.game()?.scores.push(0), //This may be where the issue lies for a problem
+      responses: this.responses,
+      players: this.players,
+      judge: this.game()?.judge //This may be where the issue lies for a problem
+    };
+    this.webSocketService.sendMessage(message);
+
   }
 
   playerId: number;
@@ -143,6 +161,8 @@ export class GameComponent {
       $set: { pastResponses: pastResponses, scores: scores, responses: responses }
     }).subscribe();
 
+
+
     const winnerBecomesJudge = this.game()?.winnerBecomesJudge;
 
     if (winnerBecomesJudge) {
@@ -154,6 +174,13 @@ export class GameComponent {
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: judge } }).subscribe();
       console.log(this.game()?.judge); // game object
     }
+    const message = {
+      gameId: this.game()?._id, //This may be where the issue lies for a problem
+      scores: this.game()?.scores, //This may be where the issue lies for a problem
+      pastResponses:this.game()?.pastResponses,
+      judge: this.game()?.judge //This may be where the issue lies for a problem
+    };
+    this.webSocketService.sendMessage(message);
   }
 
   constructor(
@@ -162,23 +189,23 @@ export class GameComponent {
 
 
   ) {
-    this.webSocketService.getMessage().subscribe((message: unknown) => {
-      const msg = message as {
-      type?: string;
-      gameId?: string;
-      playerName?: string;
+    // this.webSocketService.getMessage().subscribe((message: unknown) => {
+    //   const msg = message as {
+    //   type?: string;
+    //   gameId?: string;
+    //   playerName?: string;
 
-        players?: string[];
-        prompt?: string;
-        responses?: string[];
-        judge?: number;
-        scores?: number;
-        winnerBecomesJudge?: boolean;
-        pastResponses?: string[];
+    //     players?: string[];
+    //     prompt?: string;
+    //     responses?: string[];
+    //     judge?: number;
+    //     scores?: number;
+    //     winnerBecomesJudge?: boolean;
+    //     pastResponses?: string[];
 
-      }
-      };
-      // Handle other message types or logic here
-    });
+    //   }
+    //   };
+  // Handle other message types or logic here
+    // });
   }
 }

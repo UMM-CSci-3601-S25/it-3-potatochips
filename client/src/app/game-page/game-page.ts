@@ -72,6 +72,7 @@ export class GameComponent {
 
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } }).subscribe();
     this.response = ''; // Clear the input field
+    this.shuffleArray();
 
     const message = {
       gameId: this.game()?._id,
@@ -113,7 +114,7 @@ export class GameComponent {
       this.numPlayers = this.players.length; // Update the number of players
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
-      console.log(this.game()); // game object
+      //console.log(this.game()); // game object
     }
     const message = {
       playerId: this.playerId,
@@ -131,16 +132,33 @@ export class GameComponent {
   playerId: number;
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name
+  playerPerm: number[] = [];
 
   getResponses() {
-    return this.game()?.responses;
+    const array: string[] = [];
+    for (let i = 0; i < this.playerPerm.length; i++) {
+      array.push(this.game()?.responses[this.playerPerm[i]]);
+    }
+    return array;
+  }
+
+  shuffleArray() {
+    this.playerPerm = [];
+    for (let i = 0; i < this.game()?.players.length; i++) {
+      if (i != this.game()?.judge)
+        this.playerPerm.push(i);
+    }
+    for (let i = this.playerPerm.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.playerPerm[i], this.playerPerm[j]] = [this.playerPerm[j], this.playerPerm[i]];
+    }
   }
 
   selectResponse(i) {
     const gameId = this.game()?._id;
     const scores = this.game()?.scores;
     const pastResponses = this.game()?.pastResponses || [];
-    scores[i]++;
+    scores[this.playerPerm[i]]++;
 
     // Append all responses to pastResponses
     for (let j = 0; j < this.game()?.responses.length; j++) {
@@ -159,28 +177,24 @@ export class GameComponent {
     // Update the game state on the server
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
       $set: { pastResponses: pastResponses, scores: scores, responses: responses }
-    }).subscribe();
+    }).subscribe(() => {
+      const winnerBecomesJudge = this.game()?.winnerBecomesJudge;
 
-
-
-    const winnerBecomesJudge = this.game()?.winnerBecomesJudge;
-
-    if (winnerBecomesJudge) {
-      console.log("Winner becomes judge");
-      // Logic for winner becoming the judge
-    } else {
-      console.log("Winner does not become judge");
-      const judge = ((this.game()?.judge + 1) % this.game()?.players.length);
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: judge } }).subscribe();
-      console.log(this.game()?.judge); // game object
-    }
-    const message = {
-      gameId: this.game()?._id, //This may be where the issue lies for a problem
-      scores: this.game()?.scores, //This may be where the issue lies for a problem
-      pastResponses:this.game()?.pastResponses,
-      judge: this.game()?.judge //This may be where the issue lies for a problem
-    };
-    this.webSocketService.sendMessage(message);
+      if (winnerBecomesJudge) {
+        //console.log("Winner becomes judge");
+        const newJudge = i; // The index of the selected response becomes the new judge
+        this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: newJudge } }).subscribe(() => {
+          this.game().judge = newJudge; // Update the local game object
+          //console.log(`Judge updated to player index: ${newJudge}`);
+        });
+      } else {
+        const newJudge = (this.game()?.judge + 1) % this.game()?.players.length; // Increment judge to the next player
+        this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: newJudge } }).subscribe(() => {
+          this.game().judge = newJudge; // Update the local game object
+          //console.log(`Judge updated to player index: ${newJudge}`);
+        });
+      }
+    });
   }
 
   constructor(

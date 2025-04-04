@@ -121,4 +121,94 @@ describe('GameComponent', () => {
     const uniqueValues = new Set(component.playerPerm);
     expect(uniqueValues.size).toBe(component.playerPerm.length); // Ensure no duplicates
   });
+
+  it('should update scores, pastResponses, and judge correctly in selectResponse', (done) => {
+    const mockGame = {
+      _id: 'test-game-id',
+      players: ['Player1', 'Player2', 'Player3'],
+      judge: 0,
+      scores: [0, 0, 0],
+      responses: ['Response1', 'Response2', 'Response3'],
+      pastResponses: [],
+      winnerBecomesJudge: true
+    };
+    component.game = signal(mockGame); // Mock the game object
+    component.playerPerm = [1, 2]; // Mock the shuffled player order
+
+    const httpClientSpy = spyOn(component['httpClient'], 'put').and.callFake((url, body) => {
+      if (body.$set.judge !== undefined) {
+      // Simulate the judge update call
+        component.game().judge = body.$set.judge;
+      }
+      return of(null); // Simulate an observable response
+    });
+
+    component.selectResponse(1); // Select the second response (index 1 in playerPerm)
+
+    // Check if the score of the selected player is incremented
+    expect(component.game().scores[2]).toBe(1);
+
+    // Check if pastResponses is updated correctly
+    expect(component.game().pastResponses).toEqual(['Response1', 'Response2', 'Response3']);
+
+    // Check if responses are cleared
+    expect(component.game().responses).toEqual(['', '', '']);
+
+    // Wait for the asynchronous judge update
+    setTimeout(() => {
+    // Check if the judge is updated correctly
+      expect(component.game().judge).toBe(1); // The selected response index becomes the new judge
+      expect(httpClientSpy).toHaveBeenCalledTimes(2); // One for game state, one for judge update
+      done(); // Mark the test as complete
+    });
+  });
+
+  it('should update judge to the next player in selectResponse when winnerBecomesJudge is false', (done) => {
+    const mockGame = {
+      _id: 'test-game-id',
+      players: ['Player1', 'Player2', 'Player3'],
+      judge: 0,
+      scores: [0, 0, 0],
+      responses: ['Response1', 'Response2', 'Response3'],
+      pastResponses: [],
+      winnerBecomesJudge: false // Ensure winnerBecomesJudge is false
+    };
+    component.game = signal(mockGame); // Mock the game object
+    component.playerPerm = [1, 2]; // Mock the shuffled player order
+
+    const httpClientSpy = spyOn(component['httpClient'], 'put').and.callFake((url, body) => {
+      if (body.$set.judge !== undefined) {
+      // Simulate the judge update call
+        component.game().judge = body.$set.judge;
+      }
+      return of(null); // Simulate an observable response
+    });
+
+    component.selectResponse(1); // Select the second response (index 1 in playerPerm)
+
+    // Check if the score of the selected player is incremented
+    expect(component.game().scores[2]).toBe(1);
+
+    // Check if pastResponses is updated correctly
+    expect(component.game().pastResponses).toEqual(['Response1', 'Response2', 'Response3']);
+
+    // Check if responses are cleared
+    expect(component.game().responses).toEqual(['', '', '']);
+
+    // Wait for the asynchronous judge update
+    setTimeout(() => {
+    // Check if the judge is updated to the next player
+      expect(component.game().judge).toBe(1); // Judge should increment to the next player
+      expect(httpClientSpy).toHaveBeenCalledTimes(2); // One for game state, one for judge update
+      expect(httpClientSpy).toHaveBeenCalledWith(
+        `/api/game/edit/test-game-id`,
+        jasmine.objectContaining({
+          $set: jasmine.objectContaining({
+            judge: 1 // The next player becomes the judge
+          })
+        })
+      );
+      done(); // Mark the test as complete
+    });
+  });
 });

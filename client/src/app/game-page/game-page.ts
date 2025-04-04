@@ -104,7 +104,7 @@ export class GameComponent {
       this.numPlayers = this.players.length; // Update the number of players
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
-      console.log(this.game()); // game object
+      //console.log(this.game()); // game object
     }
   }
 

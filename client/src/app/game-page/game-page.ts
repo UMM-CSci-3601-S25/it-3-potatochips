@@ -195,6 +195,13 @@ export class GameComponent {
         });
       }
     });
+    const message = {
+      gameId: this.game()?._id, //This may be where the issue lies for a problem
+      scores: this.game()?.scores, //This may be where the issue lies for a problem
+      pastResponses:this.game()?.pastResponses,
+      judge: this.game()?.judge //This may be where the issue lies for a problem
+    };
+    this.webSocketService.sendMessage(message);
   }
 
   constructor(

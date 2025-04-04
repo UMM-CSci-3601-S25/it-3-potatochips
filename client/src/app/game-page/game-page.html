@@ -1,7 +1,7 @@
 <div class="flex-row">
   <div class="flex-1">
     <mat-card class="home-card">
-      <mat-form-field>
+      <mat-form-field [style]="playerId == null ? 'display: block' : 'display: none'">
         Username:
         <input matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter your username">
         <button mat-raised-button color="primary" (click)="submitUsername()">Submit Username</button>
@@ -14,7 +14,7 @@
       </li>
     </ul>
     <ul [style]="responsesReady() ? 'display: flex' : 'display: none'"><li *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)"> {{ response }}</button></li></ul>
-    <mat-form-field [style]="playerId == null ? 'display: block' : 'display: none'">
+    <mat-form-field>
       <input matInput type="text" [(ngModel)]="response">
       <input type="submit" value="Submit" (click)="submitResponse()">
     </mat-form-field>

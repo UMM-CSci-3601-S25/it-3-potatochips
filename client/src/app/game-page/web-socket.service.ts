@@ -49,7 +49,7 @@ export class WebSocketService implements OnDestroy {
   }
   private connect() {
     this.socket$ = webSocket<GameMessage>({
-      url: '${environment.wsUrl}',//we need to put our environment url (the deployment id) here from the environment file.
+      url: `${environment.wsUrl}`,//we need to put our environment url (the deployment id) here from the environment file.
       serializer: (msg) => JSON.stringify(msg),
       deserializer: (msg) => JSON.parse(msg.data),
     });

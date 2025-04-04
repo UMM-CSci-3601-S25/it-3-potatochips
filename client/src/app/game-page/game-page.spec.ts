@@ -105,4 +105,20 @@ describe('GameComponent', () => {
     );
     expect(shuffleArraySpy).toHaveBeenCalled();
   });
+
+  it('should shuffle playerPerm array correctly in shuffleArray', () => {
+    const mockGame = {
+      _id: 'mock-game-id', // Add the required _id property
+      players: ['Player1', 'Player2', 'Player3', 'Player4'],
+      judge: 0
+    };
+    component.game = signal(mockGame); // Mock the game object
+    component.shuffleArray();
+
+    expect(component.playerPerm).toBeDefined();
+    expect(component.playerPerm.length).toBe(mockGame.players.length - 1); // Exclude the judge
+    expect(component.playerPerm).not.toContain(mockGame.judge); // Ensure judge is excluded
+    const uniqueValues = new Set(component.playerPerm);
+    expect(uniqueValues.size).toBe(component.playerPerm.length); // Ensure no duplicates
+  });
 });

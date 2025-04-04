@@ -83,7 +83,7 @@ export class GameComponent {
   responses: string[] = []; // Initialize responses as an empty array
 
   submitUsername() {
-    if (this.usernameInput.trim()) {
+    if (this.usernameInput.trim() && this.playerId == null) {
       this.playerId = this.game().players.length;
       this.username = this.usernameInput.trim(); // Update the displayed username
       const gameId = this.game()?._id;
@@ -174,6 +174,15 @@ export class GameComponent {
         });
       }
     });
+  }
+
+  responsesReady() {
+    for (let i = 0; i < this.game()?.responses.length; i++) {
+      if (this.game()?.responses[i] == "") {
+        return false;
+      }
+    }
+    return true;
   }
 
   constructor(

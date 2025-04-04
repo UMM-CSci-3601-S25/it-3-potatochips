@@ -40,6 +40,8 @@ dependencies {
   // Simple Logging Facade for Java
   implementation 'org.slf4j:slf4j-simple:2.0.16'
 
+  // implementation 'org.json:json:20210307' // JSON library for Java /////////////////////THIS WAS ADDED BY GEORGE, IF IT BREAKS, REMOVE IT
+
   // JUnit Jupiter API for testing.
   testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
 

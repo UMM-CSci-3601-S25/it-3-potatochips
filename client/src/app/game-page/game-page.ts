@@ -207,6 +207,7 @@ export class GameComponent {
 
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } }).subscribe();
     this.response = ''; // Clear the input field
+<<<<<<< HEAD
     this.shuffleArray();
 
     const message = {
@@ -217,6 +218,8 @@ export class GameComponent {
 
     };
     this.webSocketService.sendMessage(message);
+=======
+>>>>>>> main
   }
   submission = "";
   response = ""
@@ -249,6 +252,7 @@ export class GameComponent {
       this.numPlayers = this.players.length; // Update the number of players
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
+<<<<<<< HEAD
       //console.log(this.game()); // game object
     }
     const message = {
@@ -289,11 +293,29 @@ export class GameComponent {
     }
   }
 
+=======
+      console.log(this.game()); // game object
+    }
+  }
+
+  playerId: number;
+  players: string[] = []; // Array to store player names with scores
+  newPlayer: string = ""; // Input for new player name
+
+  getResponses() {
+    return this.game()?.responses;
+  }
+
+>>>>>>> main
   selectResponse(i) {
     const gameId = this.game()?._id;
     const scores = this.game()?.scores;
     const pastResponses = this.game()?.pastResponses || [];
+<<<<<<< HEAD
     scores[this.playerPerm[i]]++;
+=======
+    scores[i]++;
+>>>>>>> main
 
     // Append all responses to pastResponses
     for (let j = 0; j < this.game()?.responses.length; j++) {
@@ -312,6 +334,7 @@ export class GameComponent {
     // Update the game state on the server
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
       $set: { pastResponses: pastResponses, scores: scores, responses: responses }
+<<<<<<< HEAD
     }).subscribe(() => {
       const winnerBecomesJudge = this.game()?.winnerBecomesJudge;
 
@@ -330,6 +353,21 @@ export class GameComponent {
         });
       }
     });
+=======
+    }).subscribe();
+
+    const winnerBecomesJudge = this.game()?.winnerBecomesJudge;
+
+    if (winnerBecomesJudge) {
+      console.log("Winner becomes judge");
+      // Logic for winner becoming the judge
+    } else {
+      console.log("Winner does not become judge");
+      const judge = ((this.game()?.judge + 1) % this.game()?.players.length);
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: judge } }).subscribe();
+      console.log(this.game()?.judge); // game object
+    }
+>>>>>>> main
   }
 
   constructor(

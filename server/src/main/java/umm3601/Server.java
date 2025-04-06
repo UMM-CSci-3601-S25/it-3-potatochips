@@ -14,7 +14,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 import org.bson.UuidRepresentation;
-import org.bson.json.JsonObject;
+// import org.bson.json.JsonObject;
 import org.json.JSONObject;
 
 import io.javalin.Javalin;
@@ -228,7 +228,8 @@ public class Server {
         JSONObject data = json.getJSONObject("data");
 
         if (type.equals("create")) {
-            String gameCode = UUID.randomUUID().toString().substring(0, 10);
+            //String gameCode = UUID.randomUUID().toString().substring(0, 10);
+            String gameCode = ctx.pathParam("id");
             gameConnections.put(gameCode, ConcurrentHashMap.newKeySet());
             gameConnections.get(gameCode).add(ctx);
             clientsGames.put(ctx, gameCode);

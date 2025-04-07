@@ -164,7 +164,7 @@ export class GameComponent {
 
       if (winnerBecomesJudge) {
         //console.log("Winner becomes judge");
-        const newJudge = i; // The index of the selected response becomes the new judge
+        const newJudge = this.playerPerm[i]; // The index of the selected response becomes the new judge
         this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: newJudge } }).subscribe(() => {
           this.game().judge = newJudge; // Update the local game object
           //console.log(`Judge updated to player index: ${newJudge}`);

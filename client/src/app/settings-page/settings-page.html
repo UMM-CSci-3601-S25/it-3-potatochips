@@ -1,12 +1,12 @@
 <div class="flex-row">
   <div class="flex-1">
     <mat-card class="home-card">
-      <h1>Sharable code: {{ game()?._id }}</h1>
+      <h1 id="game-code">Sharable code: {{ game()?._id }}</h1>
     </mat-card>
     <mat-card class="home-card">
       <mat-card-content>
         <a routerLink="/game/{{game()?._id}}">
-          <button (click)="updateGameSettings()">
+          <button id="start-game" (click)="updateGameSettings()">
             Start Game
           </button>
         </a>

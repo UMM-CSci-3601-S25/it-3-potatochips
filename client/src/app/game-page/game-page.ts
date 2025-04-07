@@ -83,13 +83,16 @@ export class GameComponent {
   responses: string[] = []; // Initialize responses as an empty array
 
   submitUsername() {
-    if (this.usernameInput.trim() && this.playerId == null) {
+    if (this.usernameInput.trim()) { //  && this.playerId == null
       this.playerId = this.game().players.length;
       this.username = this.usernameInput.trim(); // Update the displayed username
       const gameId = this.game()?._id;
-      const scores = this.game()?.scores.push(0);
-      const responses = this.game()?.responses.push("");
-      const players = this.game()?.players.push(this.username);
+      const scores = this.game()?.scores;
+      scores.push(0);
+      const responses = this.game()?.responses;
+      responses.push("");
+      const players = this.game()?.players;
+      players.push(this.username);
 
       // Set the first player as the judge
       let judge = this.game()?.judge;

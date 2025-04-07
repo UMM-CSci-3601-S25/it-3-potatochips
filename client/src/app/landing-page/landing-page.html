@@ -10,7 +10,7 @@
     <mat-card class="home-card">
       <mat-card-content>
         <input type="text" [(ngModel)]="joinId">
-        <a [routerLink]="['/game', joinId]">
+        <a routerLink="/game/{{joinId}}">
           <button id="join-game">
             Join Game
           </button>

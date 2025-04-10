@@ -88,10 +88,7 @@ class GameControllerSpec {
     MongoCollection<Document> gameDocuments = db.getCollection("games");
     gameDocuments.drop();
 
-    gameController = new GameController(db);
-
     gameID = new ObjectId();
-
 
     BsonArray usernames = new BsonArray();
     usernames.add(new BsonString("Kristin"));
@@ -116,6 +113,7 @@ class GameControllerSpec {
 
     gameDocuments.insertOne(newGame);
 
+    gameController = new GameController(db);
   }
 
 

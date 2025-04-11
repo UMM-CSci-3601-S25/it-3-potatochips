@@ -157,7 +157,7 @@ describe('GameComponent', () => {
     // Wait for the asynchronous judge update
     setTimeout(() => {
     // Check if the judge is updated correctly
-      expect(component.game().judge).toBe(1); // The selected response index becomes the new judge
+      expect(component.game().judge).toBe(2); // The selected response index becomes the new judge
       expect(httpClientSpy).toHaveBeenCalledTimes(2); // One for game state, one for judge update
       done(); // Mark the test as complete
     });

@@ -52,9 +52,9 @@ export class SettingsComponent {
     console.log(this.judgeOption());
     const gameId = this.game()?._id;
     if (gameId) {
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{winnerBecomesJudge: this.judgeOption()}}).subscribe();
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{winnerBecomesJudge: this.judgeOption(), targetScore: this.scoreThreshold()}}).subscribe();
     }
   }
 
-
+  scoreThreshold = signal<number | undefined>(7);
 }

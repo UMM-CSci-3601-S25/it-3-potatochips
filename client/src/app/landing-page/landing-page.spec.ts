@@ -1,4 +1,4 @@
-import { TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -7,25 +7,27 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HomeComponent } from './landing-page';
 import { By } from '@angular/platform-browser';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { RouterTestingModule } from '@angular/router/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+
 
 describe('HomeComponent', () => {
+  let component: HomeComponent;
+  let fixture: ComponentFixture<HomeComponent>;
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         BrowserAnimationsModule,
-        RouterTestingModule,
         MatToolbarModule,
         MatIconModule,
         MatSidenavModule,
         MatCardModule,
         MatListModule,
-        HttpClientModule,
         FormsModule,
-        HomeComponent
+        HomeComponent,
+        HttpTestingController
       ],
+      providers: [provideHttpClientTesting()],
     }).compileComponents();
   }));
 
@@ -49,5 +51,24 @@ describe('HomeComponent', () => {
     fixture.detectChanges();
     const joinButton = fixture.debugElement.query(By.css('button#join-game'));
     expect(joinButton).toBeTruthy();
+  });
+
+  it('should call createGame and send the correct payload', () => {
+    const fixture = TestBed.createComponent(HomeComponent);
+    const component = fixture.componentInstance;
+    const routerSpy = spyOn(component['router'], 'navigateByUrl');
+    component.createGame();
+    const httpMock = TestBed.inject(HttpTestingController);
+    const req = httpMock.expectOne('/api/game/new');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({
+      players: [],
+      judge: 0,
+      winnerBecomesJudge: false,
+      responses: [],
+      scores: [], 
+      pastResponses: []
+    });
+    httpMock.verify();
   });
 });

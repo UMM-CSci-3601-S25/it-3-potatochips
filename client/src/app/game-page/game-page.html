@@ -14,9 +14,12 @@
       </li>
     </ul>
     <ul [style]="responsesReady() ? 'display: flex' : 'display: none'"><li *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)"> {{ response }}</button></li></ul>
-    <mat-form-field>
+    <mat-form-field [style]="this.game()?.gameOver ? 'display: none' : 'display: block'">
       <input id = "response-input" matInput type="text" [(ngModel)]="response">
       <input id = "response-button" type="submit" value="Submit" (click)="submitResponse()">
     </mat-form-field>
+    <h1 [style]="this.game()?.gameOver ? 'display: block' : 'display: none'">
+      <span style="color: red">Game Over!</span>
+    </h1>
   </div>
 </div>

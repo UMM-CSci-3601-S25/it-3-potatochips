@@ -18,4 +18,5 @@ public class Game {
   public boolean winnerBecomesJudge;
   public String[] pastResponses;
   public int targetScore;
+  public boolean gameOver;
 }

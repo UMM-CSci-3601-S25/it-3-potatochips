@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -9,12 +9,15 @@ import { HomeComponent } from './landing-page';
 import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { RouterModule } from '@angular/router';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
   let fixture: ComponentFixture<HomeComponent>;
-  beforeEach(waitForAsync(() => {
+
+  beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
         BrowserAnimationsModule,
@@ -24,22 +27,23 @@ describe('HomeComponent', () => {
         MatCardModule,
         MatListModule,
         FormsModule,
+        RouterModule.forRoot([
+          { path: 'game/new', component: HomeComponent }
+        ]),
         HomeComponent,
-        HttpTestingController
       ],
-      providers: [provideHttpClientTesting()],
+      providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()],
     }).compileComponents();
-  }));
+  });
 
-  it('should create landing page', () => {
-    const fixture = TestBed.createComponent(HomeComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+  beforeEach(() => {
+    fixture = TestBed.createComponent(HomeComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    TestBed.inject(HttpTestingController);
   });
 
   it('should call createGame when Create New Game button is clicked', () => {
-    const fixture = TestBed.createComponent(HomeComponent);
-    const component = fixture.componentInstance;
     spyOn(component, 'createGame');
     const createButton = fixture.debugElement.query(By.css('button#create-game'));
     createButton.triggerEventHandler('click', null);
@@ -47,16 +51,12 @@ describe('HomeComponent', () => {
   });
 
   it('should have a Join Game button', () => {
-    const fixture = TestBed.createComponent(HomeComponent);
-    fixture.detectChanges();
     const joinButton = fixture.debugElement.query(By.css('button#join-game'));
     expect(joinButton).toBeTruthy();
   });
 
   it('should call createGame and send the correct payload', () => {
-    const fixture = TestBed.createComponent(HomeComponent);
-    const component = fixture.componentInstance;
-    const routerSpy = spyOn(component['router'], 'navigateByUrl');
+    //const routerSpy = spyOn(component['router'], 'navigateByUrl');
     component.createGame();
     const httpMock = TestBed.inject(HttpTestingController);
     const req = httpMock.expectOne('/api/game/new');
@@ -66,7 +66,7 @@ describe('HomeComponent', () => {
       judge: 0,
       winnerBecomesJudge: false,
       responses: [],
-      scores: [], 
+      scores: [],
       pastResponses: []
     });
     httpMock.verify();

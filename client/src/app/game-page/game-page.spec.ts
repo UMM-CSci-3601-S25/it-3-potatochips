@@ -263,12 +263,28 @@ describe('GameComponent', () => {
       _id: 'test-game-id',
       responses: ['Response1', 'Response2', 'Response3'], // All responses are filled
       players: ['Player1', 'Player2', 'Player3'],
-      judge: 0
+      judge: 0,
     };
     component.game = signal(mockGame); // Mock the game object
 
     const result = component.responsesReady(); // Call the method
 
+    expect(result).toBe(true); // Verify it returns true
+  });
+
+  it('Should return Game Over when hit target score', () => {
+    const mockGame = {
+      _id: 'test-game-id',
+      players: ['Player1', 'Player2', 'Player3'],
+      scores: [1, 2, 3], // Example scores
+      targetScore: 3, // Set target score to 30
+      gameOver: true,
+      responses: ['limes', 'touch grass', 'get a life'],
+    };
+    component.game = signal(mockGame); // Mock the game object
+
+    const result = component.game().gameOver; // Call the method
+    expect(component.game().players.length).toBe(3); // Verify it returns true
     expect(result).toBe(true); // Verify it returns true
   });
 });

@@ -10,7 +10,6 @@ public class Game {
   public String _id;
 
   public String[] players;
-  public String prompt;
   public String[] responses;
   public int judge;
   public int[] scores;

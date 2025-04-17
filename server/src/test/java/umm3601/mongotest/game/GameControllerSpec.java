@@ -101,7 +101,6 @@ class GameControllerSpec {
 
     Document newGame = new Document()
       .append("players", usernames)
-      .append("prompt", "What is the meaning of life?")
       .append("responses", responses)
       .append("judge", 1)
       .append("discardLast", true)
@@ -184,7 +183,6 @@ class GameControllerSpec {
     when(ctx.pathParam("id")).thenReturn(id);
 
     Document updatedGame = new Document("$set", new Document()
-        .append("prompt", "Updated prompt")
         .append("judge", 2));
     when(ctx.body()).thenReturn(updatedGame.toJson());
 
@@ -201,7 +199,6 @@ class GameControllerSpec {
     when(ctx.pathParam("id")).thenReturn(id);
 
     Document updatedGame = new Document()
-        .append("prompt", "Updated prompt")
         .append("judge", 2);
     when(ctx.body()).thenReturn(updatedGame.toJson());
 

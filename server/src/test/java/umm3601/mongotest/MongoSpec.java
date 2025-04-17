@@ -115,7 +115,6 @@ class GameControllerSpec {
   void addNewGame() throws IOException {
     // Create a new user to add
     Game newGame = new Game();
-    //newGame.prompt = "Maul";
     newGame.judge = 1;
     newGame.discardLast = false;
     newGame.winnerBecomesJudge = false;
@@ -148,7 +147,6 @@ class GameControllerSpec {
     // The new user in the database (`addedUser`) should have the same
     // field values as the user we asked it to add (`newUser`).
 
-    //assertEquals(newGame.prompt, addedGame.get("prompt"));
     assertEquals(newGame.judge, addedGame.get("judge"));
     assertEquals(newGame.discardLast, addedGame.get("discardLast"));
     assertEquals(newGame.winnerBecomesJudge, addedGame.get("winnerBecomesJudge"));

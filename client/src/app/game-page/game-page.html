@@ -8,26 +8,26 @@
       </mat-form-field>
     </mat-card>
     <h1 style="margin: 0 5%">{{ this.game()?.responses[this.game()?.judge]}}</h1>
-    <div style="float: right; width: 25%; border: none; display: flex">
+    <div style="float: right; width: 25%; border: none; display: flex; text-wrap: nowrap">
       <ul>
-        <span *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
+        <li *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
           Player: {{ i + 1 }}
-        </span>
+        </li>
       </ul>
       <ul>
-        <span *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
+        <li *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
           {{ this.game()?.scores[i] }}
-        </span>
+        </li>
       </ul>
       <ul>
-        <span *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
+        <li *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
           <span [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span>
-        </span>
+        </li>
       </ul>
       <ul>
-        <span *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
+        <li *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
           {{ this.game()?.pastResponses[i] }}
-        </span>
+        </li>
       </ul>
     </div>
     <ul [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">

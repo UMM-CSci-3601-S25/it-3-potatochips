@@ -8,11 +8,14 @@
       </mat-form-field>
     </mat-card>
     <h1 style="margin: 0 5%">{{ this.game()?.responses[this.game()?.judge]}}</h1>
-    <ul style="float: right; width: 25%; color: green">
-      <li *ngFor="let player of this.game()?.players; let i = index">
-        {{ this.game()?.scores[i] }} - <span [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span> - {{ this.game()?.pastResponses[i] }}
-      </li>
-    </ul>
+    <table style="float: right; width: 25%; border: none;">
+      <tr *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
+        <td>Player: {{ playerId }}</td>
+        <td>{{ this.game()?.scores[i] }}</td>
+        <td [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</td>
+        <td>{{ this.game()?.pastResponses[i] }}</td>
+      </tr>
+    </table>
     <ul [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">
       <li *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)">{{ response }}</button></li>
     </ul>

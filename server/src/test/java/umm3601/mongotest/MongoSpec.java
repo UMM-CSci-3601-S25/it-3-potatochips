@@ -1,36 +1,43 @@
 package umm3601.mongotest;
 
-import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
-import static com.mongodb.client.model.Filters.gt;
-import static com.mongodb.client.model.Projections.excludeId;
-import static com.mongodb.client.model.Projections.fields;
-import static com.mongodb.client.model.Projections.include;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoIterable;
-import com.mongodb.client.model.Accumulators;
-import com.mongodb.client.model.Aggregates;
-import com.mongodb.client.model.Sorts;
+
+
+import io.javalin.http.Context;
+import io.javalin.http.HttpStatus;
+import io.javalin.json.JavalinJackson;
+import io.javalin.validation.BodyValidator;
+import umm3601.game.Game;
+import umm3601.game.GameController;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 /**
  * Some simple "tests" that demonstrate our ability to
@@ -54,12 +61,26 @@ import org.junit.jupiter.api.Test;
 // also a lot of "magic strings" that Checkstyle doesn't actually
 // flag as a problem) make more sense.
 @SuppressWarnings({"MagicNumber"})
-class MongoSpec {
+class GameControllerSpec {
 
-  private MongoCollection<Document> userDocuments;
+  private MongoCollection<Document> gameDocuments;
 
   private static MongoClient mongoClient;
   private static MongoDatabase db;
+  private GameController gameController;
+  private JavalinJackson javalinJackson = new JavalinJackson();
+
+  @Mock
+  private Context ctx;
+
+  @Captor
+  private ArgumentCaptor<ArrayList<Game>> gameArrayListCaptor;
+
+  @Captor
+  private ArgumentCaptor<Game> gameCaptor;
+
+  @Captor
+  private ArgumentCaptor<Map<String, String>> mapCaptor;
 
   @BeforeAll
   static void setupDB() {
@@ -72,6 +93,8 @@ class MongoSpec {
       .build());
 
     db = mongoClient.getDatabase("test");
+
+
   }
 
   @AfterAll
@@ -79,167 +102,54 @@ class MongoSpec {
     db.drop();
     mongoClient.close();
   }
-
   @BeforeEach
-  void clearAndPopulateDB() {
-    userDocuments = db.getCollection("users");
-    userDocuments.drop();
-    List<Document> testUsers = new ArrayList<>();
-    testUsers.add(
-      new Document()
-        .append("name", "Chris")
-        .append("age", 25)
-        .append("company", "UMM")
-        .append("email", "chris@this.that"));
-    testUsers.add(
-      new Document()
-        .append("name", "Pat")
-        .append("age", 37)
-        .append("company", "IBM")
-        .append("email", "pat@something.com"));
-    testUsers.add(
-      new Document()
-        .append("name", "Jamie")
-        .append("age", 37)
-        .append("company", "Frogs, Inc.")
-        .append("email", "jamie@frogs.com"));
+  void setupEach() throws IOException {
+    // Reset our mock context and argument captor (declared with Mockito
+    // annotations @Mock and @Captor)
+    MockitoAnnotations.openMocks(this);
 
-    userDocuments.insertMany(testUsers);
-  }
-
-  private List<Document> intoList(MongoIterable<Document> documents) {
-    List<Document> users = new ArrayList<>();
-    documents.into(users);
-    return users;
-  }
-
-  private int countUsers(FindIterable<Document> documents) {
-    List<Document> users = intoList(documents);
-    return users.size();
+    gameController = new GameController(db);
   }
 
   @Test
-  void shouldBeThreeUsers() {
-    FindIterable<Document> documents = userDocuments.find();
-    int numberOfUsers = countUsers(documents);
-    assertEquals(3, numberOfUsers, "Should be 3 total users");
+  void addNewGame() throws IOException {
+    // Create a new user to add
+    Game newGame = new Game();
+    newGame.judge = 1;
+    newGame.discardLast = false;
+    newGame.winnerBecomesJudge = false;
+
+    String newGameJson = javalinJackson.toJsonString(newGame, Game.class);
+
+    // A `BodyValidator` needs
+    //   - The string (`newUserJson`) being validated
+    //   - The class (`User.class) it's trying to generate from that string
+    //   - A function (`() -> User`) which "shows" the validator how to convert
+    //     the JSON string to a `User` object. We'll again use `javalinJackson`,
+    //     but in the other direction.
+    when(ctx.bodyValidator(Game.class))
+      .thenReturn(new BodyValidator<Game>(newGameJson, Game.class,
+                    () -> javalinJackson.fromJsonString(newGameJson, Game.class)));
+
+    gameController.addNewGame(ctx);
+    verify(ctx).json(mapCaptor.capture());
+
+    // Our status should be 201, i.e., our new user was successfully created.
+    verify(ctx).status(HttpStatus.CREATED);
+
+    // Verify that the user was added to the database with the correct ID
+    Document addedGame = db.getCollection("games")
+        .find(eq("_id", new ObjectId(mapCaptor.getValue().get("id")))).first();
+
+    // Successfully adding the user should return the newly generated, non-empty
+    // MongoDB ID for that user.
+    assertNotEquals("", addedGame.get("id"));
+    // The new user in the database (`addedUser`) should have the same
+    // field values as the user we asked it to add (`newUser`).
+
+    assertEquals(newGame.judge, addedGame.get("judge"));
+    assertEquals(newGame.discardLast, addedGame.get("discardLast"));
+    assertEquals(newGame.winnerBecomesJudge, addedGame.get("winnerBecomesJudge"));
   }
-
-  @Test
-  void shouldBeOneChris() {
-    FindIterable<Document> documents = userDocuments.find(eq("name", "Chris"));
-    int numberOfUsers = countUsers(documents);
-    assertEquals(1, numberOfUsers, "Should be 1 Chris");
-  }
-
-  @Test
-  void shouldBeTwoOver25() {
-    FindIterable<Document> documents = userDocuments.find(gt("age", 25));
-    int numberOfUsers = countUsers(documents);
-    assertEquals(2, numberOfUsers, "Should be 2 over 25");
-  }
-
-  @Test
-  void over25SortedByName() {
-    List<Document> docs
-      = userDocuments.find(gt("age", 25))
-      .sort(Sorts.ascending("name"))
-      .into(new ArrayList<>());
-    assertEquals(2, docs.size(), "Should be 2");
-    assertEquals("Jamie", docs.get(0).get("name"), "First should be Jamie");
-    assertEquals("Pat", docs.get(1).get("name"), "Second should be Pat");
-  }
-
-  @Test
-  void over25AndIbmers() {
-    List<Document> docs
-      = userDocuments.find(and(gt("age", 25),
-      eq("company", "IBM")))
-      .into(new ArrayList<>());
-    assertEquals(1, docs.size(), "Should be 1");
-    assertEquals("Pat", docs.get(0).get("name"), "First should be Pat");
-  }
-
-  @Test
-  void justNameAndEmail() {
-    List<Document> docs
-      = userDocuments.find().projection(fields(include("name", "email")))
-      .into(new ArrayList<>());
-    assertEquals(3, docs.size(), "Should be 3");
-    assertEquals("Chris", docs.get(0).get("name"), "First should be Chris");
-    assertNotNull(docs.get(0).get("email"), "First should have email");
-    assertNull(docs.get(0).get("company"), "First shouldn't have 'company'");
-    assertNotNull(docs.get(0).get("_id"), "First should have '_id'");
-  }
-
-  @Test
-  void justNameAndEmailNoId() {
-    List<Document> docs
-      = userDocuments.find()
-      .projection(fields(include("name", "email"), excludeId()))
-      .into(new ArrayList<>());
-    assertEquals(3, docs.size(), "Should be 3");
-    assertEquals("Chris", docs.get(0).get("name"), "First should be Chris");
-    assertNotNull(docs.get(0).get("email"), "First should have email");
-    assertNull(docs.get(0).get("company"), "First shouldn't have 'company'");
-    assertNull(docs.get(0).get("_id"), "First should not have '_id'");
-  }
-
-  @Test
-  void justNameAndEmailNoIdSortedByCompany() {
-    List<Document> docs
-      = userDocuments.find()
-      .sort(Sorts.ascending("company"))
-      .projection(fields(include("name", "email"), excludeId()))
-      .into(new ArrayList<>());
-    assertEquals(3, docs.size(), "Should be 3");
-    assertEquals("Jamie", docs.get(0).get("name"), "First should be Jamie");
-    assertNotNull(docs.get(0).get("email"), "First should have email");
-    assertNull(docs.get(0).get("company"), "First shouldn't have 'company'");
-    assertNull(docs.get(0).get("_id"), "First should not have '_id'");
-  }
-
-  @Test
-  void ageCounts() {
-    List<Document> docs
-      = userDocuments.aggregate(
-      Arrays.asList(
-        /*
-         * Groups data by the "age" field, and then counts
-         * the number of documents with each given age.
-         * This creates a new "constructed document" that
-         * has "age" as it's "_id", and the count as the
-         * "ageCount" field.
-         */
-        Aggregates.group("$age",
-          Accumulators.sum("ageCount", 1)),
-        Aggregates.sort(Sorts.ascending("_id"))
-      )
-    ).into(new ArrayList<>()); //Attempts to coerce the resulting AggregateIterable object into an ArrayList.
-    assertEquals(2, docs.size(), "Should be two distinct ages");
-    assertEquals(25, docs.get(0).get("_id"));
-    assertEquals(1, docs.get(0).get("ageCount"));
-    assertEquals(37, docs.get(1).get("_id"));
-    assertEquals(2, docs.get(1).get("ageCount"));
-  }
-
-  @Test
-  void averageAge() {
-    List<Document> docs
-      = userDocuments.aggregate(
-      Arrays.asList(
-        Aggregates.group("$company",
-          Accumulators.avg("averageAge", "$age")),
-        Aggregates.sort(Sorts.ascending("_id"))
-      )).into(new ArrayList<>());
-    assertEquals(3, docs.size(), "Should be three companies");
-
-    assertEquals("Frogs, Inc.", docs.get(0).get("_id"));
-    assertEquals(37.0, docs.get(0).get("averageAge"));
-    assertEquals("IBM", docs.get(1).get("_id"));
-    assertEquals(37.0, docs.get(1).get("averageAge"));
-    assertEquals("UMM", docs.get(2).get("_id"));
-    assertEquals(25.0, docs.get(2).get("averageAge"));
-  }
-
 }
+

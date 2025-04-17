@@ -3,7 +3,7 @@ package umm3601;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoDatabase;
 
-import umm3601.user.UserController;
+import umm3601.game.GameController;
 
 public class Main {
 
@@ -55,12 +55,7 @@ public class Main {
    */
   static Controller[] getControllers(MongoDatabase database) {
     Controller[] controllers = new Controller[] {
-      // You would add additional controllers here, as you create them,
-      // although you need to make sure that each of your new controllers implements
-      // the `Controller` interface.
-      //
-      // You can also remove this UserController once you don't need it.
-      new UserController(database)
+      new GameController(database)
     };
     return controllers;
   }

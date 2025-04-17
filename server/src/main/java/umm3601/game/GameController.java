@@ -4,13 +4,11 @@ import java.util.Map;
 
 import org.bson.Document;
 import org.bson.UuidRepresentation;
-// import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.mongojack.JacksonMongoCollection;
 
 import com.mongodb.client.MongoDatabase;
 import static com.mongodb.client.model.Filters.eq;
-
 
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
@@ -18,6 +16,7 @@ import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
 import umm3601.Controller;
+import umm3601.Server;
 
 
 
@@ -53,6 +52,7 @@ public class GameController implements Controller {
     }
   }
 
+  @Override
   public void addRoutes(Javalin server) {
     server.get(API_GAME_BY_ID, this::getGame);
     server.post(API_NEW_GAME, this::addNewGame);
@@ -79,6 +79,7 @@ public class GameController implements Controller {
     // }
 
     gameCollection.updateById(new ObjectId(id), newGameDoc);
+    Server.broadcastUpdate("Game updated: " + id); // Notify WebSocket clients
     ctx.status(HttpStatus.OK);
   }
 

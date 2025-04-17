@@ -10,24 +10,24 @@
     <h1 style="margin: 0 5%">{{ this.game()?.responses[this.game()?.judge]}}</h1>
     <div style="float: right; width: 25%; border: none; display: flex">
       <ul>
-        <li *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
+        <span *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
           Player: {{ i + 1 }}
-        </li>
+        </span>
       </ul>
       <ul>
-        <li *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
+        <span *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
           {{ this.game()?.scores[i] }}
-        </li>
+        </span>
       </ul>
       <ul>
-        <li *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
+        <span *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
           <span [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span>
-        </li>
+        </span>
       </ul>
       <ul>
-        <li *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
+        <span *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: black;'">
           {{ this.game()?.pastResponses[i] }}
-        </li>
+        </span>
       </ul>
     </div>
     <ul [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">

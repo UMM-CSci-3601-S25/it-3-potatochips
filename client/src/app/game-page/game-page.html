@@ -13,7 +13,12 @@
         {{ this.game()?.scores[i] }} - <span [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span> - {{ this.game()?.pastResponses[i] }}
       </li>
     </ul>
-    <ul [style]="responsesReady() ? 'display: flex' : 'display: none'"><li *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)"> {{ response }}</button></li></ul>
+    <ul [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">
+      <li *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)">{{ response }}</button></li>
+    </ul>
+    <ul [style]="responsesReady() && playerId != this.game()?.judge ? 'display: flex' : 'display: none'">
+      <li *ngFor="let response of getResponses(); index as i">{{ response }}</li>
+    </ul>
     <mat-form-field>
       <input id = "response-input" matInput type="text" [(ngModel)]="response">
       <input id = "response-button" type="submit" value="Submit" (click)="submitResponse()">

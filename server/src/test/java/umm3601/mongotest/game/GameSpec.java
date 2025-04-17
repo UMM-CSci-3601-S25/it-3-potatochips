@@ -1,11 +1,12 @@
 package umm3601.mongotest.game;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import umm3601.game.Game;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import umm3601.game.Game;
 
 public class GameSpec {
 
@@ -17,7 +18,6 @@ public class GameSpec {
     game = new Game();
     game._id = "12345";
     game.players = new String[]{"Alice", "Bob"};
-    //game.prompt = "What is the meaning of life?";
     game.responses = new String[]{"42", "To be happy"};
     game.judge = 1;
     game.discardLast = true;

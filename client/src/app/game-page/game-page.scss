@@ -9,19 +9,19 @@ li {
   display: flex;
 }
 
-.playerNumber, .score, .username, .previous, .waiting {
+.player-number, .score, .username, .previous, .waiting {
   padding: 3px;
   overflow: hidden;
   margin: 5px;
 }
 
-.playerNumber { width: 100px; }
-.score { width: 100px; }
-.username { width: 100px; }
-.previous { width: 150px; }
+.player-number { width: 80px; }
+.score { width: 60px; }
+.username { width: 150px; }
+.previous { width: 120px; }
 .waiting { width: 30px; }
 
-#name-input { margin-left: 1%; }
+#name-input { margin-left: 2%; }
 
 #prompt {
   padding: none;
@@ -39,6 +39,9 @@ li {
 
 .response { font-size: 20pt; margin: 0 1.5%; }
 
-#join-field, #name-input, #name-button { margin: 1% 0; }
-#name-input { margin-left: 1%; }
-#name-button { margin-right: 1%; }
+#name-input, #rejoin-input, #name-button, #rejoin-button {
+  padding: 0;
+  margin: 0;
+}
+
+.join-text { margin: 7vh 0 2vh 0; }

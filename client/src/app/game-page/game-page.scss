@@ -1,3 +1,5 @@
+* { font-size: 15pt; }
+
 li {
     padding: 1%;
     list-style-type: none;
@@ -7,18 +9,17 @@ li {
   display: flex;
 }
 
-.playerNumber, .score, .username, .previous {
+.playerNumber, .score, .username, .previous, .waiting {
   padding: 3px;
   overflow: hidden;
-  width: 150px;
   margin: 5px;
-  font-size: 15pt;
 }
 
 .playerNumber { width: 100px; }
 .score { width: 100px; }
 .username { width: 100px; }
-.previous { width: 100px; }
+.previous { width: 150px; }
+.waiting { width: 30px; }
 
 #name-input { margin-left: 1%; }
 
@@ -38,4 +39,6 @@ li {
 
 .response { font-size: 20pt; margin: 0 1.5%; }
 
-#join-field, #name-input, #name-button { font-size: 15pt; }
+#join-field, #name-input, #name-button { margin: 1% 0; }
+#name-input { margin-left: 1%; }
+#name-button { margin-right: 1%; }

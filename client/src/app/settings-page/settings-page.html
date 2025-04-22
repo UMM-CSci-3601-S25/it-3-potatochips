@@ -2,6 +2,7 @@
   <div class="flex-1">
     <mat-card class="home-card">
       <h1 id="game-code">Sharable code: {{ game()?._id }}</h1>
+      <button [cdkCopyToClipboard]="game()?._id"> Copy Code</button>
     </mat-card>
     <mat-card class="home-card">
       <mat-card-content>

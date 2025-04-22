@@ -62,9 +62,6 @@ export default [{
 })), {
     files: ["**/*.html"],
     rules: {
-      "@angular-eslint/template/eqeqeq": ["warn", {
-          allowNullOrUndefined: true,
-        }
-      ],
+      "@angular-eslint/template/eqeqeq": "off",
     },
 }];

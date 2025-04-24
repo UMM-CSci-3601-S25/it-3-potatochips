@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { Router, RouterLink } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { Game } from '../game';
 import { map } from 'rxjs';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 
@@ -16,13 +17,20 @@ import { map } from 'rxjs';
   templateUrl: 'landing-page.html',
   styleUrls: ['./landing-page.scss'],
   providers: [],
-  imports: [MatCardModule, RouterLink, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule]
+  imports: [MatCardModule, RouterLink, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, MatSnackBarModule]
 })
 export class HomeComponent {
   constructor(private httpClient: HttpClient, private router: Router) {
   }
+  private snackBar = inject(MatSnackBar);
 
   joinId = "";
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action,{
+      duration: 3000, // Duration in milliseconds
+    });
+  }
 
   createGame() {
     console.info("createGame() called");

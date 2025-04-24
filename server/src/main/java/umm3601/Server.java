@@ -54,7 +54,7 @@ public class Server {
 
   private static final Set<WsContext> connectedClients = ConcurrentHashMap.newKeySet();
   private static final ConcurrentHashMap<WsContext, Boolean> clientAliveStatus = new ConcurrentHashMap<>();
-  private static final long HEARTBEAT_INTERVAL = 1000 * 10;
+  private static final long HEARTBEAT_INTERVAL = 1000 * 30;
     // Update the Game State
   // private int currentRound = 1;
   // private Map<String, Integer> playerScores = new HashMap<>(); // Player name -> score
@@ -265,10 +265,13 @@ public class Server {
           if (!client.session.isOpen()) {
              connectedClients.remove(client);
              clientAliveStatus.remove(client);
-             return;
+             
+          } else {
+            clientAliveStatus.put(client, false);
+            client.send("ping");
           }
-          clientAliveStatus.put(client, false); //Set to false expecting client to respond to ping
-          client.send("ping");
+          //Set to false expecting client to respond to ping
+
 
 
 // Send a ping message to keep the connection aliv

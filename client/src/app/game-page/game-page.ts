@@ -40,8 +40,8 @@ export class GameComponent {
 
 
   private socket: WebSocket;
-  private readonly PONG_TIMEOUT = ((1000 * 5) + (1000 * 1)) // 5 + 1 second for buffer
-  private readonly PING_INTERVAL = 5000;
+  private readonly PONG_TIMEOUT = ((1000 * 10) + (1000 * 1)) // 5 + 1 second for buffer
+  private readonly PING_INTERVAL = 1000 * 10;
   private heartbeatInterval: number;
   private pongTimeout: number;
 
@@ -93,7 +93,7 @@ export class GameComponent {
     this.socket.onclose = () => {
       console.warn('WebSocket connection closed. Reconnecting...');
       this.cleanupWebSocket();
-      setTimeout(() => this.WebsocketSetup(), 1000);
+      setTimeout(() => this.WebsocketSetup(), 1000 * 3);
     };
     // Attempt to reconnect after 1 second
     //We may be able to implement a reconnect button by calling the websocketsetup.
@@ -104,7 +104,7 @@ export class GameComponent {
 
 
   private Heartbeat() {
-    this.heartbeatInterval = setInterval(() => {
+    setInterval(() => {
       if (this.socket.readyState === WebSocket.OPEN) {
         this.socket.send('ping');
         this.resetPongTimeout();
@@ -115,7 +115,7 @@ export class GameComponent {
 
   private resetPongTimeout() {
     clearTimeout(this.pongTimeout);
-    this.pongTimeout = setTimeout(() => {
+    setTimeout(() => {
       console.warn('Pong not received. Reconnecting...');
       this.socket.close(); // This will trigger onclose to reconnect
     }, this.PONG_TIMEOUT);

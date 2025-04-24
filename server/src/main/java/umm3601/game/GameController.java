@@ -4,13 +4,11 @@ import java.util.Map;
 
 import org.bson.Document;
 import org.bson.UuidRepresentation;
-// import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.mongojack.JacksonMongoCollection;
 
 import com.mongodb.client.MongoDatabase;
 import static com.mongodb.client.model.Filters.eq;
-
 
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
@@ -54,6 +52,7 @@ public class GameController implements Controller {
     }
   }
 
+  @Override
   public void addRoutes(Javalin server) {
     server.get(API_GAME_BY_ID, this::getGame);
     server.post(API_NEW_GAME, this::addNewGame);

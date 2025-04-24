@@ -52,6 +52,9 @@ public class Server {
   private Controller[] controllers;
 
 
+
+
+
   private static final Set<WsContext> connectedClients = ConcurrentHashMap.newKeySet();
   private static final ConcurrentHashMap<WsContext, Boolean> clientAliveStatus = new ConcurrentHashMap<>();
   private static final long HEARTBEAT_INTERVAL = 1000 * 10;
@@ -231,6 +234,7 @@ public class Server {
 
 
     server.ws("/api/game/updates", ws -> {
+
       ws.onConnect(ctx -> {
         connectedClients.add(ctx);
         clientAliveStatus.put(ctx,true);
@@ -283,7 +287,7 @@ public class Server {
 
 
   public static void broadcastUpdate(String message) {
-    for (WsContext client : connectedClients) {
+    for (WsContext client : CONNECTED_CLIENTS) {
       client.send(message);
     }
   }

@@ -16,6 +16,8 @@ import { CommonModule } from '@angular/common'; // Import CommonModule
 //import { console } from 'inspector';
 
 
+
+
 @Component({
   selector: 'app-game-page',
   templateUrl: 'game-page.html',
@@ -36,18 +38,21 @@ export class GameComponent {
   game: WritableSignal<Game | null> = signal(null); // Use WritableSignal and initialize with null
   error = signal({help: '', httpResponse: '', message: ''});
 
+
   private socket: WebSocket;
+  private readonly PONG_TIMEOUT = ((1000 * 5) + (1000 * 1)) // 5 + 1 second for buffer
+  private readonly PING_INTERVAL = 5000;
+  private heartbeatInterval: number;
+  private pongTimeout: number;
+
 
   constructor(
     private route: ActivatedRoute,
     private httpClient: HttpClient
   ) {
-    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
-    this.socket.onmessage = (event) => {
-      console.log('WebSocket message received:', event.data);
-      this.refreshGame(); // Refresh game data on update
-    };
 
+
+    this.WebsocketSetup();
     // Initialize the game signal with data from the server
     this.route.paramMap.pipe(
       map((paramMap: ParamMap) => paramMap.get('id')),
@@ -62,6 +67,68 @@ export class GameComponent {
       })
     ).subscribe((game) => this.game.set(game)); // Update the signal with the fetched game
   }
+
+
+  private WebsocketSetup() {
+    this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
+    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
+
+
+    this.socket.onopen = () => {
+      console.log('WebSocket connected');
+      this.Heartbeat();
+    };
+
+
+    this.socket.onmessage = (event) => {
+      if (event.data === 'ping') {
+        console.log('ping received from server')
+        this.socket.send('pong');
+      }
+      console.log('WebSocket message received:', event.data);
+      this.refreshGame();
+    };
+
+
+    this.socket.onclose = () => {
+      console.warn('WebSocket connection closed. Reconnecting...');
+      this.cleanupWebSocket();
+      setTimeout(() => this.WebsocketSetup(), 1000);
+    };
+    // Attempt to reconnect after 1 second
+    //We may be able to implement a reconnect button by calling the websocketsetup.
+
+
+    //Can add a socket.onerror aswell,
+  }
+
+
+  private Heartbeat() {
+    this.heartbeatInterval = setInterval(() => {
+      if (this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send('ping');
+        this.resetPongTimeout();
+      }
+    }, this.PING_INTERVAL);
+  }
+
+
+  private resetPongTimeout() {
+    clearTimeout(this.pongTimeout);
+    this.pongTimeout = setTimeout(() => {
+      console.warn('Pong not received. Reconnecting...');
+      this.socket.close(); // This will trigger onclose to reconnect
+    }, this.PONG_TIMEOUT);
+
+
+  }
+
+
+  private cleanupWebSocket() {
+    clearInterval(this.heartbeatInterval);
+    clearTimeout(this.pongTimeout);
+  }
+
 
   refreshGame() {
     const gameId = this.game()?.['_id'];

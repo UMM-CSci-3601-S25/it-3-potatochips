@@ -1,4 +1,4 @@
-import { Component, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
@@ -13,6 +13,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 //import { console } from 'inspector';
 
 
@@ -28,7 +29,8 @@ import { CommonModule } from '@angular/common'; // Import CommonModule
     MatSelectModule,
     FormsModule,
     MatCheckboxModule,
-    CommonModule // Add CommonModule to imports
+    CommonModule,
+    MatSnackBarModule, // Add CommonModule to imports
   ]
 })
 export class GameComponent {
@@ -37,6 +39,7 @@ export class GameComponent {
   error = signal({help: '', httpResponse: '', message: ''});
 
   private socket: WebSocket;
+  private snackBar = inject(MatSnackBar);
 
   constructor(
     private route: ActivatedRoute,
@@ -61,6 +64,12 @@ export class GameComponent {
         return of(null);
       })
     ).subscribe((game) => this.game.set(game)); // Update the signal with the fetched game
+  }
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action,{
+      duration: 3000, // Duration in milliseconds
+    });
   }
 
   refreshGame() {
@@ -211,3 +220,4 @@ export class GameComponent {
   }
 
 }
+

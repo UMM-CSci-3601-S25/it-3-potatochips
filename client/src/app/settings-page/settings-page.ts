@@ -14,17 +14,17 @@ import { MatSlideToggleModule} from '@angular/material/slide-toggle';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { inject } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-settings-page',
   templateUrl: 'settings-page.html',
   styleUrls: ['./settings-page.scss'],
   providers: [],
-  imports: [MatCardModule, RouterLink, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, MatCheckboxModule, MatSlideToggleModule, ClipboardModule, MatSnackBarModule,],
+  imports: [MatCardModule, RouterLink, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, MatCheckboxModule, MatSlideToggleModule, ClipboardModule, MatSnackBarModule, MatIconModule],
 })
 export class SettingsComponent {
-  message: string = 'Copied code to clipboard';
-  action: string = 'Close';
+
 
   judgeOption = signal<boolean | undefined>(false);
   private judgeOption$ = toObservable(this.judgeOption);
@@ -33,7 +33,9 @@ export class SettingsComponent {
 
 
   openSnackBar(message: string, action: string) {
-    this.snackBar.open(message, action);
+    this.snackBar.open(message, action,{
+      duration: 3000, // Duration in milliseconds
+    });
   }
 
   game = toSignal(

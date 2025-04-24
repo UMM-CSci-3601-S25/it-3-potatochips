@@ -265,16 +265,17 @@ public class Server {
           if (!client.session.isOpen()) {
              connectedClients.remove(client);
              clientAliveStatus.remove(client);
-             
+
           } else {
-            clientAliveStatus.put(client, false);
-            client.send("ping");
+            clientAliveStatus.put(client, false);//Set to false expecting client to respond to ping
+            client.send("ping"); // Send a ping message to keep the connection alive
           }
-          //Set to false expecting client to respond to ping
 
 
 
-// Send a ping message to keep the connection aliv
+
+
+
         }
       }
     }, HEARTBEAT_INTERVAL, HEARTBEAT_INTERVAL);
@@ -287,7 +288,10 @@ public class Server {
 
   public static void broadcastUpdate(String message) {
     for (WsContext client : connectedClients) {
-      client.send(message);
+      Boolean isAlive = clientAliveStatus.get(client);
+      if (isAlive != null && isAlive) {
+        client.send(message);
+      }
     }
   }
 }

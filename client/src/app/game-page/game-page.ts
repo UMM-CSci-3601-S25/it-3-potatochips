@@ -72,14 +72,14 @@ export class GameComponent {
     }
   }
 
-  submitPrompt() {
-    const gameId = this.game()?._id;
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
-    //console.log(this.submission);
-    //this.isPromptSubmitted = true; // Mark the prompt as submitted
-    this.displayedPrompt = this.submission; // Store the submitted prompt
-    this.submission = ''; // Clear the input field
-  }
+  // submitPrompt() {
+  //   const gameId = this.game()?._id;
+  //   this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
+  //   //console.log(this.submission);
+  //   //this.isPromptSubmitted = true; // Mark the prompt as submitted
+  //   this.displayedPrompt = this.submission; // Store the submitted prompt
+  //   this.submission = ''; // Clear the input field
+  // }
 
   submitResponse() {
     const gameId = this.game()?._id;
@@ -105,7 +105,7 @@ export class GameComponent {
   responses: string[] = []; // Initialize responses as an empty array
 
   submitUsername() {
-    if (this.usernameInput.trim()) { //  && this.playerId == null
+    if (this.usernameInput.trim()) {
       this.playerId = this.game().players.length;
       this.username = this.usernameInput.trim(); // Update the displayed username
       const gameId = this.game()?._id;

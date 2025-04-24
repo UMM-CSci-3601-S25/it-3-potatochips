@@ -1,22 +1,35 @@
 <div class="flex-row">
   <div class="flex-1">
-    <mat-card class="home-card">
-      <mat-form-field> <!--[style]="playerId == null ? 'display: block' : 'display: none'"-->
-        Username:
-        <input id="name-input" matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter your username">
-        <button id="name-button" mat-raised-button color="primary" (click)="submitUsername()">Submit Username</button>
-      </mat-form-field>
-    </mat-card>
-    <h1 style="margin: 0 5%">{{ this.game()?.responses[this.game()?.judge]}}</h1>
-    <ul style="float: right; width: 25%; color: green">
-      <li *ngFor="let player of this.game()?.players; let i = index">
-        {{ this.game()?.scores[i] }} - <span [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span> - {{ this.game()?.pastResponses[i] }}
-      </li>
+    <ul style="position: fixed; right: 3%; text-wrap: nowrap">
+      <ul class="player" *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: auto;'">
+        <span class="waiting">{{ this.game()?.responses[i] != "" ? "*" : "" }}</span>
+        <span class="username" [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span>
+        <span class="player-number">Player {{ i + 1 }}</span>
+        <span class="score">{{ this.game()?.scores[i] }} {{ this.game()?.scores[i] == 1 ? "pt" : "pts" }}</span>
+        <span class="previous">{{ this.game()?.pastResponses[i] }}</span>
+      </ul>
     </ul>
-    <ul [style]="responsesReady() ? 'display: flex' : 'display: none'"><li *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)"> {{ response }}</button></li></ul>
-    <mat-form-field>
-      <input id = "response-input" matInput type="text" [(ngModel)]="response">
-      <input id = "response-button" type="submit" value="Submit" (click)="submitResponse()">
-    </mat-form-field>
+    <div class="join-field" [style]="playerId == null ? 'display: block' : 'display: none'">
+      <div class="join-text">Join as new player</div>
+      <input id="name-input" matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter a username">
+      <button id="name-button" mat-raised-button color="primary" (click)="submitUsername()">Submit</button>
+      <br>
+      <div class="join-text">Rejoin:</div>
+      <input id="rejoin-input" matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter your player number">
+      <button id="rejoin-button" mat-raised-button color="primary" (click)="submitUsername()">Submit</button>
+    </div>
+    <div [style]="playerId == null ? 'display: none' : 'display: block'">
+      <div id="prompt">{{ this.game()?.responses[this.game()?.judge] }}</div>
+      <ul [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">
+        <li class="response" *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)">{{ response }}</button></li>
+      </ul>
+      <ul [style]="responsesReady() && playerId != this.game()?.judge ? 'display: flex' : 'display: none'">
+        <li class="response" *ngFor="let response of getResponses(); index as i">{{ response }}</li>
+      </ul>
+      <div id="response-field">
+        <input id = "response-input" matInput type="text" [(ngModel)]="response">
+        <input id = "response-button" type="submit" value="Submit" (click)="submitResponse()">
+      </div>
+    </div>
   </div>
 </div>

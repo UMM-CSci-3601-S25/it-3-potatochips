@@ -33,9 +33,4 @@ describe('Game page', () => {
     page.responseButton().click();
     cy.get('.response').contains('GEJ').should('exist');
   });
-
-  it('Should shuffleArray', () => {
-    const array = [1, 2, 3, 4, 5];
-    const shuffledArray = page.shuffleArray(array);
-  });
 });

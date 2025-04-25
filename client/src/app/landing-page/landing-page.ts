@@ -26,11 +26,11 @@ export class HomeComponent {
 
   joinId = "";
 
-  openSnackBar(message: string, action: string) {
-    this.snackBar.open(message, action,{
-      duration: 3000, // Duration in milliseconds
-    });
-  }
+  // openSnackBar(message: string, action: string) {
+  //   this.snackBar.open(message, action,{
+  //     duration: 3000, // Duration in milliseconds
+  //   });
+  // }
 
   createGame() {
     console.info("createGame() called");

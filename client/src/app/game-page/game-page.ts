@@ -89,7 +89,8 @@ export class GameComponent {
         console.log('ping received from server')
         this.socket.send('pong');
       }
-      console.log('WebSocket message received:', event.data);
+      const sanitizedData = event.data.replace(/[\n\r]/g, '');
+      console.log('WebSocket message received:', sanitizedData);
       this.refreshGame();
     };
 
@@ -108,7 +109,7 @@ export class GameComponent {
 
 
   private Heartbeat() {
-    this.heartbeatInterval = setInterval(() => {
+    setInterval(() => {
       if (this.socket.readyState === WebSocket.OPEN) {
         this.socket.send('ping');
         this.resetPongTimeout();
@@ -119,7 +120,7 @@ export class GameComponent {
 
   private resetPongTimeout() {
     clearTimeout(this.pongTimeout);
-    this.pongTimeout = setTimeout(() => {
+    setTimeout(() => {
       console.warn('Pong not received. Reconnecting...');
       this.socket.close(); // This will trigger onclose to reconnect
     }, this.PONG_TIMEOUT);

@@ -12,11 +12,11 @@
     <div class="join-field" [style]="playerId == null ? 'display: block' : 'display: none'">
       <div class="join-text">Join as new player</div>
       <input id="name-input" matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter a username">
-      <button id="name-button" mat-raised-button color="primary" (click)="submitUsername()" (click)="openSnackBar('Created', 'Undo')">Submit</button>
+      <button id="name-button" mat-raised-button color="primary" (click)="submitUsername()">Submit</button>
       <br>
       <div class="join-text">Rejoin:</div>
-      <input id="rejoin-input" matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter your player number">
-      <button id="rejoin-button" mat-raised-button color="primary" (click)="submitUsername()" (click)="openSnackBar('Rejoined', 'Undo')">Submit</button>
+      <input id="rejoin-input" matInput type="text" [(ngModel)]="playerIdInput" placeholder="Enter your player number">
+      <button id="rejoin-button" mat-raised-button color="primary" (click)="submitPlayerId()">Submit</button>
     </div>
     <div [style]="playerId == null ? 'display: none' : 'display: block'">
       <div id="prompt">{{ this.game()?.responses[this.game()?.judge] }}</div>

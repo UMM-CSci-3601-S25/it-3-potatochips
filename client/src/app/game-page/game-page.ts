@@ -108,6 +108,7 @@ export class GameComponent {
   response = ""
   username = " ";
   usernameInput: string = "";
+  playerIdInput: string = "";
   numPlayers: number = 0;
   //isPromptSubmitted: boolean = false;
   displayedPrompt: string = '';
@@ -139,6 +140,14 @@ export class GameComponent {
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
       //console.log(this.game()); // game object
+      this.openSnackBar('Created', 'Undo');
+    }
+  }
+
+  submitPlayerId() {
+    if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0) {
+      this.playerId = parseInt(this.playerIdInput.trim()) - 1;
+      this.openSnackBar('Rejoined', 'Undo')
     }
   }
 

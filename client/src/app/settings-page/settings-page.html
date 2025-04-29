@@ -2,7 +2,7 @@
   <div class="flex-1">
     <mat-card class="home-card">
       <h1 id="game-code">Sharable code: {{ game()?._id }}
-      <button [cdkCopyToClipboard]="game()?._id"aria-label="Example icon button with a menu icon" (click)="openSnackBar('Copied to clipboard', 'Undo')">
+      <button [cdkCopyToClipboard]="game()?._id"aria-label="Example icon button with a menu icon" (click)="openSnackBar('Copied to clipboard', 'Dismiss')">
         <mat-icon class="copy-icon">content_copy</mat-icon>
       </button>
       </h1>
@@ -10,7 +10,7 @@
     <mat-card class="home-card">
       <mat-card-content>
         <a routerLink="/game/{{game()?._id}}">
-          <button id="start-game" (click)="updateGameSettings()"(click)="openSnackBar('Game Created', 'Undo')">
+          <button id="start-game" (click)="updateGameSettings()"(click)="openSnackBar('Game Created', 'Dismiss')">
             Start Game
           </button>
         </a>

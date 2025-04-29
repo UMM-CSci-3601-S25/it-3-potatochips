@@ -71,4 +71,24 @@ describe('HomeComponent', () => {
     });
     httpMock.verify();
   });
+  // it('should show a snackbar when game is created', () => {
+  //   const httpMock = TestBed.inject(HttpTestingController);
+  //   spyOn(component, 'openSnackBar'); // Spy on the openSnackBar method
+  //   component.createGame();
+  //   const req = httpMock.expectOne('/api/game/new');
+  //   req.flush({ id: '123456' }); // Use 'id' to match the response structure in createGame
+  //   fixture.detectChanges();
+  //   expect(component.openSnackBar).toHaveBeenCalledWith('Game created! Game ID: 123456', 'Close');
+  // });
+
+  // it('should open a snackbar with the correct message and action', () => {
+  //   const snackBarSpy = spyOn(component['snackBar'], 'open'); // Spy on the MatSnackBar's open method
+  //   const message = 'Test Message';
+  //   const action = 'Test Action';
+
+  //   component.openSnackBar(message, action);
+
+  //   expect(snackBarSpy).toHaveBeenCalledWith(message, action, { duration: 3000 });
+  // });
+
 });

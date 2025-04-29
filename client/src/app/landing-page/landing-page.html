@@ -2,7 +2,7 @@
   <div class="flex-1">
     <mat-card class="home-card">
       <mat-card-content>
-        <button id="create-game" (click)="createGame()">
+        <button id="create-game" (click)="createGame()" (click)="openSnackBar('Game created', 'Undo')">
           Create New Game
         </button>
       </mat-card-content>

@@ -28,4 +28,8 @@ export class GamePage {
     return cy.get(this.responseInputButton);
   }
 
+  getPlayers() {
+    return cy.get(this.submitUsername);
+  }
+
 }

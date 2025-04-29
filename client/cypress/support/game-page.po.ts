@@ -19,6 +19,10 @@ export class GamePage {
     return cy.get(this.nameInputButton);
   }
 
+  // submitUsername() {
+  //   return cy.get(this.submitUsername);
+  // }
+
   // readResponseInput(code: string) {
   //   cy.get(this.responseInputField).type(code);
   //   return cy.get(this.responseInputField);

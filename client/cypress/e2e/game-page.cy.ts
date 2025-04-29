@@ -26,6 +26,11 @@ describe('Game page', () => {
     page.nameButton().click();
   });
 
+  // it('Should show all four players for this game', () => {
+  //   page.submitUsername().should('have.lengthOf', 4);
+  // })
+
+
   // it('Should enter response input', () => {
   //   page.readNameInput('GEJ');
   //   page.nameButton().click();

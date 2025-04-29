@@ -85,10 +85,10 @@ describe('HomeComponent', () => {
   //   const snackBarSpy = spyOn(component['snackBar'], 'open'); // Spy on the MatSnackBar's open method
   //   const message = 'Test Message';
   //   const action = 'Test Action';
-  
+
   //   component.openSnackBar(message, action);
-  
+
   //   expect(snackBarSpy).toHaveBeenCalledWith(message, action, { duration: 3000 });
   // });
-   
+
 });

@@ -3,7 +3,7 @@
     <ul style="position: fixed; right: 3%; text-wrap: nowrap">
       <ul class="player" *ngFor="let player of this.game()?.players; let i = index" [style]="i == playerId ? 'color: blue;' : 'color: auto;'">
         <span class="waiting">{{ this.game()?.responses[i] != "" ? "*" : "" }}</span>
-        <span class="username" [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span>
+        <span class="username" [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'" data-test="playerName">{{ player }}</span>
         <span class="player-number">Player {{ i + 1 }}</span>
         <span class="score">{{ this.game()?.scores[i] }} {{ this.game()?.scores[i] == 1 ? "pt" : "pts" }}</span>
         <span class="previous">{{ this.game()?.pastResponses[i] }}</span>

@@ -1,5 +1,6 @@
 export class GamePage {
-  private readonly baseUrl = '/game/123456789';
+  //private readonly baseUrl = '/game/123456789';
+  private readonly specificGameUrl = '/game/681266ce536e072b01791cb6';
   private readonly nameInputField = '#name-input';
   private readonly nameInputButton = '#name-button';
   private readonly responseInputField = '#response-input';
@@ -7,7 +8,7 @@ export class GamePage {
 
 
   navigateTo() {
-    return cy.visit(this.baseUrl);
+    return cy.visit(this.specificGameUrl);
   }
 
   readNameInput(code: string) {
@@ -28,8 +29,9 @@ export class GamePage {
     return cy.get(this.responseInputButton);
   }
 
+  // get all of the things in the DOM that include 'data-test="playerName"'
   getPlayers() {
-    return cy.get(this.submitUsername);
+    return cy.get('[data-test="playerName"]');
   }
 
 }

@@ -1,10 +1,8 @@
 import { defineConfig } from 'cypress';
 import { environment } from './src/environments/environment';
 import { WebSocketSubject } from 'rxjs/webSocket';
-import { WebSocketService } from "./src/app/game-page/webSocket";
 
 let webSocketSubject;
-let webSocketService;
 
 export default defineConfig({
   e2e: {
@@ -13,22 +11,14 @@ export default defineConfig({
         connect() {
           webSocketSubject = new WebSocketSubject(`${environment.wsUrl}`);
           webSocketSubject.next("connected");
-          return null; //cypress needs some returned tWebSockething (can be null)
+          return null; //cypress needs some returned thing (can be null)
         },
-        addPlayer(message) {
-          webSocketSubject = new WebSocketSubject(`${environment.wsUrl}`);
-          const { type, gameId, playerName } = message;
-          webSocketService = new WebSocketService();
-          webSocketService.webSocketSubject = webSocketSubject;
-          webSocketService.sendMessage({ type, gameId, playerName});
+        refreshPage() {
+          // we need to trigger the web socket of our game-page to get a message, and that will trigger refreshPage
+          //gameComponent = new GameComponent(new ActivatedRoute(),new HttpClient())
+          //'/game/681266ce536e072b01791cb6'
+          webSocketSubject.next("refresh");
           return null;
-          // https://medium.com/@codeandbird/end-to-end-testing-of-websocket-chat-app-with-cypress-cy-task-command-aa30471a60b8
-          // https://www.youtube.com/watch?v=0iJ-n6VdbFY&t=324s
-          // {type: 'ADD_PLAYER',
-          //   gameId: this.joinGameForm.value.gameId,
-          //   playerName: this.joinGameForm.value.playerName,
-          // };
-
         }
       });
       config.baseUrl = 'http://localhost:4200';

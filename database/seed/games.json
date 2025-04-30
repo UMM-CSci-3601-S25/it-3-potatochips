@@ -7,5 +7,32 @@
     "judge": 1,
     "discardLast": false,
     "winnerBecomesJudge": false
+  },
+  {
+    "_id": {
+      "$oid": "681266ce536e072b01791cb6"
+    },
+    "players": [
+      "James",
+      "Anton",
+      "Haider",
+      "Elliot"
+    ],
+    "responses": [
+      "",
+      "",
+      "",
+      ""
+    ],
+    "judge": 0,
+    "scores": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "discardLast": false,
+    "winnerBecomesJudge": false,
+    "pastResponses": []
   }
 ]

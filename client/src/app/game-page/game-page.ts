@@ -13,7 +13,6 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
-//import { console } from 'inspector';
 
 
 @Component({
@@ -44,6 +43,19 @@ export class GameComponent {
   ) {
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
     this.socket.onmessage = (event) => {
+      console.log("testrmv" + this.playerId);
+      if(event.data.includes('testRemove')) {
+        const pId = this.playerId;
+        const gameId = this.game()?._id;
+        const connectedPlayers = this.game()?.connectedPlayers;
+        for(let i = 0; i < connectedPlayers.length; i++) {
+          console.log(this.game().players[i] + ": " + this.game().connectedPlayers[i]);
+        }
+        console.log(pId);
+        connectedPlayers[pId] = false;
+        this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+        console.log('testRemove received');
+      }
       console.log('WebSocket message received:', event.data);
       this.refreshGame(); // Refresh game data on update
     };
@@ -85,6 +97,7 @@ export class GameComponent {
     const gameId = this.game()?._id;
     const responses = this.game()?.responses || []; // Ensure responses is defined
     responses[this.playerId] = this.response; // Add the new response to the array
+    console.log("sbtrsp" + this.playerId);
 
     // Ensure the judge's response is treated as the prompt
     if (this.playerId === this.game()?.judge) {
@@ -95,6 +108,7 @@ export class GameComponent {
     this.response = ''; // Clear the input field
     this.shuffleArray();
   }
+  connectedPlayers: boolean[] = [];
   submission = "";
   response = ""
   username = " ";
@@ -106,10 +120,14 @@ export class GameComponent {
 
   submitUsername() {
     if (this.usernameInput.trim()) {
+      console.log("Player ID before they enter: " + this.playerId)
       this.playerId = this.game().players.length;
+      console.log(this.playerId);
       this.username = this.usernameInput.trim(); // Update the displayed username
       const gameId = this.game()?._id;
       const scores = this.game()?.scores;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers.push(true);
       scores.push(0);
       const responses = this.game()?.responses;
       responses.push("");
@@ -123,7 +141,7 @@ export class GameComponent {
       }
 
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
-        $set: { players: players, scores: scores, responses: responses, judge: judge }
+        $set: { players: players, scores: scores, responses: responses, judge: judge, connectedPlayers: connectedPlayers }
       }).subscribe();
 
       this.numPlayers = this.players.length; // Update the number of players

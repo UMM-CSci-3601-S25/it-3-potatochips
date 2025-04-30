@@ -187,7 +187,6 @@ public class Server {
       event.serverStopped(mongoClient::close);
     });
   }
-
   /**
    * Setup routes for the server.
    *
@@ -201,14 +200,42 @@ public class Server {
     }
 
     server.ws("/api/game/updates", ws -> {
-      ws.onConnect(ctx -> connectedClients.add(ctx));
-      ws.onClose(ctx -> connectedClients.remove(ctx));
+      ws.onConnect(ctx -> {connectedClients.add(ctx);
+      System.out.println(ctx.session.getUpgradeRequest().getHeader("Sec-Websocket-Key").toString());
+      System.out.println(ctx.session.getRemote().getRemoteAddress().toString());
+      System.out.println(ctx.session.isOpen());}
+      );
+      ws.onClose(ctx -> {
+      broadcastUpdate(
+      ctx.session.getUpgradeRequest().getHeader("Sec-Websocket-Key").toString());
+      System.out.println("Sends!");
+      }
+      );
     });
   }
 
   public static void broadcastUpdate(String message) {
     for (WsContext client : connectedClients) {
-      client.send(message);
-    }
+      System.out.println("THIS IS THE CLIENT!!!" + client.session.getUpgradeRequest().getHeader("Sec-Websocket-Key").toString());
+      try
+      {
+        System.out.println(message);
+        if(client.session.isOpen())
+          if(message.equals(client.session.getUpgradeRequest().getHeader("Sec-Websocket-Key").toString()))
+          {
+            System.out.println("Removing client!!!!! :DDD");
+            client.send("testRemove");
+            connectedClients.remove(client);
+          }
+          else
+          {
+            System.out.println(message);
+            client.send(message);
+        }
+      }
+        catch (Exception e) {
+        System.out.println("Error sending message to client: " + e.getMessage() + "\n" + e.getLocalizedMessage());
+      }
+      }
   }
 }

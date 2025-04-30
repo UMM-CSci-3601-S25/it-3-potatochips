@@ -15,6 +15,7 @@ import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 //import { console } from 'inspector';
+import { environment } from 'src/environments/environment';
 
 
 @Component({
@@ -45,7 +46,7 @@ export class GameComponent {
     private route: ActivatedRoute,
     private httpClient: HttpClient
   ) {
-    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
+    this.socket = new WebSocket(`${environment.wsUrl}`);
     this.socket.onmessage = (event) => {
       console.log('WebSocket message received:', event.data);
       this.refreshGame(); // Refresh game data on update

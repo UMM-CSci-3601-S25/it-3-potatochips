@@ -93,6 +93,7 @@ public class Server {
 
   /**
    * Setup the MongoDB database connection.
+   
    *
    * This "wires up" the database using either system environment variables
    * or default values. If you're running the server locally without any environment
@@ -220,21 +221,6 @@ public class Server {
   }
 
 
-  /**
-   * Setup routes for the server.
-   *
-   * @param server The Javalin server instance
-   */
-  private void setupRoutes(Javalin server) {
-    // Add the routes for each of the implementations of `Controller` in the
-    // `controllers` array.
-    for (Controller controller : controllers) {
-      controller.addRoutes(server);
-    }
-
-
-    server.ws("/api/game/updates", ws -> {
-
       ws.onConnect(ctx -> {
         CONNECTED_CLIENTS.add(ctx);
         CLIENT_ALIVE_STATUS.put(ctx, true);
@@ -278,5 +264,34 @@ public class Server {
         client.send(message);
       }
     }
+      ws.onConnect(ctx -> connectedClients.add(ctx)
+      );
+      ws.onMessage(ctx -> {
+        System.out.println("Message received: " + ctx.message());
+      });
+      ws.onClose(ctx -> { connectedClients.remove(ctx);
+      }
+      );
+    });
+  }
+
+
+
+  public static void broadcastUpdate(String message) {
+    for (WsContext client : connectedClients) {
+      System.out.println("THIS IS THE CLIENT!!!" + client.session.getUpgradeRequest().getHeader("Sec-Websocket-Key").toString());
+      try
+      {
+        System.out.println(message);
+        if(client.session.isOpen())
+          System.out.println(message);
+          client.send(message);
+      }
+        catch (Exception e) {
+        System.out.println("Error sending message to client: " + e.getMessage() + "\n" + e.getLocalizedMessage());
+        connectedClients.remove(client);
+
+      }
+      }
   }
 }

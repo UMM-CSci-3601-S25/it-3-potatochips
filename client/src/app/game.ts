@@ -8,6 +8,7 @@ export interface Game {
   scores?: number[];
   winnerBecomesJudge?: boolean;
   pastResponses?: string[];
+  connectedPlayers?: boolean[];
 }
 
 

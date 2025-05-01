@@ -321,9 +321,9 @@ describe('GameComponent', () => {
     };
     component.game = signal(mockGame); // Mock the game object
     component.playerIdInput = '2'; // Simulate valid playerId input
-  
+
     component.submitPlayerId(); // Call the method
-  
+
     expect(component.playerId).toBe(1); // Verify playerId is updated (index is 0-based)
     expect(snackBarSpy).toHaveBeenCalledWith('Rejoined', 'Dismiss'); // Verify snackbar is shown
   });

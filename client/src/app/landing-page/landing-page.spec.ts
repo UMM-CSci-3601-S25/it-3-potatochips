@@ -101,5 +101,4 @@ describe('HomeComponent', () => {
   //   expect(navigateSpy).toHaveBeenCalledWith('/settings/123456');
   // });
 
-  
 });

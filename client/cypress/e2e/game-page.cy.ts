@@ -71,6 +71,11 @@ describe('Game page', () => {
   //   cy.request('GET', `${environment.apiUrl}game/681266ce536e072b01791cb6`).then((response) => {
   //     expect(response.body.scores[0]).to.be.greaterThan(0);
   //   });
+
   // });
 
-});
+  // it('Should shuffleArray', () => {
+  //   const array = [1, 2, 3, 4, 5];
+  //   const shuffledArray = page.shuffleArray(array);
+  });
+// });

@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, flush, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
@@ -144,7 +144,6 @@ describe('GameComponent', () => {
     });
 
     component.selectResponse(1); // Select the second response (index 1 in playerPerm)
-
     // Check if the score of the selected player is incremented
     expect(component.game().scores[2]).toBe(1);
 
@@ -305,7 +304,8 @@ describe('GameComponent', () => {
 
     // Simulate a WebSocket message
     const mockMessage = { data: 'Test WebSocket Message' };
-    component['socket'].onmessage(mockMessage as MessageEvent);
+    const socket = new WebSocket('ws://localhost:4567/api/game/updates');
+    socket.onmessage(mockMessage as MessageEvent);
 
     // Verify that refreshGame is called
     expect(refreshGameSpy).toHaveBeenCalled();
@@ -313,5 +313,19 @@ describe('GameComponent', () => {
     // expect(console.log).toHaveBeenCalledWith('WebSocket message received:', mockMessage.data);
   });
 
+  it('should update playerId and show a snackbar when a valid playerId is submitted', () => {
+    const snackBarSpy = spyOn(component, 'openSnackBar'); // Spy on openSnackBar
+    const mockGame = {
+      _id: 'mock-game-id', // Add the required _id property
+      players: ['Player1', 'Player2', 'Player3'], // Mock players
+    };
+    component.game = signal(mockGame); // Mock the game object
+    component.playerIdInput = '2'; // Simulate valid playerId input
+
+    component.submitPlayerId(); // Call the method
+
+    expect(component.playerId).toBe(1); // Verify playerId is updated (index is 0-based)
+    expect(snackBarSpy).toHaveBeenCalledWith('Rejoined game', 'Dismiss'); // Verify snackbar is shown
+  });
 
 });

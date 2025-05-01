@@ -20,14 +20,14 @@ export class GamePage {
     return cy.get(this.nameInputButton);
   }
 
-  // submitUsername() {
-  //   return cy.get(this.submitUsername);
-  // }
+  readResponseInput(code: string) {
+    cy.get(this.responseInputField).type(code);
+    return cy.get(this.responseInputField);
+  }
 
-  // readResponseInput(code: string) {
-  //   cy.get(this.responseInputField).type(code);
-  //   return cy.get(this.responseInputField);
-  // }
+  responseButton() {
+    return cy.get(this.responseInputButton);
+  }
 
   // get all of the things in the DOM that include 'data-test="playerName"'
   getPlayers() {

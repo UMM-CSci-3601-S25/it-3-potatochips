@@ -14,12 +14,8 @@ import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-//import { MatButtonModule } from '@angular/material/button';
-
 //import { console } from 'inspector';
 import { environment } from 'src/environments/environment';
-
-
 
 
 @Component({
@@ -43,15 +39,8 @@ export class GameComponent {
   game: WritableSignal<Game | null> = signal(null); // Use WritableSignal and initialize with null
   error = signal({help: '', httpResponse: '', message: ''});
 
-
   private socket: WebSocket;
-
-  private readonly PONG_TIMEOUT = ((1000 * 5) + (1000 * 1)) // 5 + 1 second for buffer
-  private readonly PING_INTERVAL = 5000;
-  private heartbeatInterval: number;
-  private pongTimeout: number;
   private snackBar = inject(MatSnackBar);
-
 
   constructor(
     private route: ActivatedRoute,
@@ -63,8 +52,6 @@ export class GameComponent {
       this.refreshGame(); // Refresh game data on update
     };
 
-
-    this.WebsocketSetup();
     // Initialize the game signal with data from the server
     this.route.paramMap.pipe(
       map((paramMap: ParamMap) => paramMap.get('id')),
@@ -80,76 +67,11 @@ export class GameComponent {
     ).subscribe((game) => this.game.set(game)); // Update the signal with the fetched game
   }
 
-
-  private WebsocketSetup() {
-    this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
-    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
-
-
-    this.socket.onopen = () => {
-      console.log('WebSocket connected');
-      this.Heartbeat();
-    };
-
-
-    this.socket.onmessage = (event) => {
-      if (event.data === 'ping') {
-        console.log('ping received from server')
-        this.socket.send('pong');
-      }
-      const sanitizedData = event.data.replace(/[\n\r]/g, '');
-      console.log('WebSocket message received:', sanitizedData);
-      this.refreshGame();
-    };
-
-
-    this.socket.onclose = () => {
-      console.warn('WebSocket connection closed. Reconnecting...');
-      this.cleanupWebSocket();
-      setTimeout(() => this.WebsocketSetup(), 1000 * 3);
-    };
-    // Attempt to reconnect after 1 second
-    //We may be able to implement a reconnect button by calling the websocketsetup.
-
-
-    //Can add a socket.onerror aswell,
-  }
-
-
-  private Heartbeat() {
-    setInterval(() => {
-      if (this.socket.readyState === WebSocket.OPEN) {
-        this.socket.send('ping');
-        this.resetPongTimeout();
-      }
-    }, this.PING_INTERVAL);
-  }
-
-
-  private resetPongTimeout() {
-    clearTimeout(this.pongTimeout);
-    setTimeout(() => {
-      console.warn('Pong not received. Reconnecting...');
-      this.socket.close(); // This will trigger onclose to reconnect
-    }, this.PONG_TIMEOUT);
-
-
-  }
-
-
-  private cleanupWebSocket() {
-    clearInterval(this.heartbeatInterval);
-    clearTimeout(this.pongTimeout);
-  }
-
-
-
   openSnackBar(message: string, action: string) {
     this.snackBar.open(message, action,{
       duration: 3000, // Duration in milliseconds
     });
   }
-
 
   refreshGame() {
     const gameId = this.game()?.['_id'];
@@ -185,9 +107,8 @@ export class GameComponent {
   }
   submission = "";
   response = ""
-  username = "";
+  username = " ";
   usernameInput: string = "";
-  playerIdInput: string = "";
   numPlayers: number = 0;
   //isPromptSubmitted: boolean = false;
   displayedPrompt: string = '';
@@ -219,17 +140,9 @@ export class GameComponent {
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
       //console.log(this.game()); // game object
-      this.openSnackBar('Joined game as new player', 'Dismiss');
     }
   }
 
-  submitPlayerId() {
-    if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0) {
-      this.playerId = parseInt(this.playerIdInput.trim()) - 1;
-      this.openSnackBar('Rejoined game', 'Dismiss')
-    }
-  }
-  _id: string = ""; // Game ID
   playerId: number;
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name

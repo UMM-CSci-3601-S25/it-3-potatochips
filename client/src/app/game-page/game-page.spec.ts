@@ -313,19 +313,5 @@ describe('GameComponent', () => {
     // expect(console.log).toHaveBeenCalledWith('WebSocket message received:', mockMessage.data);
   });
 
-  it('should update playerId and show a snackbar when a valid playerId is submitted', () => {
-    const snackBarSpy = spyOn(component, 'openSnackBar'); // Spy on openSnackBar
-    const mockGame = {
-      _id: 'mock-game-id', // Add the required _id property
-      players: ['Player1', 'Player2', 'Player3'], // Mock players
-    };
-    component.game = signal(mockGame); // Mock the game object
-    component.playerIdInput = '2'; // Simulate valid playerId input
-
-    component.submitPlayerId(); // Call the method
-
-    expect(component.playerId).toBe(1); // Verify playerId is updated (index is 0-based)
-    expect(snackBarSpy).toHaveBeenCalledWith('Rejoined game', 'Dismiss'); // Verify snackbar is shown
-  });
 
 });

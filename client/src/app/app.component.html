@@ -1,0 +1,15 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav #drawer class="sidenav" fixedInViewport [autoFocus]="false">
+    <mat-toolbar>Generic Apples Game</mat-toolbar>
+
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+
+      <a routerLink="/" id="home-link"><span class="app-title">{{title}}</span></a>
+    </mat-toolbar>
+    <div class="main-content mat-typography">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

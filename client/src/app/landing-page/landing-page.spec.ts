@@ -67,7 +67,8 @@ describe('HomeComponent', () => {
       winnerBecomesJudge: false,
       responses: [],
       scores: [],
-      pastResponses: []
+      pastResponses: [],
+      connectedPlayers: [],
     });
     httpMock.verify();
   });

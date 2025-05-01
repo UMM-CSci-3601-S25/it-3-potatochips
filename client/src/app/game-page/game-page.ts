@@ -64,14 +64,8 @@ export class GameComponent {
     // console.log('testRemove received');
     //   }
     // }
-    window.onbeforeunload = () => {
-      const gameId = this.game()?._id;
-      const connectedPlayers = this.game()?.connectedPlayers;
-      connectedPlayers[this.playerId] = false;
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
-      console.log('testRemove received');
-    }
     // Initialize the game signal with data from the server
+
     this.route.paramMap.pipe(
       map((paramMap: ParamMap) => paramMap.get('id')),
       switchMap((id: string) => this.httpClient.get<Game>(`/api/game/${id}`)),
@@ -87,8 +81,7 @@ export class GameComponent {
   }
 
 
-  private 
-  Setup() {
+  private WebsocketSetup() {
     this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
 
@@ -100,7 +93,7 @@ export class GameComponent {
 
 
     this.socket.onmessage = (event) => {
-      if (event.data === 'ping') {
+      if (event.data === 'ping' && this.game().connectedPlayers[this.playerId] == true) {
         console.log('ping received from server')
         this.socket.send('pong');
       }
@@ -115,6 +108,14 @@ export class GameComponent {
       this.cleanupWebSocket();
       setTimeout(() => this.WebsocketSetup(), 1000 * 3);
     };
+
+    window.onbeforeunload = () => {
+      const gameId = this.game()?._id;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers[this.playerId] = false;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+      console.log('testRemove received');
+    }
     // Attempt to reconnect after 1 second
     //We may be able to implement a reconnect button by calling the websocketsetup.
 
@@ -193,7 +194,7 @@ export class GameComponent {
   }
   connectedPlayers: boolean[] = [];
   submission = "";
-  response = ""
+  response = "";
   username = "";
   usernameInput: string = "";
   playerIdInput: string = "";
@@ -236,9 +237,17 @@ export class GameComponent {
   }
 
   submitPlayerId() {
-    if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0) {
+    if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0 && this.game().connectedPlayers[parseInt(this.playerIdInput.trim())-1] == false) {
       this.playerId = parseInt(this.playerIdInput.trim()) - 1;
-      this.openSnackBar('Rejoined game', 'Dismiss')
+      this.openSnackBar('Rejoined game', 'Dismiss');
+      const gameId = this.game()?._id;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers[this.playerId] = true;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+    } else if(this.game().connectedPlayers[parseInt(this.playerIdInput.trim())-1] == false) {
+      this.openSnackBar('ID occupied by another player', 'Dismiss');
+    } else if(parseInt(this.playerIdInput.trim()) <= this.game()?.players.length) {
+      this.openSnackBar('ID does not ', 'Dismiss');
     }
   }
   _id: string = ""; // Game ID

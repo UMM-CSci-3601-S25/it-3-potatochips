@@ -313,5 +313,21 @@ describe('GameComponent', () => {
     // expect(console.log).toHaveBeenCalledWith('WebSocket message received:', mockMessage.data);
   });
 
+  // it('should send ping and call resetcalltimeout during heartbeat', () => {
+  //   const resetPongTimeoutSpy = spyOn(component, 'resetPongTimeout').and.callThrough();
+
+  //   // Simulate a WebSocket message
+
+  //   component['socket'] = {
+  //     readyState: WebSocket.OPEN,
+
+  //   }
+
+  // Verify that refreshGame is called
+  //   expect(resetPongTimeoutSpy).toHaveBeenCalled();
+  //   // Optionally, you can verify the console log if needed
+  //   // expect(console.log).toHaveBeenCalledWith('WebSocket message received:', mockMessage.data);
+  // });
+
 
 });

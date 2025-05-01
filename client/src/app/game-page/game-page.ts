@@ -108,7 +108,7 @@ export class GameComponent {
   }
 
 
-  private Heartbeat() {
+  Heartbeat() {
     setInterval(() => {
       if (this.socket.readyState === WebSocket.OPEN) {
         this.socket.send('ping');
@@ -118,7 +118,7 @@ export class GameComponent {
   }
 
 
-  private resetPongTimeout() {
+  resetPongTimeout() {
     clearTimeout(this.pongTimeout);
     setTimeout(() => {
       console.warn('Pong not received. Reconnecting...');
@@ -214,7 +214,7 @@ export class GameComponent {
   }
 
   playerId: number;
-  players: string[] = []; // Array to store player names with scores
+  players: string[] = []; // Array to store player names with scoresrefreshGame
   newPlayer: string = ""; // Input for new player name
   playerPerm: number[] = [];
 

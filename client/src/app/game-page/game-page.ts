@@ -64,13 +64,6 @@ export class GameComponent {
     // console.log('testRemove received');
     //   }
     // }
-    window.onbeforeunload = () => {
-      const gameId = this.game()?._id;
-      const connectedPlayers = this.game()?.connectedPlayers;
-      connectedPlayers[this.playerId] = false;
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
-      console.log('testRemove received');
-    }
     // Initialize the game signal with data from the server
     this.route.paramMap.pipe(
       map((paramMap: ParamMap) => paramMap.get('id')),
@@ -87,8 +80,7 @@ export class GameComponent {
   }
 
 
-  private 
-  Setup() {
+  private WebsocketSetup() {
     this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
 
@@ -115,6 +107,14 @@ export class GameComponent {
       this.cleanupWebSocket();
       setTimeout(() => this.WebsocketSetup(), 1000 * 3);
     };
+
+    window.onbeforeunload = () => {
+      const gameId = this.game()?._id;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers[this.playerId] = false;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+      console.log('testRemove received');
+    }
     // Attempt to reconnect after 1 second
     //We may be able to implement a reconnect button by calling the websocketsetup.
 

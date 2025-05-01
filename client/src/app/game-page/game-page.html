@@ -1,7 +1,7 @@
 <div class="flex-row">
   <div class="flex-1">
     <ul style="position: fixed; right: 2%; text-wrap: nowrap">
-      <ul class="player" *ngFor="let player of this.game()?.players; let i = index;" [style]="this.game().connectedPlayers[i] == false ? 'color: red;' : 'color: auto;'" [style]="i == this.playerId ? 'color: blue;' : 'color: auto;'">
+      <ul class="player" *ngFor="let player of this.game()?.players; let i = index;" [style]="this.game().connectedPlayers[i] == false ? 'color: red;' : this.playerId == i ? 'color: blue;' : 'color: auto;'">
         <span class="playerNumber">Player: {{ i + 1 }}</span>
         <span class="score">{{ this.game()?.scores[i] }} <span>{{ this.game()?.scores[i] == 1 ? "point" : "points" }}</span></span>
         <span class="username" [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span>

@@ -42,24 +42,27 @@ export class GameComponent {
     private httpClient: HttpClient
   ) {
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
+    // this.socket.onclose = () => {
+    //   if(this.socket.readyState === WebSocket.CLOSED) {
+    // const gameId = this.game()?._id;
+    // const connectedPlayers = this.game()?.connectedPlayers;
+    // connectedPlayers[this.playerId] = false;
+    // this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+    // console.log('testRemove received');
+    //   }
+    // }
     this.socket.onmessage = (event) => {
-      console.log("testrmv" + this.playerId);
-      if(event.data.includes('testRemove')) {
-        const pId = this.playerId;
-        const gameId = this.game()?._id;
-        const connectedPlayers = this.game()?.connectedPlayers;
-        for(let i = 0; i < connectedPlayers.length; i++) {
-          console.log(this.game().players[i] + ": " + this.game().connectedPlayers[i]);
-        }
-        console.log(pId);
-        connectedPlayers[pId] = false;
-        this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
-        console.log('testRemove received');
-      }
+      this.socket.eventListeners();
       console.log('WebSocket message received:', event.data);
       this.refreshGame(); // Refresh game data on update
     };
-
+    window.onbeforeunload = () => {
+      const gameId = this.game()?._id;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers[this.playerId] = false;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+      console.log('testRemove received');
+    }
     // Initialize the game signal with data from the server
     this.route.paramMap.pipe(
       map((paramMap: ParamMap) => paramMap.get('id')),
@@ -139,7 +142,6 @@ export class GameComponent {
       if (this.playerId === 0) {
         judge = 0;
       }
-
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
         $set: { players: players, scores: scores, responses: responses, judge: judge, connectedPlayers: connectedPlayers }
       }).subscribe();
@@ -218,7 +220,6 @@ export class GameComponent {
       }
     });
   }
-
   responsesReady() {
     for (let i = 0; i < this.game()?.responses.length; i++) {
       if (this.game()?.responses[i] == "") {
@@ -226,6 +227,34 @@ export class GameComponent {
       }
     }
     return true;
+  }
+
+  removeUser() {
+    const gameId = this.game()?._id;
+    const connectedPlayers = this.game()?.connectedPlayers;
+    connectedPlayers[this.playerId] = false;
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { connectedPlayers: connectedPlayers } }).subscribe(() => {
+      console.log('User removed from game');
+    });
+  }
+
+  chooseColor(i) {
+    if(this.game().connectedPlayers[this.playerId] == false) {
+      return 'color: red';
+    } else if(this.playerId == +this.game().players[i]) {
+      return 'color: blue';
+    } else {
+      return 'color: auto';
+    }
+  }
+  leaveGame() {
+    const gameId = this.game()?._id;
+    const connectedPlayers = this.game()?.connectedPlayers;
+    connectedPlayers[this.playerId] = false;
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { connectedPlayers: connectedPlayers } }).subscribe(() => {
+      console.log('User left the game');
+    });
+
   }
 
 }

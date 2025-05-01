@@ -199,20 +199,20 @@ public class Server {
       controller.addRoutes(server);
     }
 
+
     server.ws("/api/game/updates", ws -> {
-      ws.onConnect(ctx -> {connectedClients.add(ctx);
-      System.out.println(ctx.session.getUpgradeRequest().getHeader("Sec-Websocket-Key").toString());
-      System.out.println(ctx.session.getRemote().getRemoteAddress().toString());
-      System.out.println(ctx.session.isOpen());}
+      ws.onConnect(ctx -> connectedClients.add(ctx)
       );
-      ws.onClose(ctx -> {
-      broadcastUpdate(
-      ctx.session.getUpgradeRequest().getHeader("Sec-Websocket-Key").toString());
-      System.out.println("Sends!");
+      ws.onMessage(ctx -> {
+        System.out.println("Message received: " + ctx.message());
+      });
+      ws.onClose(ctx -> { connectedClients.remove(ctx);
       }
       );
     });
   }
+
+
 
   public static void broadcastUpdate(String message) {
     for (WsContext client : connectedClients) {
@@ -221,20 +221,13 @@ public class Server {
       {
         System.out.println(message);
         if(client.session.isOpen())
-          if(message.equals(client.session.getUpgradeRequest().getHeader("Sec-Websocket-Key").toString()))
-          {
-            System.out.println("Removing client!!!!! :DDD");
-            client.send("testRemove");
-            connectedClients.remove(client);
-          }
-          else
-          {
-            System.out.println(message);
-            client.send(message);
-        }
+          System.out.println(message);
+          client.send(message);
       }
         catch (Exception e) {
         System.out.println("Error sending message to client: " + e.getMessage() + "\n" + e.getLocalizedMessage());
+        connectedClients.remove(client);
+
       }
       }
   }

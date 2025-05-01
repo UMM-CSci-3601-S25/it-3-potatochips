@@ -15,21 +15,22 @@ li {
   margin: 5px;
 }
 
-.player-number { width: 80px; }
-.score { width: 60px; }
+.player-number { width: 110px; }
+.score { width: 80px; }
 .username { width: 150px; }
 .previous { width: 120px; }
-.waiting { width: 30px; }
+.waiting { width: 40px;}
 
 #name-input { margin-left: 2%; }
 
 #prompt {
   padding: none;
   margin: 10% 0;
-  font-size: 40pt;
-  position: relative;
-  left: 20%;
-  width: 80%
+  font-size: max(8vh,30pt);
+  position: absolute;
+  width: 60%;
+  text-align: center;
+  top: 25vh;
 }
 
 #response-field {
@@ -39,9 +40,24 @@ li {
 
 .response { font-size: 20pt; margin: 0 1.5%; }
 
-#name-input, #rejoin-input, #name-button, #rejoin-button {
+#name-input, #rejoin-input {
   padding: 0;
   margin: 0;
 }
 
+#name-button, #rejoin-button {
+  padding: 0 1vw;
+  margin: 0;
+}
+
 .join-text { margin: 7vh 0 2vh 0; }
+
+#player-data {
+  position: fixed; right: 3%; text-wrap: nowrap;
+}
+
+@media only screen and (max-width: 900px) {
+  #player-data, #prompt, #response-field {
+    position: relative; right: 0%; padding: 0; top: 0;
+  }
+}

@@ -14,6 +14,8 @@ import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+//import { MatButtonModule } from '@angular/material/button';
+
 //import { console } from 'inspector';
 
 
@@ -108,6 +110,7 @@ export class GameComponent {
   response = ""
   username = " ";
   usernameInput: string = "";
+  playerIdInput: string = "";
   numPlayers: number = 0;
   //isPromptSubmitted: boolean = false;
   displayedPrompt: string = '';
@@ -139,9 +142,17 @@ export class GameComponent {
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
       //console.log(this.game()); // game object
+      this.openSnackBar('Created', 'Dismiss');
     }
   }
 
+  submitPlayerId() {
+    if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0) {
+      this.playerId = parseInt(this.playerIdInput.trim()) - 1;
+      this.openSnackBar('Rejoined', 'Dismiss')
+    }
+  }
+  _id: string = ""; // Game ID
   playerId: number;
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name

@@ -19,15 +19,27 @@ export class GamePage {
     return cy.get(this.nameInputButton);
   }
 
-  readResponseInput(code: string) {
-    cy.get(this.responseInputField).type(code);
-    return cy.get(this.responseInputField);
-  }
+  // submitUsername() {
+  //   return cy.get(this.submitUsername);
+  // }
 
-  responseButton() {
-    return cy.get(this.responseInputButton);
-  }
+  // readResponseInput(code: string) {
+  //   cy.get(this.responseInputField).type(code);
+  //   return cy.get(this.responseInputField);
+  // }
 
+  // responseButton() {
+  //   return cy.get(this.responseInputButton);
+  // }
+  
+  // shuffleArray(array: any[]) {
+  //   const shuffledArray = array.slice(); // Create a copy of the original array
+  //   for (let i = shuffledArray.length - 1; i > 0; i--) {
+  //     const j = Math.floor(Math.random() * (i + 1));
+  //     [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
+  //   }
+  //   return shuffledArray;
+  // }
 
 
 }

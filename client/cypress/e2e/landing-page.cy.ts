@@ -23,5 +23,3 @@ describe('Landing page', () => {
   });
 
 });
-
-

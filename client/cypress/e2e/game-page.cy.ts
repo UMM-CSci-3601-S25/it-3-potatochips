@@ -26,6 +26,11 @@ describe('Game page', () => {
     page.getPlayers().should('have.lengthOf', 4);
   });
 
+  it('Should display responses when prompt is submitted', () => {
+
+  }
+  )
+
   it('Should update the list of players when one is added', () => {
     // I thought this task was needed, but it doesn't seem like it is necessary.
     // cy.task("connect");
@@ -41,10 +46,6 @@ describe('Game page', () => {
     page.getPlayers().should('have.lengthOf', 5);
   });
 
-  it('Should read name input', () => {
-    page.readNameInput('GEJ');
-    page.nameButton().click();
-  });
 
   it('Should enter response input', () => {
     page.readNameInput('GEJ');
@@ -54,8 +55,22 @@ describe('Game page', () => {
     cy.get('.response').contains('GEJ').should('exist');
   });
 
+  // it('Should allow a new player to join', () => {
+  //   page.getPlayers().should('have.lengthOf', 4);
+  //   cy.request('PUT', `${environment.apiUrl}game/edit/681266ce536e072b01791cb6`, {
+  //     $set: { players: ['Player 1', 'Player 2', 'Player 3', 'Player 4', 'New Player'] },
+  //   });
+  //   page.getPlayers().should('have.lengthOf', 5);
+  // });
 
-
-
+  // it('Should allow judge to select a response', () => {
+  //   cy.request('PUT', `${environment.apiUrl}game/edit/681266ce536e072b01791cb6`, {
+  //     $set: { responses: ['Response 1', 'Response 2', 'Response 3', 'Response 4'] },
+  //   });
+  //   cy.get('[data-test="responseOption"]').first().click();
+  //   cy.request('GET', `${environment.apiUrl}game/681266ce536e072b01791cb6`).then((response) => {
+  //     expect(response.body.scores[0]).to.be.greaterThan(0);
+  //   });
+  // });
 
 });

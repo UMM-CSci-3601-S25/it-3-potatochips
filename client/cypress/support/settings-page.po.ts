@@ -1,5 +1,5 @@
 export class SettingsPage {
-  private readonly baseUrl = '/settings/123456789';
+  private readonly baseUrl = '/settings/681266ce536e072b01791cb6';
   private readonly gameCode = '#game-code';
   private readonly startGameButton = '#start-game';
   private readonly toggleSwitch = '.centered-toggle';

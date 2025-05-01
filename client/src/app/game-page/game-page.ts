@@ -179,7 +179,7 @@ export class GameComponent {
   }
   submission = "";
   response = ""
-  username = " ";
+  username = "";
   usernameInput: string = "";
   playerIdInput: string = "";
   numPlayers: number = 0;

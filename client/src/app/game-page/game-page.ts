@@ -54,7 +54,7 @@ export class GameComponent {
     private httpClient: HttpClient
   ) {
     this.WebsocketSetup();
-    this.socket = new WebSocket(`${environment.wsUrl}`);
+    this.socket = new WebSocket("${environment.wsUrl}");
     // this.socket.onclose = () => {
     //   if(this.socket.readyState === WebSocket.CLOSED) {
     // const gameId = this.game()?._id;
@@ -83,7 +83,7 @@ export class GameComponent {
 
   public WebsocketSetup() {
     this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
-    this.socket = new WebSocket(`${environment.wsUrl}`);
+    this.socket = new WebSocket("${environment.wsUrl}");
 
 
     this.socket.onopen = () => {

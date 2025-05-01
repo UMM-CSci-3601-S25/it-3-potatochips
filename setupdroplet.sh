@@ -13,7 +13,7 @@ else
 fi
 
 ip="$(curl -s http://169.254.169.254/metadata/v1/interfaces/public/0/ipv4/address)"
-domain="https://165.227.185.9.nip.io"
+domain="https://157.245.252.224.nip.io"
 
 echo
 echo "Setting APP_HOST to ${domain}"

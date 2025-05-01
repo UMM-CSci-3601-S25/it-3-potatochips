@@ -444,3 +444,4 @@ describe('GameComponent', () => {
     expect(resetPongTimeoutSpy).toHaveBeenCalled();
   }));
 });
+

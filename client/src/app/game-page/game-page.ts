@@ -142,14 +142,14 @@ export class GameComponent {
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
       //console.log(this.game()); // game object
-      this.openSnackBar('Created', 'Dismiss');
+      this.openSnackBar('Joined game as new player', 'Dismiss');
     }
   }
 
   submitPlayerId() {
     if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0) {
       this.playerId = parseInt(this.playerIdInput.trim()) - 1;
-      this.openSnackBar('Rejoined', 'Dismiss')
+      this.openSnackBar('Rejoined game', 'Dismiss')
     }
   }
   _id: string = ""; // Game ID

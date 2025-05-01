@@ -27,10 +27,10 @@ li {
   padding: none;
   margin: 10% 0;
   font-size: max(8vh,30pt);
-  position: absolute;
+  position: fixed;
   width: 60%;
   text-align: center;
-  top: 25vh;
+  top: 10vh;
 }
 
 #response-field {
@@ -56,8 +56,12 @@ li {
   position: fixed; right: 3%; text-wrap: nowrap;
 }
 
+#responses {
+  position: fixed; top: 50vh;
+}
+
 @media only screen and (max-width: 900px) {
-  #player-data, #prompt, #response-field {
-    position: relative; right: 0%; padding: 0; top: 0;
+  #player-data, #prompt, #response-field, #responses {
+    position: relative; right: 0; padding: 0; top: 0;
   }
 }

@@ -1,4 +1,4 @@
-import { ComponentFixture, flush, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
@@ -144,6 +144,7 @@ describe('GameComponent', () => {
     });
 
     component.selectResponse(1); // Select the second response (index 1 in playerPerm)
+
     // Check if the score of the selected player is incremented
     expect(component.game().scores[2]).toBe(1);
 
@@ -304,8 +305,7 @@ describe('GameComponent', () => {
 
     // Simulate a WebSocket message
     const mockMessage = { data: 'Test WebSocket Message' };
-    const socket = new WebSocket('ws://localhost:4567/api/game/updates');
-    socket.onmessage(mockMessage as MessageEvent);
+    component['socket'].onmessage(mockMessage as MessageEvent);
 
     // Verify that refreshGame is called
     expect(refreshGameSpy).toHaveBeenCalled();

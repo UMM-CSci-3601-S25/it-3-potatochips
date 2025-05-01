@@ -1,57 +1,77 @@
 package umm3601;
 
+
 import java.util.Arrays;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
+
 import org.bson.UuidRepresentation;
+
 
 import io.javalin.Javalin;
 import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.websocket.WsContext;
+
 
 /**
  * The class used to configure and start a Javalin server.
  */
 public class Server {
 
+
   // The port that the server should run on.
   private static final int SERVER_PORT = 4567;
 
+
   // How long we should wait between updating we sockets information
+
 
   // private static final long WEB_SOCKET_PING_INTERNAL = 5; // testing implementation
 //
   // Clients connection via web sockets
 
+
   // private static Set<WsContext> connectedClients = ConcurrentHashMap.newKeySet(); // testing implementation
+
 
   // The `mongoClient` field is used to access the MongoDB
   private final MongoClient mongoClient;
+
 
   // The `controllers` field is an array of all the `Controller` implementations
   // for the server. This is used to add routes to the server.
   private Controller[] controllers;
 
-  private static final Set<WsContext> connectedClients = ConcurrentHashMap.newKeySet();
 
-  // Update the Game State
+
+
+
+  private static final Set<WsContext> CONNECTED_CLIENTS = ConcurrentHashMap.newKeySet();
+  private static final ConcurrentHashMap<WsContext, Boolean> CLIENT_ALIVE_STATUS = new ConcurrentHashMap<>();
+  private static final long HEARTBEAT_INTERVAL = 1000 * 10;
+    // Update the Game State
   // private int currentRound = 1;
   // private Map<String, Integer> playerScores = new HashMap<>(); // Player name -> score
   // private String currentJudge = null;
   // private String roundWinner = null;
   // private String gameWinner = null;
 
+
   // // Game Management
   // private Map<String, Map<String, Integer>> gamePlayerScores = new ConcurrentHashMap<>(); // gameCode -> playerScores
   // private Map<String, Set<WsContext>> gameConnections = new ConcurrentHashMap<>(); // gameCode -> connectedClients
   // private Map<WsContext, String> clientsGames = new ConcurrentHashMap<>(); // client -> gameCode
   // private Map<WsContext, String> clientIds = new ConcurrentHashMap<>(); // Map WsContext to custom ID
+
 
   /**
    * Construct a `Server` object that we'll use (via `startServer()`) to configure
@@ -70,8 +90,10 @@ public class Server {
     this.controllers = Arrays.copyOf(controllers, controllers.length);
   }
 
+
   /**
    * Setup the MongoDB database connection.
+   
    *
    * This "wires up" the database using either system environment variables
    * or default values. If you're running the server locally without any environment
@@ -96,8 +118,10 @@ public class Server {
       .uuidRepresentation(UuidRepresentation.STANDARD)
       .build());
 
+
     return mongoClient;
   }
+
 
   /**
    * Configure and start the server.
@@ -110,8 +134,12 @@ public class Server {
     System.out.println("starting a server at port " + SERVER_PORT);
     Javalin javalin = configureJavalin();
     setupRoutes(javalin);
+    startHeartbeat();
     javalin.start(SERVER_PORT);
+
+
   }
+
 
   /**
    * Configure the Javalin server. This includes
@@ -144,8 +172,10 @@ public class Server {
       config.bundledPlugins.enableRouteOverview("/api")
     );
 
+
     // Configure the MongoDB client and the Javalin server to shut down gracefully.
     configureShutdowns(server);
+
 
     // This catches any uncaught exceptions thrown in the server
     // code and turns them into a 500 response ("Internal Server
@@ -160,8 +190,10 @@ public class Server {
       throw new InternalServerErrorResponse(e.toString());
     });
 
+
     return server;
   }
+
 
   /**
    * Configure the server and the MongoDB client to shut down gracefully.
@@ -187,20 +219,51 @@ public class Server {
       event.serverStopped(mongoClient::close);
     });
   }
-  /**
-   * Setup routes for the server.
-   *
-   * @param server The Javalin server instance
-   */
-  private void setupRoutes(Javalin server) {
-    // Add the routes for each of the implementations of `Controller` in the
-    // `controllers` array.
-    for (Controller controller : controllers) {
-      controller.addRoutes(server);
+
+
+      ws.onConnect(ctx -> {
+        CONNECTED_CLIENTS.add(ctx);
+        CLIENT_ALIVE_STATUS.put(ctx, true);
+
+
+      });
+      ws.onClose(ctx -> CONNECTED_CLIENTS.remove(ctx));
+      ws.onMessage(ctx -> {
+        String message = ctx.message();
+        if (message.equals("pong")) {
+          CLIENT_ALIVE_STATUS.put(ctx, true);
+        } else {
+          broadcastUpdate(message);
+        }
+      });
+    });
+  }
+
+  private void startHeartbeat() {
+    Timer timer = new Timer(true); // Daemon thread
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        for (WsContext client : CONNECTED_CLIENTS) {
+          if (!client.session.isOpen()) {
+             CONNECTED_CLIENTS.remove(client);
+             CLIENT_ALIVE_STATUS.remove(client);
+             return;
+          }
+          CLIENT_ALIVE_STATUS.put(client, false); //Set to false expecting client to respond to ping
+          client.send("ping");
+        }
+      }
+    }, HEARTBEAT_INTERVAL, HEARTBEAT_INTERVAL);
+  }
+
+  public static void broadcastUpdate(String message) {
+    for (WsContext client : CONNECTED_CLIENTS) {
+      Boolean isAlive = CLIENT_ALIVE_STATUS.get(client);
+      if (isAlive != null && isAlive) {
+        client.send(message);
+      }
     }
-
-
-    server.ws("/api/game/updates", ws -> {
       ws.onConnect(ctx -> connectedClients.add(ctx)
       );
       ws.onMessage(ctx -> {

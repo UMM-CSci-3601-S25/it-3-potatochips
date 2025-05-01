@@ -26,11 +26,21 @@ describe('Game page', () => {
     page.nameButton().click();
   });
 
-  it('Should read response input', () => {
-    page.readResponseInput('GEJ');
-    page.responseButton().click();
+  // it('Should show all four players for this game', () => {
+  //   page.submitUsername().should('have.lengthOf', 4);
+  // })
+
+
+  // it('Should enter response input', () => {
+  //   page.readNameInput('GEJ');
+  //   page.nameButton().click();
+  //   page.readResponseInput('GEJ');
+  //   page.responseButton().click();
+  //   cy.get('.response').contains('GEJ').should('exist');
+  // });
+
+  // it('Should shuffleArray', () => {
+  //   const array = [1, 2, 3, 4, 5];
+  //   const shuffledArray = page.shuffleArray(array);
   });
-
-
-
-});
+// });

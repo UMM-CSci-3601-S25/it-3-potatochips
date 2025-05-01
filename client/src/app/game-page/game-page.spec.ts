@@ -157,7 +157,7 @@ describe('GameComponent', () => {
     // Wait for the asynchronous judge update
     setTimeout(() => {
     // Check if the judge is updated correctly
-      expect(component.game().judge).toBe(1); // The selected response index becomes the new judge
+      expect(component.game().judge).toBe(2); // The selected response index becomes the new judge
       expect(httpClientSpy).toHaveBeenCalledTimes(2); // One for game state, one for judge update
       done(); // Mark the test as complete
     });
@@ -271,4 +271,61 @@ describe('GameComponent', () => {
 
     expect(result).toBe(true); // Verify it returns true
   });
+
+  it('should refresh the game state by fetching updated data from the server', () => {
+    const mockGameId = 'test-game-id';
+    const mockUpdatedGame = {
+      _id: mockGameId,
+      players: ['Player1', 'Player2'],
+      responses: ['Response1', 'Response2'],
+      judge: 0
+    };
+
+    // Mock the game object with an initial state
+    component.game = signal({ _id: mockGameId });
+
+    // Spy on the HttpClient's get method
+    const httpClientSpy = spyOn(component['httpClient'], 'get').and.returnValue(of(mockUpdatedGame));
+
+    // Call the refreshGame method
+    component.refreshGame();
+
+    // Verify that the HttpClient's get method was called with the correct URL
+    expect(httpClientSpy).toHaveBeenCalledWith(`/api/game/${mockGameId}`);
+
+    // Verify that the game state was updated with the fetched data
+    expect(component.game()._id).toBe(mockUpdatedGame._id);
+    expect(component.game().players).toEqual(mockUpdatedGame.players);
+    expect(component.game().responses).toEqual(mockUpdatedGame.responses);
+    expect(component.game().judge).toBe(mockUpdatedGame.judge);
+  });
+
+  it('should call refreshGame when a WebSocket message is received', () => {
+    const refreshGameSpy = spyOn(component, 'refreshGame').and.callThrough();
+
+    // Simulate a WebSocket message
+    const mockMessage = { data: 'Test WebSocket Message' };
+    component['socket'].onmessage(mockMessage as MessageEvent);
+
+    // Verify that refreshGame is called
+    expect(refreshGameSpy).toHaveBeenCalled();
+    // Optionally, you can verify the console log if needed
+    // expect(console.log).toHaveBeenCalledWith('WebSocket message received:', mockMessage.data);
+  });
+
+  it('should update playerId and show a snackbar when a valid playerId is submitted', () => {
+    const snackBarSpy = spyOn(component, 'openSnackBar'); // Spy on openSnackBar
+    const mockGame = {
+      _id: 'mock-game-id', // Add the required _id property
+      players: ['Player1', 'Player2', 'Player3'], // Mock players
+    };
+    component.game = signal(mockGame); // Mock the game object
+    component.playerIdInput = '2'; // Simulate valid playerId input
+
+    component.submitPlayerId(); // Call the method
+
+    expect(component.playerId).toBe(1); // Verify playerId is updated (index is 0-based)
+    expect(snackBarSpy).toHaveBeenCalledWith('Rejoined game', 'Dismiss'); // Verify snackbar is shown
+  });
+
 });

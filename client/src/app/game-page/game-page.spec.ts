@@ -325,7 +325,7 @@ describe('GameComponent', () => {
     component.submitPlayerId(); // Call the method
 
     expect(component.playerId).toBe(1); // Verify playerId is updated (index is 0-based)
-    expect(snackBarSpy).toHaveBeenCalledWith('Rejoined', 'Dismiss'); // Verify snackbar is shown
+    expect(snackBarSpy).toHaveBeenCalledWith('Rejoined game', 'Dismiss'); // Verify snackbar is shown
   });
 
 });

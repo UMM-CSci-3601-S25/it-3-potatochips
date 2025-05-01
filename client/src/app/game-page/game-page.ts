@@ -1,4 +1,4 @@
-import { Component, signal, WritableSignal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
@@ -13,6 +13,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 //import { console } from 'inspector';
 
 
@@ -30,7 +31,8 @@ import { CommonModule } from '@angular/common'; // Import CommonModule
     MatSelectModule,
     FormsModule,
     MatCheckboxModule,
-    CommonModule // Add CommonModule to imports
+    CommonModule,
+    MatSnackBarModule, // Add CommonModule to imports
   ]
 })
 export class GameComponent {
@@ -40,10 +42,12 @@ export class GameComponent {
 
 
   private socket: WebSocket;
-  private readonly PONG_TIMEOUT = ((1000 * 10) + (1000 * 1)) // 5 + 1 second for buffer
-  private readonly PING_INTERVAL = 1000 * 10;
+
+  private readonly PONG_TIMEOUT = ((1000 * 5) + (1000 * 1)) // 5 + 1 second for buffer
+  private readonly PING_INTERVAL = 5000;
   private heartbeatInterval: number;
   private pongTimeout: number;
+  private snackBar = inject(MatSnackBar);
 
 
   constructor(
@@ -85,7 +89,8 @@ export class GameComponent {
         console.log('ping received from server')
         this.socket.send('pong');
       }
-      console.log('WebSocket message received:', event.data);
+      const sanitizedData = event.data.replace(/[\n\r]/g, '');
+      console.log('WebSocket message received:', sanitizedData);
       this.refreshGame();
     };
 
@@ -130,6 +135,14 @@ export class GameComponent {
   }
 
 
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action,{
+      duration: 3000, // Duration in milliseconds
+    });
+  }
+
+
   refreshGame() {
     const gameId = this.game()?.['_id'];
     if (gameId) {
@@ -139,14 +152,14 @@ export class GameComponent {
     }
   }
 
-  submitPrompt() {
-    const gameId = this.game()?._id;
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
-    //console.log(this.submission);
-    //this.isPromptSubmitted = true; // Mark the prompt as submitted
-    this.displayedPrompt = this.submission; // Store the submitted prompt
-    this.submission = ''; // Clear the input field
-  }
+  // submitPrompt() {
+  //   const gameId = this.game()?._id;
+  //   this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{prompt: this.submission}}).subscribe();
+  //   //console.log(this.submission);
+  //   //this.isPromptSubmitted = true; // Mark the prompt as submitted
+  //   this.displayedPrompt = this.submission; // Store the submitted prompt
+  //   this.submission = ''; // Clear the input field
+  // }
 
   submitResponse() {
     const gameId = this.game()?._id;
@@ -172,7 +185,7 @@ export class GameComponent {
   responses: string[] = []; // Initialize responses as an empty array
 
   submitUsername() {
-    if (this.usernameInput.trim()) { //  && this.playerId == null
+    if (this.usernameInput.trim()) {
       this.playerId = this.game().players.length;
       this.username = this.usernameInput.trim(); // Update the displayed username
       const gameId = this.game()?._id;
@@ -278,3 +291,4 @@ export class GameComponent {
   }
 
 }
+

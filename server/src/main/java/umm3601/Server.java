@@ -52,9 +52,12 @@ public class Server {
   private Controller[] controllers;
 
 
-  private static final Set<WsContext> connectedClients = ConcurrentHashMap.newKeySet();
-  private static final ConcurrentHashMap<WsContext, Boolean> clientAliveStatus = new ConcurrentHashMap<>();
-  private static final long HEARTBEAT_INTERVAL = 1000 * 30;
+
+
+
+  private static final Set<WsContext> CONNECTED_CLIENTS = ConcurrentHashMap.newKeySet();
+  private static final ConcurrentHashMap<WsContext, Boolean> CLIENT_ALIVE_STATUS = new ConcurrentHashMap<>();
+  private static final long HEARTBEAT_INTERVAL = 1000 * 10;
     // Update the Game State
   // private int currentRound = 1;
   // private Map<String, Integer> playerScores = new HashMap<>(); // Player name -> score
@@ -231,69 +234,49 @@ public class Server {
 
 
     server.ws("/api/game/updates", ws -> {
+
       ws.onConnect(ctx -> {
-        connectedClients.add(ctx);
-        clientAliveStatus.put(ctx,true);
+        CONNECTED_CLIENTS.add(ctx);
+        CLIENT_ALIVE_STATUS.put(ctx, true);
 
 
       });
-      ws.onClose(ctx -> connectedClients.remove(ctx));
+      ws.onClose(ctx -> CONNECTED_CLIENTS.remove(ctx));
       ws.onMessage(ctx -> {
         String message = ctx.message();
         if (message.equals("pong")) {
-          clientAliveStatus.put(ctx, true);
+          CLIENT_ALIVE_STATUS.put(ctx, true);
         } else {
           broadcastUpdate(message);
         }
       });
     });
-
-
-
-
-
-
   }
-
 
   private void startHeartbeat() {
     Timer timer = new Timer(true); // Daemon thread
     timer.scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
-        for (WsContext client : connectedClients) {
+        for (WsContext client : CONNECTED_CLIENTS) {
           if (!client.session.isOpen()) {
-             connectedClients.remove(client);
-             clientAliveStatus.remove(client);
-
-          } else {
-            clientAliveStatus.put(client, false);//Set to false expecting client to respond to ping
-            client.send("ping"); // Send a ping message to keep the connection alive
+             CONNECTED_CLIENTS.remove(client);
+             CLIENT_ALIVE_STATUS.remove(client);
+             return;
           }
-
-
-
-
-
-
+          CLIENT_ALIVE_STATUS.put(client, false); //Set to false expecting client to respond to ping
+          client.send("ping");
         }
       }
     }, HEARTBEAT_INTERVAL, HEARTBEAT_INTERVAL);
   }
 
-
-
-
-
-
   public static void broadcastUpdate(String message) {
-    for (WsContext client : connectedClients) {
-      Boolean isAlive = clientAliveStatus.get(client);
+    for (WsContext client : CONNECTED_CLIENTS) {
+      Boolean isAlive = CLIENT_ALIVE_STATUS.get(client);
       if (isAlive != null && isAlive) {
         client.send(message);
       }
     }
   }
 }
-
-

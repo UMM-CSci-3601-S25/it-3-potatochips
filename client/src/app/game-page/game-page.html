@@ -27,8 +27,9 @@
         <li class="response" *ngFor="let response of getResponses(); index as i">{{ response }}</li>
       </ul>
       <div id="response-field">
-        <input id = "response-input" matInput type="text" [(ngModel)]="response">
-        <input id = "response-button" type="submit" value="Submit" (click)="submitResponse()" (click)="openSnackBar('Submitted', 'Undo')">
+        <input id = "response-input" matInput type="text" [(ngModel)]="response" [placeholder]="this.game()?.judge == this.playerId ? 'Enter a prompt.' : 'Enter a response.'">
+        <input id = "response-button" type="submit" value="Submit" (click)="submitResponse()" (click)="openSnackBar('Submitted','Dismiss')">
+        <button id = "leave-button" (click)="leaveGame()" routerLink="">Leave Game</button>
       </div>
     </div>
   </div>

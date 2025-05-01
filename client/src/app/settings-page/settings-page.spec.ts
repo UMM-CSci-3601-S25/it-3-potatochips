@@ -1,4 +1,4 @@
-import { TestBed, waitForAsync, ComponentFixture, flush } from '@angular/core/testing'; // Import ComponentFixture
+import { TestBed, waitForAsync, ComponentFixture} from '@angular/core/testing'; // Import ComponentFixture
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -77,6 +77,4 @@ describe('SettingsComponent', () => {
     // Respond to the PUT request to complete it
     putReq.flush({});
   });
-
-
 });

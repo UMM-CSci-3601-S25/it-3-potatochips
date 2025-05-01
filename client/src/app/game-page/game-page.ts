@@ -12,7 +12,7 @@ import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-
+import { environment } from 'src/environments/environment';
 
 
 
@@ -54,7 +54,7 @@ export class GameComponent {
     private httpClient: HttpClient
   ) {
     this.WebsocketSetup();
-    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
+    this.socket = new WebSocket(`${environment.wsUrl}`);
     // this.socket.onclose = () => {
     //   if(this.socket.readyState === WebSocket.CLOSED) {
     // const gameId = this.game()?._id;
@@ -83,7 +83,7 @@ export class GameComponent {
 
   public WebsocketSetup() {
     this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
-    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
+    this.socket = new WebSocket(`${environment.wsUrl}`);
 
 
     this.socket.onopen = () => {

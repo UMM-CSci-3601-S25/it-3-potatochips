@@ -93,7 +93,7 @@ export class GameComponent {
 
 
     this.socket.onmessage = (event) => {
-      if (event.data === 'ping' && this.game().connectedPlayers[this.playerId] == true) {
+      if (event.data === 'ping') {
         console.log('ping received from server')
         this.socket.send('pong');
       }

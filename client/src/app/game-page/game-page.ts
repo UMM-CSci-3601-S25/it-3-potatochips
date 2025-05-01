@@ -65,6 +65,7 @@ export class GameComponent {
     //   }
     // }
     // Initialize the game signal with data from the server
+
     this.route.paramMap.pipe(
       map((paramMap: ParamMap) => paramMap.get('id')),
       switchMap((id: string) => this.httpClient.get<Game>(`/api/game/${id}`)),
@@ -92,7 +93,7 @@ export class GameComponent {
 
 
     this.socket.onmessage = (event) => {
-      if (event.data === 'ping') {
+      if (event.data === 'ping' && this.game().connectedPlayers[this.playerId] == true) {
         console.log('ping received from server')
         this.socket.send('pong');
       }
@@ -193,7 +194,7 @@ export class GameComponent {
   }
   connectedPlayers: boolean[] = [];
   submission = "";
-  response = ""
+  response = "";
   username = "";
   usernameInput: string = "";
   playerIdInput: string = "";
@@ -236,9 +237,17 @@ export class GameComponent {
   }
 
   submitPlayerId() {
-    if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0) {
+    if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0 && this.game().connectedPlayers[parseInt(this.playerIdInput.trim())-1] == false) {
       this.playerId = parseInt(this.playerIdInput.trim()) - 1;
-      this.openSnackBar('Rejoined game', 'Dismiss')
+      this.openSnackBar('Rejoined game', 'Dismiss');
+      const gameId = this.game()?._id;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers[this.playerId] = true;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+    } else if(this.game().connectedPlayers[parseInt(this.playerIdInput.trim())-1] == false) {
+      this.openSnackBar('ID occupied by another player', 'Dismiss');
+    } else if(parseInt(this.playerIdInput.trim()) <= this.game()?.players.length) {
+      this.openSnackBar('ID does not ', 'Dismiss');
     }
   }
   _id: string = ""; // Game ID

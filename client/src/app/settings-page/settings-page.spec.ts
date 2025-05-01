@@ -1,4 +1,4 @@
-import { TestBed, waitForAsync, ComponentFixture, flush } from '@angular/core/testing'; // Import ComponentFixture
+import { TestBed, waitForAsync, ComponentFixture} from '@angular/core/testing'; // Import ComponentFixture
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { MatCardModule } from '@angular/material/card';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -8,7 +8,6 @@ import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { Game } from '../game'; // Import the Game interface
 import { signal } from '@angular/core'; // Import signal from Angular
-
 describe('SettingsComponent', () => {
   let component: SettingsComponent;
   let fixture: ComponentFixture<SettingsComponent>; // Explicitly type fixture
@@ -38,6 +37,11 @@ describe('SettingsComponent', () => {
     fixture = TestBed.createComponent(SettingsComponent);
     component = fixture.componentInstance;
     httpMock = TestBed.inject(HttpTestingController);
+
+    const mockGame: Game = { _id: '12345' } as Game;
+    const getReq = httpMock.expectOne('/api/game/12345');
+    expect(getReq.request.method).toBe('GET');
+    getReq.flush(mockGame);
   });
 
   afterEach(() => {
@@ -55,9 +59,6 @@ describe('SettingsComponent', () => {
   it('should send a PUT request with the correct payload when updateGameSettings is called', () => {
     // Mock the GET request for the game signal
     const mockGame: Game = { _id: '12345' } as Game;
-    const getReq = httpMock.expectOne('/api/game/12345');
-    expect(getReq.request.method).toBe('GET');
-    getReq.flush(mockGame);
 
     // Mock the game signal to return a valid game object
     component.game = signal<Game | undefined>(mockGame);
@@ -76,6 +77,4 @@ describe('SettingsComponent', () => {
     // Respond to the PUT request to complete it
     putReq.flush({});
   });
-
-
 });

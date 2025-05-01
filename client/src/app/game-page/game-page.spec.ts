@@ -1,4 +1,4 @@
-import { ComponentFixture, flush, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, TestBed, tick, waitForAsync } from '@angular/core/testing';
 import { MatCardModule } from '@angular/material/card';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute } from '@angular/router';
@@ -170,7 +170,8 @@ describe('GameComponent', () => {
       scores: [0, 0, 0],
       responses: ['Response1', 'Response2', 'Response3'],
       pastResponses: [],
-      winnerBecomesJudge: false // Ensure winnerBecomesJudge is false
+      winnerBecomesJudge: false, // Ensure winnerBecomesJudge is false,
+      connectedPlayers: [true, true, true]
     };
     component.game = signal(mockGame); // Mock the game object
     component.playerPerm = [1, 2]; // Mock the shuffled player order
@@ -217,6 +218,7 @@ describe('GameComponent', () => {
       players: [],
       scores: [],
       responses: [],
+      connectedPlayers: [false, false, false],
       judge: null
     };
     component.game = signal(mockGame); // Mock the game object
@@ -301,16 +303,14 @@ describe('GameComponent', () => {
 
   it('should call refreshGame when a WebSocket message is received', () => {
     const refreshGameSpy = spyOn(component, 'refreshGame').and.callThrough();
-
-    // Simulate a WebSocket message
-    const mockMessage = { data: 'Test WebSocket Message' };
-    const socket = new WebSocket('ws://localhost:4567/api/game/updates');
-    socket.onmessage(mockMessage as MessageEvent);
-
-    // Verify that refreshGame is called
-    expect(refreshGameSpy).toHaveBeenCalled();
-    // Optionally, you can verify the console log if needed
-    // expect(console.log).toHaveBeenCalledWith('WebSocket message received:', mockMessage.data);
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send', 'close']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    component['WebsocketSetup']();
+    const mockMessage = { data: 'Test WebSocket Message' } as MessageEvent;
+    if (mockSocket.onmessage) {
+      mockSocket.onmessage(mockMessage);
+      expect(refreshGameSpy).toHaveBeenCalled();
+    }
   });
 
   it('should update playerId and show a snackbar when a valid playerId is submitted', () => {
@@ -318,6 +318,7 @@ describe('GameComponent', () => {
     const mockGame = {
       _id: 'mock-game-id', // Add the required _id property
       players: ['Player1', 'Player2', 'Player3'], // Mock players
+      connectedPlayers: [false, false, false],
     };
     component.game = signal(mockGame); // Mock the game object
     component.playerIdInput = '2'; // Simulate valid playerId input
@@ -328,4 +329,118 @@ describe('GameComponent', () => {
     expect(snackBarSpy).toHaveBeenCalledWith('Rejoined game', 'Dismiss'); // Verify snackbar is shown
   });
 
+  it('should not let an arbitrary playerId get set if another player already inhabits that playerId', () =>  {
+    const mockUpdatedGame = {
+      _id: 'test-game-id',
+      players: ['Player1', 'Player2'],
+      responses: ['Response1', 'Response2'],
+      connectedPlayers: [true, false],
+      judge: 0
+    };
+    component.game = signal( mockUpdatedGame );
+    component.playerIdInput = '3';
+    component.submitPlayerId();
+    expect(component.playerId).toBe(undefined);
+  });
+
+  it('makes socket.onmessage sends a pong', () => {
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send', 'close']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    component['WebsocketSetup']();
+    const mockMessage = { data: 'ping' } as MessageEvent;
+    if (mockSocket.onmessage) {
+      mockSocket.onmessage(mockMessage);
+    }
+    expect(mockSocket.send).toHaveBeenCalledWith('pong');
+  });
+
+  it('makes socket.onclose trigger whenever someone intentionally closes out of their game', () => {
+    const mockUpdatedGame = {
+      _id: 'test-game-id',
+      players: ['Player1', 'Player2'],
+      responses: ['Response1', 'Response2'],
+      connectedPlayers: [true, true],
+      judge: 0
+    };
+
+    console.log = jasmine.createSpy("log");
+    component.game = signal( mockUpdatedGame );
+    component.playerIdInput = '1';
+    component.leaveGame();
+    expect(console.log).toHaveBeenCalledWith("User left the game");
+  });
+
+  it('should reset pong timeout and close the WebSocket if pong is not received', fakeAsync(() => {
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['close']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    console.warn = jasmine.createSpy('warn');
+    component['WebsocketSetup']();
+    component['resetPongTimeout']();
+    tick(component['PONG_TIMEOUT']);
+    expect(console.warn).toHaveBeenCalledWith('Pong not received. Reconnecting...');
+    expect(mockSocket.close).toHaveBeenCalled();
+  }));
+
+  it('should trigger mockSocket.onclose when the window is closed', () => {
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send', 'close']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    console.warn = jasmine.createSpy('warn');
+    component['WebsocketSetup']();
+    if (mockSocket.onclose) {
+      const closeEvent = new CloseEvent('close');
+      mockSocket.onclose(closeEvent);
+      expect(console.warn).toHaveBeenCalledWith('WebSocket connection closed. Reconnecting...');
+    }
+  });
+
+  it('should trigger window.onbeforeunload and clean up the WebSocket when the window is closed', () => {
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send', 'close']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    const cleanupSpy = spyOn(component, 'cleanupWebSocket');
+    component['WebsocketSetup']();
+    window.onbeforeunload = () => {
+      component.cleanupWebSocket();
+    };
+    const event = new Event('beforeunload');
+    window.dispatchEvent(event);
+    expect(cleanupSpy).toHaveBeenCalled();
+  });
+
+  it('should properly check through the rejoin case where said ID does not exist', () => {
+    const snackBarSpy = spyOn(component, 'openSnackBar');
+    const mockGame = {
+      _id: 'mock-game-id',
+      players: ['Player1', 'Player2', 'Player3'],
+      connectedPlayers: [false, false, false],
+    };
+    component.game = signal(mockGame);
+    component.playerIdInput = '5';
+    component.submitPlayerId();
+    expect(snackBarSpy).toHaveBeenCalledWith('ID is not valid. ', 'Dismiss');
+  });
+
+  it('should not let one join the player instance of another individual ', () => {
+    const snackBarSpy = spyOn(component, 'openSnackBar');
+    const mockGame = {
+      _id: 'mock-game-id',
+      players: ['Player1', 'Player2', 'Player3'],
+      connectedPlayers: [true, true, true],
+    };
+    component.game = signal(mockGame);
+    component.playerIdInput = '1';
+    component.submitPlayerId();
+    expect(snackBarSpy).toHaveBeenCalledWith('ID occupied by another player', 'Dismiss');
+  });
+
+  it(' should maintain a regular heartbeat for each open connection', fakeAsync(() => {
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    const resetPongTimeoutSpy = spyOn(component, 'resetPongTimeout');
+    component['WebsocketSetup']();
+    Object.defineProperty(mockSocket, 'readyState', { value: WebSocket.OPEN });
+    component['Heartbeat']();
+    tick(component['PING_INTERVAL']);
+    expect(mockSocket.send).toHaveBeenCalledWith('ping');
+    expect(resetPongTimeoutSpy).toHaveBeenCalled();
+  }));
 });

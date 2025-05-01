@@ -31,7 +31,7 @@ export class GamePage {
   // responseButton() {
   //   return cy.get(this.responseInputButton);
   // }
-  
+
   // shuffleArray(array: any[]) {
   //   const shuffledArray = array.slice(); // Create a copy of the original array
   //   for (let i = shuffledArray.length - 1; i > 0; i--) {

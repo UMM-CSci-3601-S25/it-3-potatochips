@@ -1,6 +1,6 @@
 import { Component, signal, WritableSignal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, RouterLink } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -21,6 +21,7 @@ import { CommonModule } from '@angular/common'; // Import CommonModule
   styleUrls: ['./game-page.scss'],
   providers: [],
   imports: [
+    RouterLink,
     MatCardModule,
     MatInputModule,
     MatFormFieldModule,

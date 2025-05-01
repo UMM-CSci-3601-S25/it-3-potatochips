@@ -106,7 +106,7 @@ export class GameComponent {
     this.socket.onclose = () => {
       console.warn('WebSocket connection closed. Reconnecting...');
       this.cleanupWebSocket();
-      setTimeout(() => this.WebsocketSetup(), 1000 * 3);
+      setTimeout(() => this.WebsocketSetup(), 1000 * 1);
     };
 
     window.onbeforeunload = () => {
@@ -181,7 +181,6 @@ export class GameComponent {
     const gameId = this.game()?._id;
     const responses = this.game()?.responses || []; // Ensure responses is defined
     responses[this.playerId] = this.response; // Add the new response to the array
-    console.log("sbtrsp" + this.playerId);
 
     // Ensure the judge's response is treated as the prompt
     if (this.playerId === this.game()?.judge) {

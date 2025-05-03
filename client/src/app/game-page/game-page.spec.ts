@@ -110,7 +110,8 @@ describe('GameComponent', () => {
     const mockGame = {
       _id: 'mock-game-id', // Add the required _id property
       players: ['Player1', 'Player2', 'Player3', 'Player4'],
-      judge: 0
+      judge: 0,
+      connectedPlayers: [true, true, true, true]
     };
     component.game = signal(mockGame); // Mock the game object
     component.shuffleArray();
@@ -142,6 +143,14 @@ describe('GameComponent', () => {
       }
       return of(null); // Simulate an observable response
     });
+
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send', 'close']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    component['WebsocketSetup']();
+    const mockMessage = { data: 'ping' } as MessageEvent;
+    if (mockSocket.onmessage) {
+      mockSocket.onmessage(mockMessage);
+    }
 
     component.selectResponse(1); // Select the second response (index 1 in playerPerm)
 
@@ -184,6 +193,14 @@ describe('GameComponent', () => {
       }
       return of(null); // Simulate an observable response
     });
+
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send', 'close']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    component['WebsocketSetup']();
+    const mockMessage = { data: 'ping' } as MessageEvent;
+    if (mockSocket.onmessage) {
+      mockSocket.onmessage(mockMessage);
+    }
 
     component.selectResponse(1); // Select the second response (index 1 in playerPerm)
 
@@ -391,6 +408,14 @@ describe('GameComponent', () => {
       judge: 0
     };
 
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send', 'close']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    component['WebsocketSetup']();
+    const mockMessage = { data: 'ping' } as MessageEvent;
+    if (mockSocket.onmessage) {
+      mockSocket.onmessage(mockMessage);
+    }
+
     console.log = jasmine.createSpy("log");
     component.game = signal( mockUpdatedGame );
     component.playerIdInput = '1';
@@ -460,7 +485,7 @@ describe('GameComponent', () => {
     expect(snackBarSpy).toHaveBeenCalledWith('ID occupied by another player', 'Dismiss');
   });
 
-  it(' should maintain a regular heartbeat for each open connection', fakeAsync(() => {
+  it('should maintain a regular heartbeat for each open connection', fakeAsync(() => {
     const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send']);
     spyOn(window, 'WebSocket').and.returnValue(mockSocket);
     const resetPongTimeoutSpy = spyOn(component, 'resetPongTimeout');

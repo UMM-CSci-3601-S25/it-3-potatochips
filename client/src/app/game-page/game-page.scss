@@ -44,7 +44,11 @@ li {
   top: 55vh;
 }
 
-.response { font-size: 20pt; margin: 0 3vw; }
+.response {
+  font-size: 20pt;
+  margin: 0 3vw;
+  white-space: nowrap;
+}
 
 #name-input, #rejoin-input {
   padding: 0;

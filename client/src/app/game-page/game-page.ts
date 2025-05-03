@@ -394,4 +394,8 @@ export class GameComponent {
     console.log('User left the game');
     this.router.navigate(['/']);
   }
+
+  leavePage() {
+    this.router.navigate(['/']);
+  }
 }

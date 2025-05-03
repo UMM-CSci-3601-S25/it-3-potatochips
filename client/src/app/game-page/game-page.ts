@@ -56,7 +56,7 @@ export class GameComponent {
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
     window.onbeforeunload = () => {
       this.leaveGame();
-      return 'Buddy. Pal. Old Friend. Are you sure you want to leave? Not only will you lose your spot in the game, but you have to tax my PRECIOUS servers! PLEASE use the leave button.';
+      return;
     }
     // this.socket.onclose = () => {
     //   if(this.socket.readyState === WebSocket.CLOSED) {

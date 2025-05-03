@@ -262,7 +262,7 @@ describe('GameComponent', () => {
   it('should reject duplicate responses and prevent submission', () => {
     const mockGame = {
       _id: 'test-game-id',
-      responses: ['Response1', 'Response2', 'Response3'], // Existing responses
+      responses: ['Response1', 'Response2', 'Response2'], // Existing responses
       players: ['Player1', 'Player2', 'Player3'],
       judge: 0 // Player 0 is the judge
     };
@@ -271,13 +271,13 @@ describe('GameComponent', () => {
     component.playerId = 1; // Simulate a non-judge player
     component.response = 'Response2'; // Simulate a duplicate response
 
-    const alertSpy = spyOn(window, 'alert'); // Spy on the alert function
+    const snackBarSpy = spyOn(component, 'openSnackBar');
 
     component.submitResponse(); // Call the method
 
-    // Verify that the duplicate response is rejected
-    expect(alertSpy).toHaveBeenCalledWith(
-      'Duplicate response detected: "Response2". This response cannot be submitted.'
+    expect(snackBarSpy).toHaveBeenCalledWith(
+      'Duplicate response detected: "Response2". This response cannot be submitted.',
+      'Dismiss'
     );
     expect(component.response).toBe(''); // Ensure the response input is cleared
     expect(component.game().responses[1]).toBe('Response2'); // Ensure the original response is unchanged

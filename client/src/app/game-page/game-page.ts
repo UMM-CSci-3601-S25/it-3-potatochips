@@ -55,11 +55,7 @@ export class GameComponent {
     this.WebsocketSetup();
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
     window.onbeforeunload = () => {
-      const gameId = this.game()?._id;
-      const connectedPlayers = this.game()?.connectedPlayers;
-      connectedPlayers[this.playerId] = false;
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
-      this.socket.send('ping')
+      this.leaveGame();
       return 'Buddy. Pal. Old Friend. Are you sure you want to leave? Not only will you lose your spot in the game, but you have to tax my PRECIOUS servers! PLEASE use the leave button.';
     }
     // this.socket.onclose = () => {
@@ -341,8 +337,31 @@ export class GameComponent {
     connectedPlayers[this.playerId] = false;
     this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { connectedPlayers: connectedPlayers } }).subscribe(() => {
     });
+    let connectedPlayerID = this.playerId;
+    let judge = this.game()?.judge;
+    let playersIn = false;
+    for(let i = 0; i < this.game()?.connectedPlayers.length; i++) {
+      {
+        if(this.game()?.connectedPlayers[i] == true) {
+          playersIn = true;
+          break;
+        }
+      }
+    }
+    if(this.playerId == judge && playersIn) {
+      while(!this.game().connectedPlayers[connectedPlayerID]) {
+        connectedPlayerID = (connectedPlayerID + 1) % this.game().connectedPlayers.length;
+      }
+    }
+    console.log('bleh');
+    if(this.game().connectedPlayers[connectedPlayerID]) {
+      judge = connectedPlayerID;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: judge } }).subscribe(() => {
+        this.game().judge = judge;
+        console.log(`Judge updated to player index: ${judge}`);
+      });
+    }
+    this.socket.send('ping');
     console.log('User left the game');
-
   }
-
 }

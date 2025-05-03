@@ -325,6 +325,12 @@ export class GameComponent {
           //console.log(`Judge updated to player index: ${newJudge}`);
         });
       }
+      if (scores[this.playerPerm[i]] >= this.game()?.targetScore) {
+        this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { gameOver: true } }).subscribe(() => {
+          this.game().gameOver = true; // Update the local game object
+          //console.log(`Game over set to true`);
+        });
+      }
     });
   }
   responsesReady() {

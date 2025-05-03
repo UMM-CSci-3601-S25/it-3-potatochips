@@ -1,13 +1,16 @@
 export class GamePage {
-  private readonly baseUrl = '/game/123456789';
+  //private readonly baseUrl = '/game/123456789';
+  private readonly specificGameUrl = '/game/681266ce536e072b01791cb6';
   private readonly nameInputField = '#name-input';
   private readonly nameInputButton = '#name-button';
   private readonly responseInputField = '#response-input';
   private readonly responseInputButton = '#response-button';
+  private readonly idInputField = '#rejoin-input';
+  private readonly idInputButton = '#rejoin-button';
 
 
   navigateTo() {
-    return cy.visit(this.baseUrl);
+    return cy.visit(this.specificGameUrl);
   }
 
   readNameInput(code: string) {
@@ -19,27 +22,27 @@ export class GamePage {
     return cy.get(this.nameInputButton);
   }
 
-  // submitUsername() {
-  //   return cy.get(this.submitUsername);
-  // }
+  readIdInput(code: string) {
+    cy.get(this.idInputField).type(code);
+    return cy.get(this.idInputField);
+  }
 
-  // readResponseInput(code: string) {
-  //   cy.get(this.responseInputField).type(code);
-  //   return cy.get(this.responseInputField);
-  // }
+  rejoinButton() {
+    return cy.get(this.idInputButton);
+  }
 
-  // responseButton() {
-  //   return cy.get(this.responseInputButton);
-  // }
+  readResponseInput(code: string) {
+    cy.get(this.responseInputField).type(code);
+    return cy.get(this.responseInputField);
+  }
 
-  // shuffleArray(array: any[]) {
-  //   const shuffledArray = array.slice(); // Create a copy of the original array
-  //   for (let i = shuffledArray.length - 1; i > 0; i--) {
-  //     const j = Math.floor(Math.random() * (i + 1));
-  //     [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]];
-  //   }
-  //   return shuffledArray;
-  // }
+  responseButton() {
+    return cy.get(this.responseInputButton);
+  }
 
+  // get all of the things in the DOM that include 'data-test="playerName"'
+  getPlayers() {
+    return cy.get('[data-test="playerName"]');
+  }
 
 }

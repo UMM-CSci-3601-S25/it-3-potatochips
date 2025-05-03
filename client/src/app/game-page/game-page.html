@@ -4,7 +4,7 @@
       <ul class="player" *ngFor="let player of this.game()?.players; let i = index;" [style]="this.playerId == i ? 'color: blue;' : 'color: auto;'">
         <span class="gone" style="color: red">{{ this.game()?.connectedPlayers[i] == false ? "X" : "" }}</span>
         <span class="waiting">{{ this.game()?.responses[i] != "" ? "&#10004;" : "" }}</span>
-        <span class="username" [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span>
+        <span class="username" [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'" data-test="playerName">{{ player }}</span>
         <span class="player-number">Player {{ i + 1 }}</span>
         <span class="score">{{ this.game()?.scores[i] }} {{ this.game()?.scores[i] == 1 ? "pt" : "pts" }}</span>
         <span class="previous">{{ this.game()?.pastResponses[i] }}</span>
@@ -13,18 +13,18 @@
     <div class="join-field" [style]="(playerId == null && !this.game()?.gameOver) ? 'display: block' : 'display: none'">
       <div class="join-text">Join as new player</div>
       <input id="name-input" matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter a username">
-      <button id="name-button" mat-raised-button color="primary" (click)="submitUsername()">Join</button>
+      <button id="name-button" mat-raised-button color="primary" (click)="submitUsername()" (click)="openSnackBar('Created', 'Undo')">Submit</button>
       <br>
       <div class="join-text">Rejoin:</div>
       <input id="rejoin-input" matInput type="text" [(ngModel)]="playerIdInput" placeholder="Enter your player number">
-      <button id="rejoin-button" mat-raised-button color="primary" (click)="submitPlayerId()">Join</button>
+      <button id="rejoin-button" mat-raised-button color="primary" (click)="submitPlayerId()">Submit</button>
     </div>
     <div [style]="(playerId == null || this.game()?.gameOver) ? 'display: none' : 'display: block'">
       <div id="prompt">{{ this.game()?.responses[this.game()?.judge] }}</div>
-      <ul id="responses" [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">
+      <ul id="response-list" [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">
         <li class="response" *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)">{{ response }}</button></li>
       </ul>
-      <ul id="responses" [style]="responsesReady() && playerId != this.game()?.judge ? 'display: flex' : 'display: none'">
+      <ul id="response-list" [style]="responsesReady() && playerId != this.game()?.judge ? 'display: flex' : 'display: none'">
         <li class="response" *ngFor="let response of getResponses(); index as i">{{ response }}</li>
       </ul>
       <div id="response-field">

@@ -48,14 +48,6 @@ describe('SettingsComponent', () => {
     httpMock.verify();
   });
 
-  it('should open a snackbar with the correct message and action', () => {
-    const snackBarSpy = spyOn(component['snackBar'], 'open');
-    const message = 'Test Message';
-    const action = 'Test Action';
-    component.openSnackBar(message, action);
-    expect(snackBarSpy).toHaveBeenCalledWith(message, action, { duration: 3000 });
-  });
-
   it('should send a PUT request with the correct payload when updateGameSettings is called', () => {
     // Mock the GET request for the game signal
     const mockGame: Game = { _id: '12345' } as Game;

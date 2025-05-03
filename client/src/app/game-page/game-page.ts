@@ -41,6 +41,11 @@ export class GameComponent {
   error = signal({help: '', httpResponse: '', message: ''});
 
   private socket: WebSocket;
+
+  private readonly PONG_TIMEOUT = ((1000 * 5) + (1000 * 1)) // 5 + 1 second for buffer
+  private readonly PING_INTERVAL = 5000;
+  private heartbeatInterval: number;
+  private pongTimeout: number;
   private snackBar = inject(MatSnackBar);
 
   constructor(
@@ -199,6 +204,7 @@ export class GameComponent {
   response = ""
   username = " ";
   usernameInput: string = "";
+  playerIdInput: string = "";
   numPlayers: number = 0;
   //isPromptSubmitted: boolean = false;
   displayedPrompt: string = '';

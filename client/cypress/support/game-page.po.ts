@@ -20,14 +20,14 @@ export class GamePage {
     return cy.get(this.nameInputButton);
   }
 
-  // readIdInput(code: string) {
-  //  cy.get(this.nameInputField).type(code);
-  //   return cy.get(this.nameInputField);
-  // }
+  readIdInput(code: string) {
+    cy.get(this.nameInputField).type(code);
+    return cy.get(this.nameInputField);
+  }
 
-  // rejoinButton() {
-  //   return cy.get(this.nameInputButton);
-  // }
+  rejoinButton() {
+    return cy.get(this.nameInputButton);
+  }
 
   readResponseInput(code: string) {
     cy.get(this.responseInputField).type(code);

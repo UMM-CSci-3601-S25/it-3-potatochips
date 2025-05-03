@@ -29,24 +29,24 @@ describe('Game page', () => {
   it('Should display prompt and response field when the game is joined', () => {
     cy.get('#prompt').should('not.be.visible');
     cy.get('#response-field').should('not.be.visible');
-    //page.readIdInput('1');
-    //page.rejoinButton().click();
-    //cy.get('#prompt').should('be.visible');
-    //cy.get('#response-field').should('be.visible');
+    page.readIdInput('1');
+    page.rejoinButton().click();
+    cy.get('#prompt').should('be.visible');
+    cy.get('#response-field').should('be.visible');
   });
 
-  //it('Should display responses when prompt is submitted', () => {
-  //  cy.get('#response-list').should('not.be.visible');
-  //  page.readResponseInput('prompt');
-  //  page.responseButton().click();
-  //  cy.get('#response-list').should('be.visible');
-  //});
+  it('Should display responses when prompt is submitted', () => {
+    cy.get('#response-list').should('not.be.visible');
+    page.readResponseInput('prompt');
+    page.responseButton().click();
+    cy.get('#response-list').should('be.visible');
+  });
 
-  //it('Should remove responses when one is selected', () => {
-  //  cy.get('#response-list').should('be.visible');
-  //  cy.get('.response').click();
-  //  cy.get('#response-list').should('not.be.visible');
-  //});
+  it('Should remove responses when one is selected', () => {
+    cy.get('#response-list').should('be.visible');
+    cy.get('.response').click();
+    cy.get('#response-list').should('not.be.visible');
+  });
 
   it('Should update the list of players when one is added', () => {
     // I thought this task was needed, but it doesn't seem like it is necessary.

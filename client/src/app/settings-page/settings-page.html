@@ -30,6 +30,11 @@
           <mat-slide-toggle class="centered-toggle" [(ngModel)]="judgeOption"></mat-slide-toggle>
           <span>Winner becomes judge</span>
         </div>
+        <mat-label>
+          <span> Target Score:
+            <input matInput data-test="scoreThreshold" type="number" placeholder="Score Threshold" min="0" max ="10" [(ngModel)]="scoreThreshold">
+          </span>
+        </mat-label>
 
       </mat-card-content>
 

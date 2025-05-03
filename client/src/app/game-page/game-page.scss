@@ -25,11 +25,13 @@ li {
 
 #prompt {
   padding: none;
-  margin: 10% 0;
-  font-size: 40pt;
-  position: relative;
-  left: 20%;
-  width: 80%
+  margin: 10vh 0;
+  font-size: max(8vh,30pt);
+  position: fixed;
+  width: 60vw;
+  text-align: center;
+  top: 30vh;
+  left: 0;
 }
 
 #response-field {
@@ -37,7 +39,7 @@ li {
   bottom: 20%;
 }
 
-.response { font-size: 20pt; margin: 0 1.5%; }
+.response { font-size: 20pt; margin: 0 3vw; }
 
 #name-input, #rejoin-input, #name-button, #rejoin-button {
   padding: 0;

@@ -1,6 +1,5 @@
 export const environment = {
   production: true,
   apiUrl: '/api/',
-  // DEPLOYMENT: need to update the droplet ip
-  wsUrl: 'wss://[your droplet ip address].nip.io/api/game/updates',
+  wsUrl: 'wss://157.245.252.224.nip.io/api/game/updates',
 };

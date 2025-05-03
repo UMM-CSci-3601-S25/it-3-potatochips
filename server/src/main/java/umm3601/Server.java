@@ -57,7 +57,6 @@ public class Server {
 
 
   private static final Set<WsContext> CONNECTED_CLIENTS = ConcurrentHashMap.newKeySet();
-  private static final ConcurrentHashMap<WsContext, Boolean> CLIENT_ALIVE_STATUS = new ConcurrentHashMap<>();
   private static final long HEARTBEAT_INTERVAL = 1000 * 10;
     // Update the Game State
   // private int currentRound = 1;
@@ -238,7 +237,6 @@ public class Server {
 
       ws.onConnect(ctx -> {
         CONNECTED_CLIENTS.add(ctx);
-        CLIENT_ALIVE_STATUS.put(ctx, true);
 
 
       });
@@ -246,7 +244,6 @@ public class Server {
       ws.onMessage(ctx -> {
         String message = ctx.message();
         if (message.equals("pong")) {
-          CLIENT_ALIVE_STATUS.put(ctx, true);
         } else {
           broadcastUpdate(message);
         }
@@ -260,12 +257,6 @@ public class Server {
       @Override
       public void run() {
         for (WsContext client : CONNECTED_CLIENTS) {
-          if (!client.session.isOpen()) {
-             CONNECTED_CLIENTS.remove(client);
-             CLIENT_ALIVE_STATUS.remove(client);
-             return;
-          }
-          CLIENT_ALIVE_STATUS.put(client, false); //Set to false expecting client to respond to ping
           client.send("ping");
         }
       }
@@ -274,8 +265,8 @@ public class Server {
 
   public static void broadcastUpdate(String message) {
     for (WsContext client : CONNECTED_CLIENTS) {
-      Boolean isAlive = CLIENT_ALIVE_STATUS.get(client);
-      if (isAlive != null && isAlive) {
+      if(client.session.isOpen())
+      {
         client.send(message);
       }
     }

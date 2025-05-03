@@ -12,7 +12,6 @@ import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-//import { environment } from 'src/environments/environment';
 
 
 
@@ -54,7 +53,6 @@ export class GameComponent {
     private httpClient: HttpClient
   ) {
     this.WebsocketSetup();
-    //this.socket = new WebSocket("${environment.wsUrl}");
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
     // this.socket.onclose = () => {
     //   if(this.socket.readyState === WebSocket.CLOSED) {
@@ -86,7 +84,6 @@ export class GameComponent {
     this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
     //this.socket = new WebSocket("${environment.wsUrl}");
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
-
     this.socket.onopen = () => {
       console.log('WebSocket connected');
       this.Heartbeat();
@@ -107,7 +104,7 @@ export class GameComponent {
     this.socket.onclose = () => {
       console.warn('WebSocket connection closed. Reconnecting...');
       this.cleanupWebSocket();
-      setTimeout(() => this.WebsocketSetup(), 1000 * 1);
+      setTimeout(() => this.WebsocketSetup(), 0);
     };
 
     window.onbeforeunload = () => {
@@ -115,13 +112,8 @@ export class GameComponent {
       const connectedPlayers = this.game()?.connectedPlayers;
       connectedPlayers[this.playerId] = false;
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
-      console.log('testRemove received');
+      this.socket.send('ping')
     }
-    // Attempt to reconnect after 1 second
-    //We may be able to implement a reconnect button by calling the websocketsetup.
-
-
-    //Can add a socket.onerror aswell,
   }
 
 
@@ -352,4 +344,3 @@ export class GameComponent {
   }
 
 }
-

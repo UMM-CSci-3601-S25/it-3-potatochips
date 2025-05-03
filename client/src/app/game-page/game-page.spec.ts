@@ -251,7 +251,8 @@ describe('GameComponent', () => {
       _id: 'test-game-id',
       responses: ['Response1', '', 'Response3'], // One response is empty
       players: ['Player1', 'Player2', 'Player3'],
-      judge: 0
+      judge: 0,
+      activePlayers: [true, true, true]
     };
     component.game = signal(mockGame); // Mock the game object
 

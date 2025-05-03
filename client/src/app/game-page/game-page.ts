@@ -326,7 +326,7 @@ export class GameComponent {
 
   responsesReady() {
     for (let i = 0; i < this.game()?.players.length; i++) {
-      if (this.game()?.responses[this.playerPerm[i]] == "" && this.game()?.connectedPlayers[this.playerPerm[i]]) {
+      if (this.game()?.responses[i] == "" && this.game()?.connectedPlayers[i]) {
         return false;
       }
     }

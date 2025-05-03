@@ -12,7 +12,7 @@ import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { environment } from 'src/environments/environment';
+
 
 
 
@@ -54,7 +54,7 @@ export class GameComponent {
     private httpClient: HttpClient
   ) {
     this.WebsocketSetup();
-    this.socket = new WebSocket("${environment.wsUrl}");
+    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
     // this.socket.onclose = () => {
     //   if(this.socket.readyState === WebSocket.CLOSED) {
     // const gameId = this.game()?._id;
@@ -83,7 +83,7 @@ export class GameComponent {
 
   public WebsocketSetup() {
     this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
-    this.socket = new WebSocket("${environment.wsUrl}");
+    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
 
 
     this.socket.onopen = () => {
@@ -106,7 +106,7 @@ export class GameComponent {
     this.socket.onclose = () => {
       console.warn('WebSocket connection closed. Reconnecting...');
       this.cleanupWebSocket();
-      setTimeout(() => this.WebsocketSetup(), 1000 * 1);
+      setTimeout(() => this.WebsocketSetup(), 1000 * 3);
     };
 
     window.onbeforeunload = () => {
@@ -116,11 +116,6 @@ export class GameComponent {
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
       console.log('testRemove received');
     }
-    // Attempt to reconnect after 1 second
-    //We may be able to implement a reconnect button by calling the websocketsetup.
-
-
-    //Can add a socket.onerror aswell,
   }
 
 
@@ -181,6 +176,7 @@ export class GameComponent {
     const gameId = this.game()?._id;
     const responses = this.game()?.responses || []; // Ensure responses is defined
     responses[this.playerId] = this.response; // Add the new response to the array
+    console.log("sbtrsp" + this.playerId);
 
     // Ensure the judge's response is treated as the prompt
     if (this.playerId === this.game()?.judge) {
@@ -336,4 +332,3 @@ export class GameComponent {
   }
 
 }
-

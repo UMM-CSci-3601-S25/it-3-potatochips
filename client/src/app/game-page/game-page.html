@@ -20,10 +20,10 @@
     </div>
     <div [style]="(playerId == null || this.game()?.gameOver) ? 'display: none' : 'display: block'">
       <div id="prompt">{{ this.game()?.responses[this.game()?.judge] }}</div>
-      <ul id="response-list" [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">
+      <ul id="response-list" [style]="responsesReady() && playerId == this.game()?.judge ? 'display: block' : 'display: none'">
         <li class="response" *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)">{{ response }}</button></li>
       </ul>
-      <ul [style]="responsesReady() && playerId != this.game()?.judge ? 'display: flex' : 'display: none'">
+      <ul id="response-list" [style]="responsesReady() && playerId != this.game()?.judge ? 'display: block' : 'display: none'">
         <li class="response" *ngFor="let response of getResponses(); index as i">{{ response }}</li>
       </ul>
       <div id="response-field">

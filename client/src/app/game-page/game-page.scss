@@ -61,7 +61,7 @@ li {
   position: fixed; top: 50vh;
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 1000px) {
   #player-data, #prompt, #response-field, #responses {
     position: relative; right: 0; padding: 0; top: 0;
   }

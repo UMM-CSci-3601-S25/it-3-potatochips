@@ -72,7 +72,7 @@ describe('HomeComponent', () => {
       gameOver: false,
       scores: [],
       pastResponses: [],
-      connectedPlayers: [],
+      connectedPlayers: []
     });
 
     req.flush({ id: '123456' });

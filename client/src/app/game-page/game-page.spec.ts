@@ -144,6 +144,7 @@ describe('GameComponent', () => {
     });
 
     component.selectResponse(1); // Select the second response (index 1 in playerPerm)
+
     // Check if the score of the selected player is incremented
     expect(component.game().scores[2]).toBe(1);
 

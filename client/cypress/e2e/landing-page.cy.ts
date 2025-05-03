@@ -21,4 +21,5 @@ describe('Landing page', () => {
     page.joinGame('123456').click();
     cy.url().should(url => expect(url.includes('/game/123456')).to.be.true);
   });
+
 });

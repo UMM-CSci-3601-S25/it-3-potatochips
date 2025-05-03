@@ -1,13 +1,15 @@
 import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute, ParamMap, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+//import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Game } from '../game';
 import { catchError, map, switchMap } from 'rxjs/operators';
+//import { toSignal } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
@@ -22,7 +24,6 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrls: ['./game-page.scss'],
   providers: [],
   imports: [
-    RouterLink,
     MatCardModule,
     MatInputModule,
     MatFormFieldModule,
@@ -38,7 +39,6 @@ export class GameComponent {
   game: WritableSignal<Game | null> = signal(null); // Use WritableSignal and initialize with null
   error = signal({help: '', httpResponse: '', message: ''});
 
-
   private socket: WebSocket;
 
   private readonly PONG_TIMEOUT = ((1000 * 5) + (1000 * 1)) // 5 + 1 second for buffer
@@ -46,7 +46,6 @@ export class GameComponent {
   private heartbeatInterval: number;
   private pongTimeout: number;
   private snackBar = inject(MatSnackBar);
-
 
   constructor(
     private route: ActivatedRoute,
@@ -65,6 +64,7 @@ export class GameComponent {
     // }
     // Initialize the game signal with data from the server
 
+    // Initialize the game signal with data from the server
     this.route.paramMap.pipe(
       map((paramMap: ParamMap) => paramMap.get('id')),
       switchMap((id: string) => this.httpClient.get<Game>(`/api/game/${id}`)),
@@ -151,7 +151,6 @@ export class GameComponent {
     });
   }
 
-
   refreshGame() {
     const gameId = this.game()?.['_id'];
     if (gameId) {
@@ -193,10 +192,9 @@ export class GameComponent {
     this.response = '';
     this.shuffleArray();
   }
-  connectedPlayers: boolean[] = [];
   submission = "";
-  response = "";
-  username = "";
+  response = ""
+  username = " ";
   usernameInput: string = "";
   playerIdInput: string = "";
   numPlayers: number = 0;
@@ -206,14 +204,10 @@ export class GameComponent {
 
   submitUsername() {
     if (this.usernameInput.trim()) {
-      console.log("Player ID before they enter: " + this.playerId)
       this.playerId = this.game().players.length;
-      console.log(this.playerId);
       this.username = this.usernameInput.trim(); // Update the displayed username
       const gameId = this.game()?._id;
       const scores = this.game()?.scores;
-      const connectedPlayers = this.game()?.connectedPlayers;
-      connectedPlayers.push(true);
       scores.push(0);
       const responses = this.game()?.responses;
       responses.push("");
@@ -225,15 +219,15 @@ export class GameComponent {
       if (this.playerId === 0) {
         judge = 0;
       }
+
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
-        $set: { players: players, scores: scores, responses: responses, judge: judge, connectedPlayers: connectedPlayers }
+        $set: { players: players, scores: scores, responses: responses, judge: judge }
       }).subscribe();
 
       this.numPlayers = this.players.length; // Update the number of players
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
       //console.log(this.game()); // game object
-      this.openSnackBar('Joined game as new player', 'Dismiss');
     }
   }
 
@@ -325,6 +319,7 @@ export class GameComponent {
       }
     });
   }
+
   responsesReady() {
     for (let i = 0; i < this.game()?.responses.length; i++) {
       if (this.game()?.responses[i] == "") {

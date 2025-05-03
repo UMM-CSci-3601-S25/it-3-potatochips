@@ -12,7 +12,7 @@ import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { environment } from 'src/environments/environment';
+//import { environment } from 'src/environments/environment';
 
 
 
@@ -54,7 +54,8 @@ export class GameComponent {
     private httpClient: HttpClient
   ) {
     this.WebsocketSetup();
-    this.socket = new WebSocket("${environment.wsUrl}");
+    //this.socket = new WebSocket("${environment.wsUrl}");
+    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
     // this.socket.onclose = () => {
     //   if(this.socket.readyState === WebSocket.CLOSED) {
     // const gameId = this.game()?._id;
@@ -83,8 +84,8 @@ export class GameComponent {
 
   public WebsocketSetup() {
     this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
-    this.socket = new WebSocket("${environment.wsUrl}");
-
+    //this.socket = new WebSocket("${environment.wsUrl}");
+    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
 
     this.socket.onopen = () => {
       console.log('WebSocket connected');
@@ -179,16 +180,25 @@ export class GameComponent {
 
   submitResponse() {
     const gameId = this.game()?._id;
-    const responses = this.game()?.responses || []; // Ensure responses is defined
-    responses[this.playerId] = this.response; // Add the new response to the array
+    const responses = this.game()?.responses || [];
 
-    // Ensure the judge's response is treated as the prompt
+    if (responses.includes(this.response)) {
+      this.openSnackBar(`Duplicate response detected: "${this.response}". This response cannot be submitted.`, 'Dismiss');
+      this.response = '';
+      return;
+    }
+    this.openSnackBar('Submitted','Dismiss')
+    responses[this.playerId] = this.response;
+
     if (this.playerId === this.game()?.judge) {
-      this.displayedPrompt = this.response; // Store the judge's response as the prompt
+      this.displayedPrompt = this.response;
     }
 
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } }).subscribe();
-    this.response = ''; // Clear the input field
+    this.httpClient
+      .put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } })
+      .subscribe();
+
+    this.response = '';
     this.shuffleArray();
   }
   connectedPlayers: boolean[] = [];

@@ -104,7 +104,7 @@ export class GameComponent {
     this.socket.onclose = () => {
       console.warn('WebSocket connection closed. Reconnecting...');
       this.cleanupWebSocket();
-      setTimeout(() => this.WebsocketSetup(), 1000 * 3);
+      setTimeout(() => this.WebsocketSetup(), 0);
     };
 
     window.onbeforeunload = () => {
@@ -112,7 +112,7 @@ export class GameComponent {
       const connectedPlayers = this.game()?.connectedPlayers;
       connectedPlayers[this.playerId] = false;
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
-      console.log('testRemove received');
+      this.socket.send('ping')
     }
   }
 

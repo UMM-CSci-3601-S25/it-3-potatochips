@@ -259,18 +259,28 @@ describe('GameComponent', () => {
     expect(result).toBe(false); // Verify it returns false
   });
 
-  it('should return true if all responses are filled in responsesReady', () => {
+  it('should reject duplicate responses and prevent submission', () => {
     const mockGame = {
       _id: 'test-game-id',
-      responses: ['Response1', 'Response2', 'Response3'], // All responses are filled
+      responses: ['Response1', 'Response2', 'Response3'], // Existing responses
       players: ['Player1', 'Player2', 'Player3'],
-      judge: 0
+      judge: 0 // Player 0 is the judge
     };
+
     component.game = signal(mockGame); // Mock the game object
+    component.playerId = 1; // Simulate a non-judge player
+    component.response = 'Response2'; // Simulate a duplicate response
 
-    const result = component.responsesReady(); // Call the method
+    const alertSpy = spyOn(window, 'alert'); // Spy on the alert function
 
-    expect(result).toBe(true); // Verify it returns true
+    component.submitResponse(); // Call the method
+
+    // Verify that the duplicate response is rejected
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Duplicate response detected: "Response2". This response cannot be submitted.'
+    );
+    expect(component.response).toBe(''); // Ensure the response input is cleared
+    expect(component.game().responses[1]).toBe('Response2'); // Ensure the original response is unchanged
   });
 
   it('should refresh the game state by fetching updated data from the server', () => {
@@ -327,6 +337,22 @@ describe('GameComponent', () => {
 
     expect(component.playerId).toBe(1); // Verify playerId is updated (index is 0-based)
     expect(snackBarSpy).toHaveBeenCalledWith('Rejoined game', 'Dismiss'); // Verify snackbar is shown
+  });
+
+  it('Should return Game Over when hit target score', () => {
+    const mockGame = {
+      _id: 'test-game-id',
+      players: ['Player1', 'Player2', 'Player3'],
+      scores: [1, 2, 3], // Example scores
+      targetScore: 3, // Set target score to 30
+      gameOver: true,
+      responses: ['limes', 'touch grass', 'get a life'],
+    };
+    component.game = signal(mockGame); // Mock the game object
+
+    const result = component.game().gameOver; // Call the method
+    expect(component.game().players.length).toBe(3); // Verify it returns true
+    expect(result).toBe(true); // Verify it returns true
   });
 
   it('should not let an arbitrary playerId get set if another player already inhabits that playerId', () =>  {

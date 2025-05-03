@@ -213,6 +213,8 @@ export class GameComponent {
       responses.push("");
       const players = this.game()?.players;
       players.push(this.username);
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers.push(true);
 
       // Set the first player as the judge
       let judge = this.game()?.judge;
@@ -221,7 +223,7 @@ export class GameComponent {
       }
 
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
-        $set: { players: players, scores: scores, responses: responses, judge: judge }
+        $set: { players: players, scores: scores, responses: responses, judge: judge, connectedPlayers: connectedPlayers }
       }).subscribe();
 
       this.numPlayers = this.players.length; // Update the number of players
@@ -254,7 +256,9 @@ export class GameComponent {
   getResponses() {
     const array: string[] = [];
     for (let i = 0; i < this.playerPerm.length; i++) {
-      array.push(this.game()?.responses[this.playerPerm[i]]);
+      if (this.game()?.connectedPlayers[this.playerPerm[i]]) {
+        array.push(this.game()?.responses[this.playerPerm[i]]);
+      }
     }
     return array;
   }
@@ -321,8 +325,8 @@ export class GameComponent {
   }
 
   responsesReady() {
-    for (let i = 0; i < this.game()?.responses.length; i++) {
-      if (this.game()?.responses[i] == "") {
+    for (let i = 0; i < this.game()?.players.length; i++) {
+      if (this.game()?.responses[i] == "" && this.game()?.connectedPlayers[i]) {
         return false;
       }
     }

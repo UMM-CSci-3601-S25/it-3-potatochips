@@ -62,12 +62,8 @@ li {
   position: fixed; right: 3%; text-wrap: nowrap;
 }
 
-#responses {
-  position: fixed; top: 50vh;
-}
-
 @media only screen and (max-width: 1000px) {
-  #player-data, #prompt, #response-field, #responses {
+  #player-data, #prompt, #response-field, #response-list {
     position: relative; right: 0; padding: 0; top: 0; left: 0; bottom: 0;
   }
 }

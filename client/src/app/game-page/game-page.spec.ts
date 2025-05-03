@@ -246,12 +246,13 @@ describe('GameComponent', () => {
     );
   });
 
-  it('should return false if any response is empty in responsesReady', () => {
+  it('should return false if any response is empty in responses', () => {
     const mockGame = {
       _id: 'test-game-id',
       responses: ['Response1', '', 'Response3'], // One response is empty
       players: ['Player1', 'Player2', 'Player3'],
-      judge: 0
+      judge: 0,
+      connectedPlayers: [true, true, true]
     };
     component.game = signal(mockGame); // Mock the game object
 

@@ -1,5 +1,67 @@
+* { font-size: 15pt; }
+
 li {
     padding: 1%;
     list-style-type: none;
-    font-size: 14pt;
+}
+
+.player {
+  display: flex;
+}
+
+.player-number, .score, .username, .previous, .waiting {
+  padding: 3px;
+  overflow: hidden;
+  margin: 5px;
+}
+
+.player-number { width: 110px; }
+.score { width: 80px; }
+.username { width: 150px; }
+.previous { width: 120px; }
+.waiting { width: 40px;}
+
+#name-input { margin-left: 2%; }
+
+#prompt {
+  padding: none;
+  margin: 10% 0;
+  font-size: max(8vh,30pt);
+  position: fixed;
+  width: 60vw;
+  text-align: center;
+  top: 10vh;
+}
+
+#response-field {
+  position: fixed;
+  bottom: 20%;
+}
+
+.response { font-size: 20pt; margin: 0 3%; }
+
+#name-input, #rejoin-input {
+  padding: 0;
+  margin: 0;
+}
+
+#name-button, #rejoin-button {
+  padding: 0 1vw;
+  margin: 0;
+}
+
+.join-text { margin: 7vh 0 2vh 0; }
+
+#player-data {
+  position: fixed; right: 3%; text-wrap: nowrap;
+}
+
+#responses {
+  position: fixed; top: 50vh;
+}
+
+@media only screen and (max-width: 900px) {
+  #player-data, #prompt, #response-field, #responses {
+    position: relative; right: 0; padding: 0; top: 0;
+  }
 }

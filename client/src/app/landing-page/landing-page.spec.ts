@@ -59,6 +59,8 @@ describe('HomeComponent', () => {
     //const routerSpy = spyOn(component['router'], 'navigateByUrl');
     component.createGame();
     const httpMock = TestBed.inject(HttpTestingController);
+    const routerSpy = spyOn(component['router'], 'navigateByUrl'); // Spy on the router's navigateByUrl method
+
     const req = httpMock.expectOne('/api/game/new');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
@@ -66,12 +68,18 @@ describe('HomeComponent', () => {
       judge: 0,
       winnerBecomesJudge: false,
       responses: [],
+      targetScore: 0,
+      gameOver: false,
       scores: [],
       pastResponses: [],
       connectedPlayers: [],
     });
+
+    req.flush({ id: '123456' });
+    expect(routerSpy).toHaveBeenCalledWith('/settings/123456');
     httpMock.verify();
-  });
+
+  })
   // it('should show a snackbar when game is created', () => {
   //   const httpMock = TestBed.inject(HttpTestingController);
   //   spyOn(component, 'openSnackBar'); // Spy on the openSnackBar method

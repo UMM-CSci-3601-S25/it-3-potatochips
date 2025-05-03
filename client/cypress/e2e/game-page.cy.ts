@@ -26,26 +26,21 @@ describe('Game page', () => {
     page.getPlayers().should('have.lengthOf', 4);
   });
 
-  it('Should display prompt and response field when the game is joined', () => {
+  it('Should display the proper items', () => {
     cy.get('#prompt').should('not.be.visible');
     cy.get('#response-field').should('not.be.visible');
+    cy.get('#response-list').should('not.be.visible');
     page.readIdInput('1');
     page.rejoinButton().click();
-    cy.get('#prompt').should('be.visible');
-    cy.get('#response-field').should('be.visible');
-  });
-
-  it('Should display responses when prompt is submitted', () => {
-    cy.get('#response-list').should('not.be.visible');
     page.readResponseInput('prompt');
     page.responseButton().click();
+    cy.get('#prompt').should('be.visible');
+    cy.get('#response-field').should('be.visible');
     cy.get('#response-list').should('be.visible');
-  });
-
-  it('Should remove responses when one is selected', () => {
-    cy.get('#response-list').should('be.visible');
-    cy.get('.response').click();
+    cy.get('.score').contains('1').should('not.exist');
+    cy.get('.response').contains('things').click();
     cy.get('#response-list').should('not.be.visible');
+    cy.get('.score').contains('1').should('exist');
   });
 
   it('Should update the list of players when one is added', () => {

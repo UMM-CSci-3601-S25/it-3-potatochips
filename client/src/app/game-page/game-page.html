@@ -16,11 +16,11 @@
       <br>
       <div class="join-text">Rejoin:</div>
       <input id="rejoin-input" matInput type="text" [(ngModel)]="playerIdInput" placeholder="Enter your player number">
-      <button id="rejoin-button" mat-raised-button color="primary" (click)="submitUsername()" (click)="openSnackBar('Rejoined', 'Undo')">Submit</button>
+      <button id="rejoin-button" mat-raised-button color="primary" (click)="submitPlayerId()">Submit</button>
     </div>
     <div [style]="(playerId == null || this.game()?.gameOver) ? 'display: none' : 'display: block'">
       <div id="prompt">{{ this.game()?.responses[this.game()?.judge] }}</div>
-      <ul id="responses-list" [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">
+      <ul id="response-list" [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">
         <li class="response" *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)">{{ response }}</button></li>
       </ul>
       <ul [style]="responsesReady() && playerId != this.game()?.judge ? 'display: flex' : 'display: none'">

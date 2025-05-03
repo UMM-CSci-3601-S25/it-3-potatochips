@@ -1,42 +1,60 @@
+
 package umm3601;
+
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
+
 import org.bson.UuidRepresentation;
+
 
 import io.javalin.Javalin;
 import io.javalin.http.InternalServerErrorResponse;
 import io.javalin.websocket.WsContext;
+
 
 /**
  * The class used to configure and start a Javalin server.
  */
 public class Server {
 
+
   // The port that the server should run on.
   private static final int SERVER_PORT = 4567;
 
+
   // How long we should wait between updating we sockets information
+
 
   // private static final long WEB_SOCKET_PING_INTERNAL = 5; // testing implementation
 //
   // Clients connection via web sockets
 
+
   // private static Set<WsContext> connectedClients = ConcurrentHashMap.newKeySet(); // testing implementation
+
 
   // The `mongoClient` field is used to access the MongoDB
   private final MongoClient mongoClient;
 
+
   // The `controllers` field is an array of all the `Controller` implementations
   // for the server. This is used to add routes to the server.
   private Controller[] controllers;
+
+
+
+
 
   private static final Set<WsContext> CONNECTED_CLIENTS = ConcurrentHashMap.newKeySet();
   private static final long HEARTBEAT_INTERVAL = 1000 * 10;
@@ -47,11 +65,13 @@ public class Server {
   // private String roundWinner = null;
   // private String gameWinner = null;
 
+
   // // Game Management
   // private Map<String, Map<String, Integer>> gamePlayerScores = new ConcurrentHashMap<>(); // gameCode -> playerScores
   // private Map<String, Set<WsContext>> gameConnections = new ConcurrentHashMap<>(); // gameCode -> connectedClients
   // private Map<WsContext, String> clientsGames = new ConcurrentHashMap<>(); // client -> gameCode
   // private Map<WsContext, String> clientIds = new ConcurrentHashMap<>(); // Map WsContext to custom ID
+
 
   /**
    * Construct a `Server` object that we'll use (via `startServer()`) to configure
@@ -69,6 +89,7 @@ public class Server {
     // we'd be using the modified array without realizing it.
     this.controllers = Arrays.copyOf(controllers, controllers.length);
   }
+
 
   /**
    * Setup the MongoDB database connection.
@@ -96,8 +117,10 @@ public class Server {
       .uuidRepresentation(UuidRepresentation.STANDARD)
       .build());
 
+
     return mongoClient;
   }
+
 
   /**
    * Configure and start the server.
@@ -110,8 +133,12 @@ public class Server {
     System.out.println("starting a server at port " + SERVER_PORT);
     Javalin javalin = configureJavalin();
     setupRoutes(javalin);
+    startHeartbeat();
     javalin.start(SERVER_PORT);
+
+
   }
+
 
   /**
    * Configure the Javalin server. This includes
@@ -144,8 +171,10 @@ public class Server {
       config.bundledPlugins.enableRouteOverview("/api")
     );
 
+
     // Configure the MongoDB client and the Javalin server to shut down gracefully.
     configureShutdowns(server);
+
 
     // This catches any uncaught exceptions thrown in the server
     // code and turns them into a 500 response ("Internal Server
@@ -160,8 +189,10 @@ public class Server {
       throw new InternalServerErrorResponse(e.toString());
     });
 
+
     return server;
   }
+
 
   /**
    * Configure the server and the MongoDB client to shut down gracefully.
@@ -188,6 +219,7 @@ public class Server {
     });
   }
 
+
   /**
    * Setup routes for the server.
    *
@@ -199,6 +231,7 @@ public class Server {
     for (Controller controller : controllers) {
       controller.addRoutes(server);
     }
+
 
     server.ws("/api/game/updates", ws -> {
 

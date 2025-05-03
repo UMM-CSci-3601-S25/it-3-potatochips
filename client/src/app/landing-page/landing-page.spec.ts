@@ -68,6 +68,8 @@ describe('HomeComponent', () => {
       judge: 0,
       winnerBecomesJudge: false,
       responses: [],
+      targetScore: 0,
+      gameOver: false,
       scores: [],
       pastResponses: [],
       connectedPlayers: [],

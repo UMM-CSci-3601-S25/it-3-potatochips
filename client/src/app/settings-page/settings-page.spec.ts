@@ -72,7 +72,11 @@ describe('SettingsComponent', () => {
     // Expect an HTTP PUT request
     const putReq = httpMock.expectOne('/api/game/edit/12345');
     expect(putReq.request.method).toBe('PUT');
-    expect(putReq.request.body).toEqual({ $set: { winnerBecomesJudge: true } });
+    expect(putReq.request.body).toEqual({ $set: 
+      { winnerBecomesJudge: true,
+        targetScore: 7,
+      } });
+
 
     // Respond to the PUT request to complete it
     putReq.flush({});

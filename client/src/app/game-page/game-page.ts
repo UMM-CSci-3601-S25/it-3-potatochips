@@ -1,19 +1,20 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, RouterLink } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-//import { toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Game } from '../game';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
-//import { console } from 'inspector';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+//import { environment } from 'src/environments/environment';
+
+
 
 
 @Component({
@@ -22,20 +23,51 @@ import { CommonModule } from '@angular/common'; // Import CommonModule
   styleUrls: ['./game-page.scss'],
   providers: [],
   imports: [
+    RouterLink,
     MatCardModule,
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
     FormsModule,
     MatCheckboxModule,
-    CommonModule // Add CommonModule to imports
+    CommonModule,
+    MatSnackBarModule, // Add CommonModule to imports
   ]
 })
 export class GameComponent {
   prompt: string = ''; // Initialize the prompt property
-  game = toSignal(
+  game: WritableSignal<Game | null> = signal(null); // Use WritableSignal and initialize with null
+  error = signal({help: '', httpResponse: '', message: ''});
+
+
+  private socket: WebSocket;
+
+  private readonly PONG_TIMEOUT = ((1000 * 5) + (1000 * 1)) // 5 + 1 second for buffer
+  private readonly PING_INTERVAL = 5000;
+  private heartbeatInterval: number;
+  private pongTimeout: number;
+  private snackBar = inject(MatSnackBar);
+
+
+  constructor(
+    private route: ActivatedRoute,
+    private httpClient: HttpClient
+  ) {
+    this.WebsocketSetup();
+    //this.socket = new WebSocket("${environment.wsUrl}");
+    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
+    // this.socket.onclose = () => {
+    //   if(this.socket.readyState === WebSocket.CLOSED) {
+    // const gameId = this.game()?._id;
+    // const connectedPlayers = this.game()?.connectedPlayers;
+    // connectedPlayers[this.playerId] = false;
+    // this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+    // console.log('testRemove received');
+    //   }
+    // }
+    // Initialize the game signal with data from the server
+
     this.route.paramMap.pipe(
-      // Map the paramMap into the id
       map((paramMap: ParamMap) => paramMap.get('id')),
       switchMap((id: string) => this.httpClient.get<Game>(`/api/game/${id}`)),
       catchError((_err) => {
@@ -44,11 +76,98 @@ export class GameComponent {
           httpResponse: _err.message,
           message: _err.error?.title,
         });
-        return of();
+        return of(null);
       })
+    ).subscribe((game) => this.game.set(game)); // Update the signal with the fetched game
+  }
 
-    ));
-  error = signal({help: '', httpResponse: '', message: ''});
+
+  public WebsocketSetup() {
+    this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
+    //this.socket = new WebSocket("${environment.wsUrl}");
+    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
+
+    this.socket.onopen = () => {
+      console.log('WebSocket connected');
+      this.Heartbeat();
+    };
+
+
+    this.socket.onmessage = (event) => {
+      if (event.data === 'ping') {
+        console.log('ping received from server')
+        this.socket.send('pong');
+      }
+      const sanitizedData = event.data.replace(/[\n\r]/g, '');
+      console.log('WebSocket message received:', sanitizedData);
+      this.refreshGame();
+    };
+
+
+    this.socket.onclose = () => {
+      console.warn('WebSocket connection closed. Reconnecting...');
+      this.cleanupWebSocket();
+      setTimeout(() => this.WebsocketSetup(), 1000 * 1);
+    };
+
+    window.onbeforeunload = () => {
+      const gameId = this.game()?._id;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers[this.playerId] = false;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+      console.log('testRemove received');
+    }
+    // Attempt to reconnect after 1 second
+    //We may be able to implement a reconnect button by calling the websocketsetup.
+
+
+    //Can add a socket.onerror aswell,
+  }
+
+
+  public Heartbeat() {
+    setInterval(() => {
+      if (this.socket.readyState === WebSocket.OPEN) {
+        this.socket.send('ping');
+        this.resetPongTimeout();
+      }
+    }, this.PING_INTERVAL);
+  }
+
+
+  public resetPongTimeout() {
+    clearTimeout(this.pongTimeout);
+    setTimeout(() => {
+      console.warn('Pong not received. Reconnecting...');
+      this.socket.close(); // This will trigger onclose to reconnect
+    }, this.PONG_TIMEOUT);
+
+
+  }
+
+
+  public cleanupWebSocket() {
+    clearInterval(this.heartbeatInterval);
+    clearTimeout(this.pongTimeout);
+  }
+
+
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action,{
+      duration: 3000, // Duration in milliseconds
+    });
+  }
+
+
+  refreshGame() {
+    const gameId = this.game()?.['_id'];
+    if (gameId) {
+      this.httpClient.get<Game>(`/api/game/${gameId}`).subscribe((updatedGame) => {
+        this.game.set(updatedGame); // Update the game state
+      });
+    }
+  }
 
   // submitPrompt() {
   //   const gameId = this.game()?._id;
@@ -61,33 +180,48 @@ export class GameComponent {
 
   submitResponse() {
     const gameId = this.game()?._id;
-    const responses = this.game()?.responses || []; // Ensure responses is defined
-    responses[this.playerId] = this.response; // Add the new response to the array
+    const responses = this.game()?.responses || [];
 
-    // Ensure the judge's response is treated as the prompt
+    if (responses.includes(this.response)) {
+      this.openSnackBar(`Duplicate response detected: "${this.response}". This response cannot be submitted.`, 'Dismiss');
+      this.response = '';
+      return;
+    }
+    this.openSnackBar('Submitted','Dismiss')
+    responses[this.playerId] = this.response;
+
     if (this.playerId === this.game()?.judge) {
-      this.displayedPrompt = this.response; // Store the judge's response as the prompt
+      this.displayedPrompt = this.response;
     }
 
-    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } }).subscribe();
-    this.response = ''; // Clear the input field
+    this.httpClient
+      .put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } })
+      .subscribe();
+
+    this.response = '';
     this.shuffleArray();
   }
+  connectedPlayers: boolean[] = [];
   submission = "";
-  response = ""
-  username = " ";
+  response = "";
+  username = "";
   usernameInput: string = "";
+  playerIdInput: string = "";
   numPlayers: number = 0;
   //isPromptSubmitted: boolean = false;
   displayedPrompt: string = '';
   responses: string[] = []; // Initialize responses as an empty array
 
   submitUsername() {
-    if (this.usernameInput.trim()) { //  && this.playerId == null
+    if (this.usernameInput.trim()) {
+      console.log("Player ID before they enter: " + this.playerId)
       this.playerId = this.game().players.length;
+      console.log(this.playerId);
       this.username = this.usernameInput.trim(); // Update the displayed username
       const gameId = this.game()?._id;
       const scores = this.game()?.scores;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers.push(true);
       scores.push(0);
       const responses = this.game()?.responses;
       responses.push("");
@@ -99,18 +233,33 @@ export class GameComponent {
       if (this.playerId === 0) {
         judge = 0;
       }
-
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {
-        $set: { players: players, scores: scores, responses: responses, judge: judge }
+        $set: { players: players, scores: scores, responses: responses, judge: judge, connectedPlayers: connectedPlayers }
       }).subscribe();
 
       this.numPlayers = this.players.length; // Update the number of players
       //console.log(this.players); // players name
       //console.log(this.numPlayers); // number of players
       //console.log(this.game()); // game object
+      this.openSnackBar('Joined game as new player', 'Dismiss');
     }
   }
 
+  submitPlayerId() {
+    if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0 && this.game().connectedPlayers[parseInt(this.playerIdInput.trim())-1] == false) {
+      this.playerId = parseInt(this.playerIdInput.trim()) - 1;
+      this.openSnackBar('Rejoined game', 'Dismiss');
+      const gameId = this.game()?._id;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers[this.playerId] = true;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+    } else if(this.game().connectedPlayers[parseInt(this.playerIdInput.trim())-1] == true) {
+      this.openSnackBar('ID occupied by another player', 'Dismiss');
+    } else {
+      this.openSnackBar('ID is not valid. ', 'Dismiss');
+    }
+  }
+  _id: string = ""; // Game ID
   playerId: number;
   players: string[] = []; // Array to store player names with scores
   newPlayer: string = ""; // Input for new player name
@@ -184,7 +333,6 @@ export class GameComponent {
       }
     });
   }
-
   responsesReady() {
     for (let i = 0; i < this.game()?.responses.length; i++) {
       if (this.game()?.responses[i] == "") {
@@ -193,10 +341,15 @@ export class GameComponent {
     }
     return true;
   }
+  leaveGame() {
+    const gameId = this.game()?._id;
+    const connectedPlayers = this.game()?.connectedPlayers;
+    connectedPlayers[this.playerId] = false;
+    this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { connectedPlayers: connectedPlayers } }).subscribe(() => {
+    });
+    console.log('User left the game');
 
-  constructor(
-    private route: ActivatedRoute,
-    private httpClient: HttpClient
-  ) {}
+  }
 
 }
+

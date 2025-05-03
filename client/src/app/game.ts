@@ -2,6 +2,7 @@ export interface Game {
   _id: string;
   //prompt?: string;
   players?: string[];
+  playerId?: number;
   responses?: string[];
   judge?: number;
   scores?: number[];
@@ -9,6 +10,7 @@ export interface Game {
   pastResponses?: string[];
   targetScore?: number;
   gameOver?: boolean;
+  connectedPlayers?: boolean[];
 }
 
 

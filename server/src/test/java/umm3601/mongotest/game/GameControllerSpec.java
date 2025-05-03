@@ -1,14 +1,4 @@
 package umm3601.mongotest.game;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-// import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-// import static org.mockito.Mockito.mock;
-// import static org.junit.jupiter.api.Assertions.assertThrows;
-// import static org.mockito.ArgumentMatchers.any;
-// import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -18,12 +8,16 @@ import org.bson.BsonString;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.AfterAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
 import com.mongodb.MongoClientSettings;
@@ -35,12 +29,9 @@ import com.mongodb.client.MongoDatabase;
 
 import io.javalin.Javalin;
 import io.javalin.http.BadRequestResponse;
-// import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.HttpStatus;
 import io.javalin.http.NotFoundResponse;
-// import io.javalin.validation.BodyValidator;
-// import io.javalin.validation.BodyValidator;
 import umm3601.game.Game;
 import umm3601.game.GameController;
 // import io.javalin.validation.ValidationException;
@@ -97,10 +88,7 @@ class GameControllerSpec {
     MongoCollection<Document> gameDocuments = db.getCollection("games");
     gameDocuments.drop();
 
-    gameController = new GameController(db);
-
     gameID = new ObjectId();
-
 
     BsonArray usernames = new BsonArray();
     usernames.add(new BsonString("Kristin"));
@@ -113,7 +101,6 @@ class GameControllerSpec {
 
     Document newGame = new Document()
       .append("players", usernames)
-      .append("prompt", "What is the meaning of life?")
       .append("responses", responses)
       .append("judge", 1)
       .append("discardLast", true)
@@ -125,6 +112,7 @@ class GameControllerSpec {
 
     gameDocuments.insertOne(newGame);
 
+    gameController = new GameController(db);
   }
 
 
@@ -195,7 +183,6 @@ class GameControllerSpec {
     when(ctx.pathParam("id")).thenReturn(id);
 
     Document updatedGame = new Document("$set", new Document()
-        .append("prompt", "Updated prompt")
         .append("judge", 2));
     when(ctx.body()).thenReturn(updatedGame.toJson());
 
@@ -212,7 +199,6 @@ class GameControllerSpec {
     when(ctx.pathParam("id")).thenReturn(id);
 
     Document updatedGame = new Document()
-        .append("prompt", "Updated prompt")
         .append("judge", 2);
     when(ctx.body()).thenReturn(updatedGame.toJson());
 

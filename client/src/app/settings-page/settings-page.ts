@@ -11,19 +11,32 @@ import { catchError, map, of, switchMap } from 'rxjs';
 import { Game } from '../game';
 import { HttpClient } from '@angular/common/http';
 import { MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { ClipboardModule } from '@angular/cdk/clipboard';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { inject } from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-settings-page',
   templateUrl: 'settings-page.html',
   styleUrls: ['./settings-page.scss'],
   providers: [],
-  imports: [MatCardModule, RouterLink, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, MatCheckboxModule, MatSlideToggleModule]
+  imports: [MatCardModule, RouterLink, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule, MatCheckboxModule, MatSlideToggleModule, ClipboardModule, MatSnackBarModule, MatIconModule],
 })
 export class SettingsComponent {
+
 
   judgeOption = signal<boolean | undefined>(false);
   private judgeOption$ = toObservable(this.judgeOption);
   // default = 'false';
+  private snackBar = inject(MatSnackBar);
+
+
+  openSnackBar(message: string, action: string) {
+    this.snackBar.open(message, action,{
+      duration: 3000, // Duration in milliseconds
+    });
+  }
 
   game = toSignal(
     this.route.paramMap.pipe(

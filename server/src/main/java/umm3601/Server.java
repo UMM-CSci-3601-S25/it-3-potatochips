@@ -243,8 +243,7 @@ public class Server {
       ws.onClose(ctx -> CONNECTED_CLIENTS.remove(ctx));
       ws.onMessage(ctx -> {
         String message = ctx.message();
-        if (message.equals("pong")) {
-        } else {
+        if (!message.equals("pong")) {
           broadcastUpdate(message);
         }
       });
@@ -265,8 +264,7 @@ public class Server {
 
   public static void broadcastUpdate(String message) {
     for (WsContext client : CONNECTED_CLIENTS) {
-      if(client.session.isOpen())
-      {
+      if (client.session.isOpen()) {
         client.send(message);
       }
     }

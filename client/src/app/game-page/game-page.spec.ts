@@ -266,25 +266,21 @@ describe('GameComponent', () => {
       players: ['Player1', 'Player2', 'Player3'],
       judge: 0 // Player 0 is the judge
     };
-  
+
     component.game = signal(mockGame); // Mock the game object
     component.playerId = 1; // Simulate a non-judge player
     component.response = 'Response2'; // Simulate a duplicate response
-  
+
     const alertSpy = spyOn(window, 'alert'); // Spy on the alert function
-  
+
     component.submitResponse(); // Call the method
-  
+
     // Verify that the duplicate response is rejected
     expect(alertSpy).toHaveBeenCalledWith(
       'Duplicate response detected: "Response2". This response cannot be submitted.'
     );
     expect(component.response).toBe(''); // Ensure the response input is cleared
     expect(component.game().responses[1]).toBe('Response2'); // Ensure the original response is unchanged
-  });
-
-
-    expect(result).toBe(true); // Verify it returns true
   });
 
   it('should refresh the game state by fetching updated data from the server', () => {

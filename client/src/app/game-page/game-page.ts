@@ -54,7 +54,6 @@ export class GameComponent {
   ) {
     this.WebsocketSetup();
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
-
     window.onbeforeunload = () => {
       const gameId = this.game()?._id;
       const connectedPlayers = this.game()?.connectedPlayers;
@@ -87,6 +86,8 @@ export class GameComponent {
       })
     ).subscribe((game) => this.game.set(game)); // Update the signal with the fetched game
   }
+
+
 
 
   public WebsocketSetup() {

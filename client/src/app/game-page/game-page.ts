@@ -1,6 +1,6 @@
 import { Component, inject, signal, WritableSignal } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -49,7 +49,8 @@ export class GameComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private httpClient: HttpClient
+    private httpClient: HttpClient,
+    private router: Router
   ) {
     this.WebsocketSetup();
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
@@ -212,7 +213,19 @@ export class GameComponent {
       const players = this.game()?.players;
       players.push(this.username);
       const connectedPlayers = this.game()?.connectedPlayers;
+      let playersIn = false;
+      for(let i = 0; i < this.game()?.connectedPlayers.length; i++) {
+        {
+          if(this.game()?.connectedPlayers[i] == true) {
+            playersIn = true;
+            break;
+          }
+        }
+      }
       connectedPlayers.push(true);
+      if(!playersIn) {
+        this.game().judge = this.playerId;
+      }
 
       // Set the first player as the judge
       let judge = this.game()?.judge;
@@ -233,12 +246,26 @@ export class GameComponent {
 
   submitPlayerId() {
     if (parseInt(this.playerIdInput.trim()) <= this.game()?.players.length && parseInt(this.playerIdInput.trim()) > 0 && this.game().connectedPlayers[parseInt(this.playerIdInput.trim())-1] == false) {
+      let playersIn = false;
+      for(let i = 0; i < this.game()?.connectedPlayers.length; i++) {
+        {
+          if(this.game()?.connectedPlayers[i] == true) {
+            playersIn = true;
+            break;
+          }
+        }
+      }
       this.playerId = parseInt(this.playerIdInput.trim()) - 1;
       this.openSnackBar('Rejoined game', 'Dismiss');
       const gameId = this.game()?._id;
       const connectedPlayers = this.game()?.connectedPlayers;
       connectedPlayers[this.playerId] = true;
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+      if(!playersIn) {
+        this.game().judge = this.playerId;
+      }
+      const judge = this.game()?.judge;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{judge: judge}}).subscribe();
     } else if(this.game().connectedPlayers[parseInt(this.playerIdInput.trim())-1] == true) {
       this.openSnackBar('ID occupied by another player', 'Dismiss');
     } else {
@@ -264,7 +291,7 @@ export class GameComponent {
   shuffleArray() {
     this.playerPerm = [];
     for (let i = 0; i < this.game()?.players.length; i++) {
-      if (i != this.game()?.judge)
+      if (i != this.game()?.judge && this.game()?.connectedPlayers[i])
         this.playerPerm.push(i);
     }
     for (let i = this.playerPerm.length - 1; i > 0; i--) {
@@ -307,7 +334,10 @@ export class GameComponent {
           //console.log(`Judge updated to player index: ${newJudge}`);
         });
       } else {
-        const newJudge = (this.game()?.judge + 1) % this.game()?.players.length; // Increment judge to the next player
+        let newJudge = (this.game()?.judge + 1) % this.game()?.players.length; // Increment judge to the next player
+        while(this.game().connectedPlayers[newJudge] == false) {
+          newJudge = (newJudge + 1) % this.game()?.players.length;
+        }
         this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: newJudge } }).subscribe(() => {
           this.game().judge = newJudge; // Update the local game object
           //console.log(`Judge updated to player index: ${newJudge}`);
@@ -319,6 +349,7 @@ export class GameComponent {
           //console.log(`Game over set to true`);
         });
       }
+      this.socket.send('ping');
     });
   }
 
@@ -352,7 +383,6 @@ export class GameComponent {
         connectedPlayerID = (connectedPlayerID + 1) % this.game().connectedPlayers.length;
       }
     }
-    console.log('bleh');
     if(this.game().connectedPlayers[connectedPlayerID]) {
       judge = connectedPlayerID;
       this.httpClient.put<Game>(`/api/game/edit/${gameId}`, { $set: { judge: judge } }).subscribe(() => {
@@ -362,5 +392,6 @@ export class GameComponent {
     }
     this.socket.send('ping');
     console.log('User left the game');
+    this.router.navigate(['/']);
   }
 }

@@ -59,6 +59,8 @@ describe('HomeComponent', () => {
     //const routerSpy = spyOn(component['router'], 'navigateByUrl');
     component.createGame();
     const httpMock = TestBed.inject(HttpTestingController);
+    const routerSpy = spyOn(component['router'], 'navigateByUrl'); // Spy on the router's navigateByUrl method
+
     const req = httpMock.expectOne('/api/game/new');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({
@@ -66,9 +68,45 @@ describe('HomeComponent', () => {
       judge: 0,
       winnerBecomesJudge: false,
       responses: [],
+      targetScore: 0,
+      gameOver: false,
       scores: [],
       pastResponses: []
     });
+
+    req.flush({ id: '123456' });
+    expect(routerSpy).toHaveBeenCalledWith('/settings/123456');
     httpMock.verify();
+
+  })
+  // it('should show a snackbar when game is created', () => {
+  //   const httpMock = TestBed.inject(HttpTestingController);
+  //   spyOn(component, 'openSnackBar'); // Spy on the openSnackBar method
+  //   component.createGame();
+  //   const req = httpMock.expectOne('/api/game/new');
+  //   req.flush({ id: '123456' }); // Use 'id' to match the response structure in createGame
+  //   fixture.detectChanges();
+  //   expect(component.openSnackBar).toHaveBeenCalledWith('Game created! Game ID: 123456', 'Close');
+  // });
+
+  it('should open a snackbar with the correct message and action', () => {
+    const snackBarSpy = spyOn(component['snackBar'], 'open');
+    const message = 'Test Message';
+    const action = 'Test Action';
+    component.openSnackBar(message, action);
+    expect(snackBarSpy).toHaveBeenCalledWith(message, action, { duration: 3000 });
   });
+
+
+  // it('should route to the settings page with the new game ID', () => {
+  //   const router = TestBed.inject(RouterModule);
+  //   const navigateSpy = spyOn(router, 'navigateByUrl');
+  //   component.createGame();
+  //   const httpMock = TestBed.inject(HttpTestingController);
+  //   const req = httpMock.expectOne('/api/game/new');
+  //   req.flush({ id: '123456' });
+  //   fixture.detectChanges();
+  //   expect(navigateSpy).toHaveBeenCalledWith('/settings/123456');
+  // });
+
 });

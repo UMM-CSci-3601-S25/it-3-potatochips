@@ -39,8 +39,8 @@ public class Server {
   private Controller[] controllers;
 
   private static final Set<WsContext> CONNECTED_CLIENTS = ConcurrentHashMap.newKeySet();
-
-  // Update the Game State
+  private static final long HEARTBEAT_INTERVAL = 1000 * 10;
+    // Update the Game State
   // private int currentRound = 1;
   // private Map<String, Integer> playerScores = new HashMap<>(); // Player name -> score
   // private String currentJudge = null;
@@ -201,14 +201,41 @@ public class Server {
     }
 
     server.ws("/api/game/updates", ws -> {
-      ws.onConnect(ctx -> CONNECTED_CLIENTS.add(ctx));
+
+      ws.onConnect(ctx -> {
+        CONNECTED_CLIENTS.add(ctx);
+
+
+      });
       ws.onClose(ctx -> CONNECTED_CLIENTS.remove(ctx));
+      ws.onMessage(ctx -> {
+        String message = ctx.message();
+        if (message.equals("pong")) {
+        } else {
+          broadcastUpdate(message);
+        }
+      });
     });
+  }
+
+  private void startHeartbeat() {
+    Timer timer = new Timer(true); // Daemon thread
+    timer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        for (WsContext client : CONNECTED_CLIENTS) {
+          client.send("ping");
+        }
+      }
+    }, HEARTBEAT_INTERVAL, HEARTBEAT_INTERVAL);
   }
 
   public static void broadcastUpdate(String message) {
     for (WsContext client : CONNECTED_CLIENTS) {
-      client.send(message);
+      if(client.session.isOpen())
+      {
+        client.send(message);
+      }
     }
   }
 }

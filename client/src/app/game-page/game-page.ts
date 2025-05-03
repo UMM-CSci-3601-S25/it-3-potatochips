@@ -54,6 +54,15 @@ export class GameComponent {
   ) {
     this.WebsocketSetup();
     this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
+
+    window.onbeforeunload = () => {
+      const gameId = this.game()?._id;
+      const connectedPlayers = this.game()?.connectedPlayers;
+      connectedPlayers[this.playerId] = false;
+      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
+      this.socket.send('ping')
+      return 'Buddy. Pal. Old Friend. Are you sure you want to leave? Not only will you lose your spot in the game, but you have to tax my PRECIOUS servers! PLEASE use the leave button.';
+    }
     // this.socket.onclose = () => {
     //   if(this.socket.readyState === WebSocket.CLOSED) {
     // const gameId = this.game()?._id;
@@ -106,14 +115,6 @@ export class GameComponent {
       this.cleanupWebSocket();
       setTimeout(() => this.WebsocketSetup(), 0);
     };
-
-    window.onbeforeunload = () => {
-      const gameId = this.game()?._id;
-      const connectedPlayers = this.game()?.connectedPlayers;
-      connectedPlayers[this.playerId] = false;
-      this.httpClient.put<Game>(`/api/game/edit/${gameId}`, {$set:{connectedPlayers: connectedPlayers}}).subscribe();
-      this.socket.send('ping')
-    }
   }
 
 

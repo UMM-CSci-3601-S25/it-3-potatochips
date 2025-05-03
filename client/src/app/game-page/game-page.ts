@@ -181,23 +181,24 @@ export class GameComponent {
   submitResponse() {
     const gameId = this.game()?._id;
     const responses = this.game()?.responses || [];
-  
+
     if (responses.includes(this.response)) {
-      alert(`Duplicate response detected: "${this.response}". This response cannot be submitted.`);
-      this.response = ''; 
+      this.openSnackBar(`Duplicate response detected: "${this.response}". This response cannot be submitted.`, 'Dismiss');
+      this.response = '';
       return;
     }
-      responses[this.playerId] = this.response;
-  
+    this.openSnackBar('Submitted','Dismiss')
+    responses[this.playerId] = this.response;
+
     if (this.playerId === this.game()?.judge) {
       this.displayedPrompt = this.response;
     }
-  
+
     this.httpClient
       .put<Game>(`/api/game/edit/${gameId}`, { $set: { responses: responses } })
       .subscribe();
-  
-    this.response = ''; 
+
+    this.response = '';
     this.shuffleArray();
   }
   connectedPlayers: boolean[] = [];

@@ -28,7 +28,7 @@
       </ul>
       <div id="response-field">
         <input id = "response-input" matInput type="text" [(ngModel)]="response" [placeholder]="this.game()?.judge == this.playerId ? 'Enter a prompt.' : 'Enter a response.'">
-        <input id = "response-button" type="submit" value="Submit" (click)="submitResponse()" (click)="openSnackBar('Submitted','Dismiss')">
+        <input id = "response-button" type="submit" value="Submit" (click)="submitResponse()">
       </div>
       <button style="position: absolute; right: 10vw; bottom: 5vh" id = "leave-button" (click)="leaveGame()" routerLink="">Leave Game</button>
     </div>

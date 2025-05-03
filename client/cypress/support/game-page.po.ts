@@ -5,6 +5,8 @@ export class GamePage {
   private readonly nameInputButton = '#name-button';
   private readonly responseInputField = '#response-input';
   private readonly responseInputButton = '#response-button';
+  private readonly idInputField = '#rejoin-input';
+  private readonly idInputButton = '#rejoin-button';
 
 
   navigateTo() {
@@ -21,12 +23,12 @@ export class GamePage {
   }
 
   readIdInput(code: string) {
-    cy.get(this.nameInputField).type(code);
-    return cy.get(this.nameInputField);
+    cy.get(this.idInputField).type(code);
+    return cy.get(this.idInputField);
   }
 
   rejoinButton() {
-    return cy.get(this.nameInputButton);
+    return cy.get(this.idInputButton);
   }
 
   readResponseInput(code: string) {

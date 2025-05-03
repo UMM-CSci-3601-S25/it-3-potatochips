@@ -3,7 +3,7 @@
     <ul id="player-data">
       <ul class="player" *ngFor="let player of this.game()?.players; let i = index;" [style]="this.game().connectedPlayers[i] == false ? 'color: red;' : (this.playerId == i ? 'color: blue;' : 'color: auto;')">
         <span class="waiting">{{ this.game()?.responses[i] != "" ? "&#10004;" : "" }}</span>
-        <span class="username" [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'">{{ player }}</span>
+        <span class="username" [style.textDecoration]="i === this.game()?.judge ? 'underline' : 'none'" data-test="playerName">{{ player }}</span>
         <span class="player-number">Player {{ i + 1 }}</span>
         <span class="score">{{ this.game()?.scores[i] }} {{ this.game()?.scores[i] == 1 ? "pt" : "pts" }}</span>
         <span class="previous">{{ this.game()?.pastResponses[i] }}</span>
@@ -15,7 +15,7 @@
       <button id="name-button" mat-raised-button color="primary" (click)="submitUsername()" (click)="openSnackBar('Created', 'Undo')">Submit</button>
       <br>
       <div class="join-text">Rejoin:</div>
-      <input id="rejoin-input" matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter your player number">
+      <input id="rejoin-input" matInput type="text" [(ngModel)]="playerIdInput" placeholder="Enter your player number">
       <button id="rejoin-button" mat-raised-button color="primary" (click)="submitUsername()" (click)="openSnackBar('Rejoined', 'Undo')">Submit</button>
     </div>
     <div [style]="(playerId == null || this.game()?.gameOver) ? 'display: none' : 'display: block'">

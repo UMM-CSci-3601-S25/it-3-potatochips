@@ -33,6 +33,9 @@
     ],
     "discardLast": false,
     "winnerBecomesJudge": false,
-    "pastResponses": []
+    "pastResponses": [],
+    "targetScore": 2,
+    "gameOver": false,
+    "connectedPlayers": [false, true, true, true]
   }
 ]

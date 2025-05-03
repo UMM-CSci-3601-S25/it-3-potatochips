@@ -469,17 +469,17 @@ describe('GameComponent', () => {
     expect(mockSocket.send).toHaveBeenCalledWith('ping');
     expect(resetPongTimeoutSpy).toHaveBeenCalled();
   }));
-// it('should update connectedPlayers and send a PUT request when the window is unloaded', () => {
-//   const mockGame = {
-//     _id: 'test-game-id',
-//     connectedPlayers: [true, false, true],
-//   };
-//   component.game = signal(mockGame); 
-//   component.playerId = 1; 
+  // it('should update connectedPlayers and send a PUT request when the window is unloaded', () => {
+  //   const mockGame = {
+  //     _id: 'test-game-id',
+  //     connectedPlayers: [true, false, true],
+  //   };
+  //   component.game = signal(mockGame);
+  //   component.playerId = 1;
 
-//   spyOn(component, 'cleanupWebSoc')
+  //   spyOn(component, 'cleanupWebSoc')
 
-//   const httpClientSpy = spyOn(component['httpClient'], 'put').and.callThrough(); 
+  //   const httpClientSpy = spyOn(component['httpClient'], 'put').and.callThrough();
 
 //   expect(mockGame.connectedPlayers[component.playerId]).toBe(false);
 //   expect(httpClientSpy).toHaveBeenCalledWith(

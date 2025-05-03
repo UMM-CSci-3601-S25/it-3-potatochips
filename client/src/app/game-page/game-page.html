@@ -9,7 +9,7 @@
         <span class="previous">{{ this.game()?.pastResponses[i] }}</span>
       </ul>
     </ul>
-    <div class="join-field" [style]="playerId == null ? 'display: block' : 'display: none'">
+    <div class="join-field" [style]="(playerId == null && !this.game()?.gameOver) ? 'display: block' : 'display: none'">
       <div class="join-text">Join as new player</div>
       <input id="name-input" matInput type="text" [(ngModel)]="usernameInput" placeholder="Enter a username">
       <button id="name-button" mat-raised-button color="primary" (click)="submitUsername()">Join</button>
@@ -18,7 +18,7 @@
       <input id="rejoin-input" matInput type="text" [(ngModel)]="playerIdInput" placeholder="Enter your player number">
       <button id="rejoin-button" mat-raised-button color="primary" (click)="submitPlayerId()">Join</button>
     </div>
-    <div [style]="playerId == null ? 'display: none' : 'display: block'">
+    <div [style]="(playerId == null || this.game()?.gameOver) ? 'display: none' : 'display: block'">
       <div id="prompt">{{ this.game()?.responses[this.game()?.judge] }}</div>
       <ul id="responses" [style]="responsesReady() && playerId == this.game()?.judge ? 'display: flex' : 'display: none'">
         <li class="response" *ngFor="let response of getResponses(); index as i"><button style="font-size: 1em;" (click)="selectResponse(i)">{{ response }}</button></li>
@@ -32,8 +32,6 @@
       </div>
       <button style="position: absolute; right: 10vw; bottom: 5vh" id = "leave-button" (click)="leaveGame()" routerLink="">Leave Game</button>
     </div>
-    <h1 [style]="this.game()?.gameOver ? 'display: block' : 'display: none'">
-    </h1>
-      <span style="color: red">Game Over!</span>
+    <div id="prompt" [style]="this.game()?.gameOver ? 'display: block; color: red' : 'display: none'">Game Over!</div>
   </div>
 </div>

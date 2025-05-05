@@ -73,4 +73,17 @@ describe('SettingsComponent', () => {
     // Respond to the PUT request to complete it
     putReq.flush({});
   });
+
+  it('should open a snackbar with the correct message and action', () => {
+    const snackBarSpy = spyOn(component['snackBar'], 'open'); // Spy on MatSnackBar's open method
+    const message = 'Test Message';
+    const action = 'Test Action';
+
+    component.openSnackBar(message, action); // Call the method
+
+    // Verify that the snackbar is opened with the correct parameters
+    expect(snackBarSpy).toHaveBeenCalledWith(message, action, { duration: 3000 });
+  });
+
+
 });

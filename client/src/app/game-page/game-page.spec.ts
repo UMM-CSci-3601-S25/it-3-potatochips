@@ -485,6 +485,23 @@ describe('GameComponent', () => {
     expect(snackBarSpy).toHaveBeenCalledWith('ID occupied by another player', 'Dismiss');
   });
 
+  it('should return responses of connected players based on playerPerm', () => {
+    const mockGame = {
+      connectedPlayers: [true, false, true], // Player 0 and 2 are connected
+      _id: 'test-game-id',
+      players: ['Player1', 'Player2', 'Player3'],
+      responses: ['Response1', 'Response2', 'Response3'], // Mock responses
+    };
+    component.game = signal(mockGame); // Mock the game object
+    component.playerPerm = [0, 1, 2]; // Mock playerPerm array
+
+    const result = component.getResponses(); // Call the method
+
+    // Verify that only responses of connected players are returned
+    expect(result).toEqual(['Response1', 'Response3']);
+  });
+
+
   it('should maintain a regular heartbeat for each open connection', fakeAsync(() => {
     const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send']);
     spyOn(window, 'WebSocket').and.returnValue(mockSocket);
@@ -496,6 +513,8 @@ describe('GameComponent', () => {
     expect(mockSocket.send).toHaveBeenCalledWith('ping');
     expect(resetPongTimeoutSpy).toHaveBeenCalled();
   }));
+
+
   // it('should update connectedPlayers and send a PUT request when the window is unloaded', () => {
   //   const mockGame = {
   //     _id: 'test-game-id',
@@ -508,10 +527,75 @@ describe('GameComponent', () => {
 
   //   const httpClientSpy = spyOn(component['httpClient'], 'put').and.callThrough();
 
-//   expect(mockGame.connectedPlayers[component.playerId]).toBe(false);
-//   expect(httpClientSpy).toHaveBeenCalledWith(
-//     `/api/game/edit/${mockGame._id}`,
-//     { $set: { connectedPlayers: mockGame.connectedPlayers } }
-//   );
-// });
+  //   expect(mockGame.connectedPlayers[component.playerId]).toBe(false);
+  //   expect(httpClientSpy).toHaveBeenCalledWith(
+  //     `/api/game/edit/${mockGame._id}`,
+  //     { $set: { connectedPlayers: mockGame.connectedPlayers } }
+  //   );
+  // });
+  it('should update connectedPlayers, assign a new judge if the current judge leaves, and navigate to the home page', () => {
+    const mockGame = {
+      _id: 'test-game-id',
+      players: ['Player1', 'Player2', 'Player3'],
+      connectedPlayers: [true, true, true], // All players are initially connected
+      judge: 1, // Player 1 is the judge
+    };
+    component.game = signal(mockGame); // Mock the game object
+    component.playerId = 1; // Simulate the current player as the judge
+
+    const httpClientSpy = spyOn(component['httpClient'], 'put').and.callFake((url, body) => {
+      if (body.$set.connectedPlayers) {
+        mockGame.connectedPlayers = body.$set.connectedPlayers; // Simulate updating connectedPlayers
+      }
+      if (body.$set.judge !== undefined) {
+        mockGame.judge = body.$set.judge; // Simulate updating the judge
+      }
+      return of(null); // Simulate an observable response
+    });
+
+    const routerSpy = spyOn(component['router'], 'navigate'); // Spy on the router's navigate method
+
+    // Mock the WebSocket
+    const mockSocket: jasmine.SpyObj<WebSocket> = jasmine.createSpyObj('WebSocket', ['send', 'close']);
+    spyOn(window, 'WebSocket').and.returnValue(mockSocket);
+    Object.defineProperty(mockSocket, 'readyState', { value: WebSocket.OPEN }); // Set WebSocket to OPEN state
+
+    component['WebsocketSetup'](); // Call WebSocket setup
+
+    component.leaveGame(); // Call the method
+
+    // Verify that the current player is marked as disconnected
+    expect(mockGame.connectedPlayers[1]).toBe(false);
+
+    // Verify that a new judge is assigned if there are still connected players
+    let newJudgeAssigned = false;
+    for (let i = 0; i < mockGame.connectedPlayers.length; i++) {
+      if (mockGame.connectedPlayers[i] && i !== 1) {
+        newJudgeAssigned = true;
+        break;
+      }
+    }
+    expect(newJudgeAssigned).toBe(true);
+
+    // Verify that the PUT request is sent with the correct payload for connectedPlayers
+    expect(httpClientSpy).toHaveBeenCalledWith(
+      `/api/game/edit/${mockGame._id}`,
+      { $set: { connectedPlayers: mockGame.connectedPlayers } }
+    );
+
+    // Verify that the PUT request is sent with the correct payload for the new judge
+    expect(httpClientSpy).toHaveBeenCalledWith(
+      `/api/game/edit/${mockGame._id}`,
+      { $set: { judge: mockGame.judge } }
+    );
+
+    // Verify that the judge is updated in the game object
+    expect(mockGame.judge).not.toBe(1); // Ensure the judge is no longer the disconnected player
+
+    // Verify that the user is navigated to the home page
+    expect(routerSpy).toHaveBeenCalledWith(['/']);
+  });
+
+
+
 })

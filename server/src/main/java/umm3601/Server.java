@@ -106,7 +106,7 @@ public class Server {
    *
    * @return The MongoDB client object
    */
-  static MongoClient configureDatabase(String mongoAddr) {
+  public static MongoClient configureDatabase(String mongoAddr) {
     // Setup the MongoDB client object with the information we set earlier
     MongoClient mongoClient = MongoClients.create(MongoClientSettings
       .builder()
@@ -129,7 +129,7 @@ public class Server {
    * It also sets up the server to shut down gracefully if it's killed or if the
    * JVM is shut down.
    */
-  void startServer() {
+  public void startServer() {
     System.out.println("starting a server at port " + SERVER_PORT);
     Javalin javalin = configureJavalin();
     setupRoutes(javalin);

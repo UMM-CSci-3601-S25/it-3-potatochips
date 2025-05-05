@@ -16,6 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
@@ -166,7 +171,17 @@ class GameControllerSpec {
   // }
 
 
+  @Test
+  void testAddRoutes() {
+    Javalin localMockServer = mock(Javalin.class);
+    gameController.addRoutes(localMockServer);
+    when(mockServer.get(any(), any())).thenReturn(mockServer);
+    when(mockServer.post(any(), any())).thenReturn(mockServer);
 
+    verify(localMockServer, Mockito.times(1)).get(contains("/api/game/{id}"), any());
+    verify(localMockServer, Mockito.atLeastOnce()).post(any(), any());
+
+  }
 
 
   // @Test

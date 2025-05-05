@@ -250,7 +250,7 @@ public class Server {
     });
   }
 
-  private void startHeartbeat() {
+  private void startHeartbeat() {  // We've had issues with testing this. See branch '56-test-startHeartbeat'.
     Timer timer = new Timer(true); // Daemon thread
     timer.scheduleAtFixedRate(new TimerTask() {
       @Override

@@ -355,7 +355,7 @@ export class GameComponent {
 
   responsesReady() {
     for (let i = 0; i < this.game()?.players.length; i++) {
-      if (this.game()?.responses[i] == "" && this.game()?.connectedPlayers[i]) {
+      if (this.game()?.responses[i] == "" && this.game()?.connectedPlayers[i] && i <= this.playerPerm?.length) {
         return false;
       }
     }

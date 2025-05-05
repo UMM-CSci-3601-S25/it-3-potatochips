@@ -166,7 +166,17 @@ class GameControllerSpec {
   // }
 
 
+  @Test
+  void testAddRoutes() {
+    Javalin localMockServer = mock(Javalin.class);
+    gameController.addRoutes(localMockServer);
+    when(mockServer.get(any(), any())).thenReturn(mockServer);
+    when(mockServer.post(any(), any())).thenReturn(mockServer);
 
+    verify(localMockServer, Mockito.times(1)).get(contains("/api/game/{id}"), any());
+    verify(localMockServer, Mockito.atLeastOnce()).post(any(), any());
+
+  }
 
 
   // @Test

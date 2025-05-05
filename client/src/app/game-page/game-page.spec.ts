@@ -272,6 +272,7 @@ describe('GameComponent', () => {
       connectedPlayers: [true, true, true]
     };
     component.game = signal(mockGame); // Mock the game object
+    component.playerPerm = [1, 2];
 
     const result = component.responsesReady(); // Call the method
 

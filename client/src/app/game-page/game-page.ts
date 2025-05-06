@@ -54,7 +54,7 @@ export class GameComponent {
     private router: Router
   ) {
 
-    this.socket = new WebSocket(`${environment.wsUrl}`);
+    this.socket = new WebSocket('${environment.wsUrl}');
     this.WebsocketSetup();
     window.onbeforeunload = () => {
       this.leaveGame();

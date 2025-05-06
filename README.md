@@ -13,7 +13,7 @@ Social card games that employ a round structure of submitting cards, one person 
 # How can I contribute to *Generic Apples Game*?
 Thanks for your interest in expanding upon this project! To start developing, look at the [Development markdown file](DEVELOPMENT.md) for more details on setting up your desktop environment for our project! Also, look at the [Tasks and Bugs markdown file](TASKS_AND_BUGS.md) to find any commonly-reported bugs or unimplemented features to work on. If you're looking for more features to work on that aren't in the [Tasks and Bugs markdown file](TASKS_AND_BUGS.md), we recommend looking at the issues 
 # Features
-- Fast, Minimalist Design
+- Fast, minimalist Design
 - A variety of options to tweak your game's rules
 - Real-time submissions
 - Automatically reassigns judge if the judge leaves
@@ -28,7 +28,7 @@ If you don't want to use Digital Ocean, I recommend hosting your website on a fu
 You can. However, as GitHub Pages cannot handle server-side functionality itself, you need to reroute **ALL** of its calls to a proprietary server. Therefore, while you *CAN* use GitHub Pages, I highly stress using a full-stack capable development platform like [Firebase Studio](https://firebase.google.com/) as an alternative to Digital Ocean.
 # Who contributed to *Generic Apples Game*?
 You can see all of our contributors in the Insights section of our GitHub [here](https://github.com/UMM-CSci-3601-S25/it-3-potatochips/pulse).
-# What tools did you use for this project 
+# What tools did you use for this project?
 We used quite a bit of tools, actually. Below, we'll list a few and their purposes:
 ## Building Code
 - [Gradle](https://gradle.org/)

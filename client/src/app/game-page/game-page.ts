@@ -14,6 +14,7 @@ import { of } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common'; // Import CommonModule
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { environment } from 'src/environments/environment';
 
 
 
@@ -52,8 +53,9 @@ export class GameComponent {
     private httpClient: HttpClient,
     private router: Router
   ) {
+
+    this.socket = new WebSocket('${environment.wsUrl}');
     this.WebsocketSetup();
-    this.socket = new WebSocket('ws://localhost:4567/api/game/updates');
     window.onbeforeunload = () => {
       this.leaveGame();
       return;

@@ -6,8 +6,7 @@ export const environment = {
   production: false,
   apiUrl: '/api/',
   //,
-  wsUrl: 'ws://localhost:4567/api/game/updates',
-
+  wsUrl: 'wss://157.245.252.224.nip.io/api/game/updates',
 };
 
 /*

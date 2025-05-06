@@ -1,0 +1,41 @@
+[
+  {
+    "_id": {
+      "$oid": "67c74ff45818e91bd07be91b"
+    },
+    "players": ["KK"],
+    "judge": 1,
+    "discardLast": false,
+    "winnerBecomesJudge": false
+  },
+  {
+    "_id": {
+      "$oid": "681266ce536e072b01791cb6"
+    },
+    "players": [
+      "James",
+      "Anton",
+      "Haider",
+      "Elliot"
+    ],
+    "responses": [
+      "",
+      "stuff",
+      "and",
+      "things"
+    ],
+    "judge": 0,
+    "scores": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "discardLast": false,
+    "winnerBecomesJudge": false,
+    "pastResponses": [],
+    "targetScore": 2,
+    "gameOver": false,
+    "connectedPlayers": [false, true, true, true]
+  }
+]

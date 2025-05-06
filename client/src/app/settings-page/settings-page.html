@@ -1,0 +1,43 @@
+<div class="flex-row">
+  <div class="flex-1">
+    <mat-card class="home-card">
+      <h1 id="game-code">Sharable code: {{ game()?._id }}
+      <button [cdkCopyToClipboard]="game()?._id"aria-label="Example icon button with a menu icon" (click)="openSnackBar('Copied to clipboard', 'Undo')">
+        <mat-icon class="copy-icon">content_copy</mat-icon>
+      </button>
+      </h1>
+    </mat-card>
+    <mat-card class="home-card">
+      <mat-card-content>
+        <a routerLink="/game/{{game()?._id}}">
+          <button id="start-game" (click)="updateGameSettings()"(click)="openSnackBar('Game Created', 'Undo')">
+            Start Game
+          </button>
+        </a>
+
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="home-card">
+      <mat-card-header>
+        <mat-card-title>
+          Options
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="toggle-container">
+          <span>Around the table</span>
+          <mat-slide-toggle class="centered-toggle" [(ngModel)]="judgeOption"></mat-slide-toggle>
+          <span>Winner becomes judge</span>
+        </div>
+        <mat-label>
+          <span> Target Score:
+            <input matInput data-test="scoreThreshold" type="number" placeholder="Score Threshold" min="0" max ="10" [(ngModel)]="scoreThreshold">
+          </span>
+        </mat-label>
+
+      </mat-card-content>
+
+    </mat-card>
+  </div>
+</div>

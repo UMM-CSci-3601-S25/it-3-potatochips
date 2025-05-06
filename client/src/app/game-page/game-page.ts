@@ -54,7 +54,7 @@ export class GameComponent {
     private router: Router
   ) {
 
-    this.socket = new WebSocket(environment.wsUrl);
+    this.socket = new WebSocket(`${environment.wsUrl}`);
     this.WebsocketSetup();
     window.onbeforeunload = () => {
       this.leaveGame();
@@ -92,7 +92,7 @@ export class GameComponent {
   public WebsocketSetup() {
     this.cleanupWebSocket(); //Making sure that the websocket is re-usable since were using it again.
     //this.socket = new WebSocket("${environment.wsUrl}");
-    this.socket = new WebSocket(environment.wsUrl);;
+    this.socket = new WebSocket( 'ws://localhost:4567/api/game/updates');;
     this.socket.onopen = () => {
       console.log('WebSocket connected');
       this.Heartbeat();

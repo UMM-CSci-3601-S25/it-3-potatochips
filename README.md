@@ -11,7 +11,7 @@ Once in the game, click the **Leave Game** button in the bottom right corner.
 ### What social card games work best for **Generic Apples Game**?
 Social card games that employ a round structure of submitting cards, one person judging the cards, and incrementing their score afterwards, like *Cards Against Humanity* and *Apples to Apples*, work best for this simulator. Other social card games, like *UNO* or *Exploding Kittens*, do not follow the template of this simulator, making them incompatible.
 # How can I contribute to *Generic Apples Game*?
-Thanks for your interest in expanding upon this project! To start developing, look at the [Development markdown file](DEVELOPMENT.md) for more details on setting up your desktop environment for our project! Also, look at the [Tasks and Bugs markdown file](TASKS_AND_BUGS.md) to find any commonly-reported bugs or unimplemented features to work on. If you're looking for more features to work on that aren't in the [Tasks and Bugs markdown file](TASKS_AND_BUGS.md), we recommend looking at the issues 
+Thanks for your interest in expanding upon this project! To start developing, look at the [Development markdown file](DEVELOPMENT.md) for more details on setting up your desktop environment for our project! Also, look at the [Tasks and Bugs markdown file](TASKS_AND_BUGS.md) to find any commonly-reported bugs or unimplemented features to work on. If you're looking for more features to work on that aren't in the [Tasks and Bugs markdown file](TASKS_AND_BUGS.md), we recommend looking at the [issues in our GitHub Repository](https://github.com/UMM-CSci-3601-S25/it-3-potatochips/issues). 
 # Features
 - Fast, minimalist Design
 - A variety of options to tweak your game's rules
